@@ -1,0 +1,102 @@
+<style lang="less">
+  .container{
+    width: 100vw;   
+    height: 100vh;
+    background: url('https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1527675541760&di=ab2fabe587b140a66482d9cdf83d3bc9&imgtype=0&src=http%3A%2F%2Fn1.itc.cn%2Fimg8%2Fwb%2Frecom%2F2016%2F06%2F17%2F146614328257949855.JPEG') no-repeat center center/cover;
+    -webkit-filter: blur(5px);
+  }
+  .frosted-glass{   
+    width: 100vw;   
+    height: 100vh;   
+    background: inherit;   
+    -webkit-filter: blur(5px); 
+    filter: blur(5px);   
+    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=4, MakeShadow=false); 
+  }
+  .logo{
+    width: 280rpx;
+    height: 132rpx;
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .Bt{
+    width: 60%;
+    height: 100rpx;
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 1px solid #eee;
+    border-radius: 50rpx;
+    line-height: 100rpx;
+    color: #fff;
+    text-align: center;
+  }
+  .loginText{
+    width: 60%;
+    height: 60rpx;
+    position: absolute;
+    top: e("calc(70% + 100rpx)");
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top:20px;
+    color: #eee;
+    font-size: 30rpx;
+    text-align: center;
+  }
+</style>
+<template>
+  <view class='container'>
+    <view class='frosted-glass'></view>
+  </view>
+  <image class='logo' src='../images/ZNKZLogo.png'></image>
+  <view class='Bt'>创建新账户</view>
+  <text class='loginText'>使用已有账户登陆</text>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../mixins/test'
+
+  @connect({
+    num (state) {
+      return state.counter.num
+    },
+    asyncNum (state) {
+      return state.counter.asyncNum
+    },
+    sumNum (state) {
+      return state.counter.num + state.counter.asyncNum
+    }
+  })
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: 'SmartHox'
+    }
+    components = {
+      toast: Toast
+    }
+
+    mixins = [testMixin]
+
+    data = {
+    }
+
+    computed = {
+    }
+
+    methods = {
+    }
+
+    events = {
+    }
+
+    onLoad() {
+    }
+  }
+</script>

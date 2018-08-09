@@ -1,0 +1,429 @@
+<style lang="less">
+@homeBarHeight: 80rpx;
+@weatherTopHeight: 200rpx;
+@roomListBarHeight: 80rpx;
+@weatherWeekHeight: 350rpx;
+page{
+  font-size: 30rpx;
+  .Index{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    .homeBlock{
+      width: e("calc(100% - 40rpx)");
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      padding: 0 20rpx;
+      height: @homeBarHeight;
+      background: #fff;
+      image{
+        width: 30rpx;
+        height: 30rpx;
+        margin-left: 10rpx;
+      }
+    }
+    .weatherForecast_wrap{
+      width: e("calc(100% - 40rpx)");
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 0 20rpx;
+      overflow: hidden;
+      .ToggleArrow_Down{
+        width: e("calc(100% - 40rpx)");
+        padding: 0 20rpx;
+        height: 60rpx;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #3498db;
+        image{
+          width: 50rpx;
+          height: 50rpx;
+          animation:breath 1s;
+          -webkit-animation:breath 1s infinite; /*Safari and Chrome*/
+        }
+      }
+      .ToggleArrow_Up{
+        width: 60rpx;
+        height: 60rpx;
+        border-radius: 50%;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #3498db;
+        image{
+          width: 50rpx;
+          height: 50rpx;
+          transform: rotate(180deg);
+          animation:breath 1s;
+          -webkit-animation:breath 1s infinite; /*Safari and Chrome*/
+        }
+      }
+      .weekTemperature{
+        width: e("calc(100% - 40rpx)");
+        padding: 0 20rpx;
+        height: 0;
+        overflow: hidden; 
+        background-color: #3498db;
+        background-image: linear-gradient(180deg, #3498db 25%, #ffffff 100%);
+        .weekTemperature_block{
+          width: 100%;
+          padding: 20rpx 0rpx;
+          margin: 10rpx auto;
+          border-radius: 25rpx;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: space-around;
+          background: rgba(0, 0, 0, 0.2);
+          .weekTemperature_block_columnTit{
+            width: 100%;
+            height: 80rpx;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+          }
+          .weekTemperature_block_data{
+            width: 710rpx;
+            min-height: 50px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            .listWrap{
+              white-space: nowrap; 
+              display: flex;
+            }
+            .listWrap .data_item_scroll{
+              width:236.6rpx;
+              display: inline-block;
+              text-align: center;
+            }
+            .data_item{
+              display: flex;
+              flex-direction: column;
+              justify-content: space-around;
+              align-items: center;
+            }
+            .data_item_scroll image{
+              width: 30rpx;
+              height: 30rpx;
+              margin: 10rpx auto;
+              display: block;
+            }
+            .data_item_scroll text{
+              width: 100%;
+              font-size: 24rpx;
+              margin-bottom: 10rpx;
+              display: block;
+            }
+          }
+        }
+      }
+      .Toggle_show{
+        width: e("calc(100% - 40rpx)");
+        padding: 0 20rpx;
+        animation:Toggle_show 1s forwards; 
+        -webkit-animation:Toggle_show 1s forwards;/*Safari and Chrome*/
+        .weekTemperature_block{
+          position:relative;
+          animation:Up 2s 0s forwards; 
+          -webkit-animation:Up 2s 0s forwards;/*Safari and Chrome*/
+        }
+      }
+      .Toggle_close{
+        width: e("calc(100% - 40rpx)");
+        padding: 0 20rpx;
+        animation:Toggle_close 2s  forwards;
+        -webkit-animation:Toggle_close 2s  forwards; /*Safari and Chrome*/
+        .weekTemperature_block{
+          position:relative;
+          animation:Down 1.5s  forwards; 
+          -webkit-animation:Down 1.5s  forwards;/*Safari and Chrome*/
+        }
+      }
+      .weatherForecast_inner{
+        width: e("calc(100% - 40rpx)");
+        padding: 0 20rpx;
+        height: @weatherTopHeight;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: #3498db;
+        color: #fff;
+        .weather{
+          width: 100%;
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+          .weatherItem{
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            .bigFont{
+              font-size: 32rpx;
+              font-weight: bold;
+              line-height: 40rpx;
+            }
+            .smallFont{
+              font-size: 22rpx;
+            }
+          }
+        }
+        .weatherTips{
+          font-size: 22rpx;
+          margin-top: 20rpx;
+        }
+      }
+    }
+    .roomList{
+      width: e("calc(100% - 40rpx)");
+      height: @roomListBarHeight;
+      margin-top: 20rpx;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      .listWrap{
+        width: e("calc(100% - 50rpx)");
+        white-space: nowrap; 
+        display: flex;
+        .roomItem{
+          width: 130rpx;
+          line-height: @roomListBarHeight;
+          display: inline-block;
+          text-align: center;
+        }
+        .roomAcitve{
+          font-size: 32rpx;
+          color: #000;
+          border-bottom: 4px solid red;
+        }
+        .roomNoraml{
+          color: #666;
+        }
+      }
+      image{
+        width: 50rpx;
+        height: 50rpx;
+        display: block;
+      }
+    }
+    @keyframes breath /*Safari and Chrome*/
+    {
+      0% {
+          opacity: 1;
+      }
+      50% {
+          opacity: 0;
+      }
+      100% {
+          opacity: 1;
+      }
+    }
+    @keyframes Toggle_show /*Safari and Chrome*/
+    {
+      from {height:0px;}
+      to {height:@weatherWeekHeight;}
+    }
+    @keyframes Toggle_close /*Safari and Chrome*/
+    {
+      from {height:@weatherWeekHeight;}
+      to {height:0px;}
+    }
+    @keyframes Up /*Safari and Chrome*/
+    {
+      from {top:250px;}
+      to {top:0px;}
+    }
+    @keyframes Down /*Safari and Chrome*/
+    {
+      from {top:0px;}
+      to {top:250px;}
+    }
+  }
+}
+</style>
+<template>
+  <view class='Index'>
+    <!-- homelist -->
+    <view class='homeBlock' @tap="showActionSheet">
+      <text>{{curHome.name}}</text>
+      <image src='../images/icons/arrow-down.png'></image>
+    </view>
+    <!-- weather -->
+    <view class='weatherForecast_wrap'>
+      <view class='weatherForecast_inner'>
+        <view class='weather'>
+          <view class='weatherItem'>
+            <text class='bigFont'>{{airQuality.temp}}</text>
+            <text class='smallFont'>室外温度</text>
+          </view>
+          <view class='weatherItem'>
+            <text class='bigFont'>{{airQuality.aqi_levnm}}</text>
+            <text class='smallFont'>室外AQI</text>
+          </view>
+          <view class='weatherItem'>
+            <text class='bigFont'>{{airQuality.pm25}}</text>
+            <text class='smallFont'>室外PM2.5</text>
+          </view>
+        </view>
+        <view class='weather weatherTips'>
+          <text>小贴士: 今日温度{{airQuality.temperature}} , 湿度{{airQuality.SD}} , {{airQuality.wind}}{{airQuality.winp}} , 建议您{{airQuality.aqi_remark}} 。</text>
+        </view>
+      </view>
+      <!-- open -->
+      <view class='ToggleArrow_Down' @tap='Toggle' wx:if="{{Toggle_show != 1}}">
+        <image src='../images/icons/double-arrow-down.png'></image>
+      </view>
+      <!-- content -->
+      <view  class="weekTemperature {{Toggle_show == 0?'':(Toggle_show == 1?'Toggle_show':'Toggle_close')}}">
+        <view class='weekTemperature_block'>
+          <view class='weekTemperature_block_columnTit'>
+            <text>一周天气预告</text>
+          </view>
+          <view class='weekTemperature_block_data'>
+            <scroll-view class="listWrap" scroll-x="true" bindscroll="scroll" style="height:auto;">
+              <view class='data_item_scroll' wx:for="{{airQuality.jsonTemp2}}" wx:for-index="DayIdx" wx:for-item="DayData" wx:key="DayIdx">
+                <text>{{DayData.week}}</text>
+                <text>{{DayData.days}}</text>
+                <image src="{{DayData.weather_icon}}"></image>
+                <text>{{DayData.temperature}}</text>
+                <text>{{DayData.wind}}</text>
+              </view>
+            </scroll-view>
+          </view>
+        </view>
+      </view>
+      <!-- close -->
+      <view class='ToggleArrow_Up' @tap='Toggle' wx:if="{{Toggle_show == 1}}">
+        <image src='../images/icons/double-arrow-down.png'></image>
+      </view>
+    </view>
+    <!-- equipment -->
+    <view class='roomList'>
+      <scroll-view class="listWrap" scroll-x="true" bindscroll="scroll" style="height:auto;">
+        <view class="{{CurRoom == roomIdx?'roomItem roomAcitve':'roomItem roomNoraml'}}" wx:for="{{roomList}}" wx:for-item="roomItem" wx:for-key="roomIdx" wx:for-index="roomIdx" @tap='Changeroom' data-idx='{{roomIdx}}'>
+          <text>{{roomItem.name}}</text>
+        </view>
+      </scroll-view>
+      <image src='../images/icons/Setting.png'></image>
+    </view>
+  <toast/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../mixins/test'
+
+  @connect({
+    homeList (state) {
+      return state.counter.homeList
+    },
+    curHome (state) {
+      return state.counter.curHome
+    },
+    roomList (state) {
+      return state.counter.roomList
+    }
+  }, {
+  })
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '我的家'
+    }
+    components = {
+      toast: Toast
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      airQuality: null,
+      Toggle_show: 0,  // 0初始 1展开 -1关闭
+      CurRoom: 0
+    }
+
+    computed = {
+    }
+
+    methods = {
+      showActionSheet () {
+        return new Promise((resolve, reject) => {
+          wepy.showActionSheet({
+            itemList: ['A', 'B', 'C']
+          }).then((res) => {
+            console.log(res.tapIndex)
+            resolve(res.tapIndex)
+          }).catch((res) => {
+            console.log(res)
+          })
+        })
+      },
+      Toggle () {
+        this.Toggle_show = (this.Toggle_show === 0) ? 1 : (this.data.Toggle_show === 1 ? -1 : 1)
+        this.$apply()
+      },
+      Changeroom (e) {
+        this.CurRoom = e.currentTarget.dataset.idx
+        this.$apply()
+      }
+    }
+
+    // 当前空气质量
+    GetAirQuality () {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: 'https://jingshangs.com/hky_JK/selecttemperature',
+          data: {
+            latitude: 31.87165,
+            longitude: 121.18179
+          },
+          method: 'POST'
+        }).then((res) => {
+          switch (res.data.result) {
+            case 1:
+              this.airQuality = res.data.temperaturelist
+              this.$apply()
+              break
+            case 0:
+              wepy.showToast({
+                image: '../images/icon/attention.png',
+                title: '获取空气信息失败'
+              })
+              break
+            default:
+              wepy.showToast({
+                image: '../images/icon/attention.png',
+                title: '服务器繁忙！'
+              })
+          }
+        }).catch((res) => {
+          wepy.showToast({
+            image: '../images/icon/attention.png',
+            title: '服务器繁忙！'
+          })
+          console.log(res)
+        })
+      })
+    }
+
+    events = {
+    }
+
+    onLoad() {
+      this.GetAirQuality()
+    }
+  }
+</script>

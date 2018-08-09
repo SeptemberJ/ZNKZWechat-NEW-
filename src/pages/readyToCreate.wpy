@@ -1,0 +1,105 @@
+<style lang="less">
+.readyToCreate{
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  image{
+    width: 650rpx;
+    height: 669rpx;
+  }
+  &_bt{
+    width: 60%;
+    height: 100rpx;
+    text-align: center;
+    line-height: 100rpx;
+    background: #3498db;
+    color: #fff;
+    margin: 20px auto auto auto;
+    border-radius: 15rpx;
+    animation: GrayToNormal 2s ease-in-out infinite;
+    -webkit-animation: GrayToNormal 2s ease-in-out infinite; 
+    animation-fill-mode: forwards;  
+    animation-delay: 0s;
+  }
+  @keyframes GrayToNormal /*Safari and Chrome*/
+  {
+      0% {
+         -webkit-filter: opacity(1);
+         -webkit-transform: scale(1, 1);
+      }
+      50% {
+        -webkit-filter: opacity(1);
+        -webkit-transform: scale(1.08, 1.08);
+      }
+      100% {
+        -webkit-filter: opacity(1);
+        -webkit-transform: scale(1, 1);
+      }
+  }
+}
+</style>
+<template>
+  <view class='readyToCreate'>
+    <image src='../images/readyToCreate.jpg'></image>
+    <text>创建您的第一个智慧家庭</text>
+    <view animation="{{animationData}}" class='readyToCreate_bt'>开启智慧生活</view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../mixins/test'
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: 'SmartHox'
+    }
+
+    components = {
+      toast: Toast
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      animationData: {}
+    }
+
+    computed = {
+    }
+
+    methods = {
+
+    }
+
+    events = {
+    }
+    changeToHidden () {
+      this.animation.opacity(0.5).step({ duration: 1000 })
+      this.animation.opacity(1).step({ duration: 1000 })
+      this.setData({
+        animationData: this.animation.export()
+      })
+    }
+    changeToBig () {
+      this.animation.scale(1.08, 1.08).step({ duration: 1000 })
+      this.animation.scale(1, 1).step({ duration: 1000 })
+      this.setData({
+        animationData: this.animation.export()
+      })
+    }
+
+    onLoad() {
+      // var animation = wx.createAnimation({
+      //   duration: 1000,
+      //   timingFunction: 'ease',
+      // })
+      // this.animation = animation
+      // this.changeToBig()
+    }
+  }
+</script>

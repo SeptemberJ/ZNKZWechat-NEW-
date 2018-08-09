@@ -1,0 +1,151 @@
+<style lang="less">
+page{
+  background: #efefef;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  font-size: 30rpx;
+  .addRoom{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: space-between;
+    justify-content: flex-start;
+    &_item{
+      width: e("calc(100% - 40rpx)");
+      height: 100rpx;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20rpx;
+      background:#fff;
+      input{
+        width: 100%;
+        height: 100%;
+      }
+    }
+    &_columnTit{
+      width: e("calc(100% - 40rpx)");
+      height: 100rpx;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20rpx;
+      color: #666;
+      .columnItem{
+        display: flex;
+        align-items: center;
+      }
+      image{
+        width: 50rpx;
+        height: 50rpx;
+      }
+    }
+    .recommendList{
+      width: e("calc(100% - 40rpx)");
+      display: flex;
+      flex-wrap:wrap;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 20rpx;
+      .recommendName{
+        height: 60rpx;
+        line-height: 60rpx;
+        text-align: center;
+        padding: 0 25rpx;
+        margin: 0 30rpx 20rpx 0;
+        border: 1px solid #efefef;
+        border-radius: 15rpx;
+        background: #fff;
+        
+      }
+    }
+    &_bt{
+      width: 50%;
+      text-align: center;
+      line-height: 100rpx;
+      background: #d81e06;
+      font-size: 32rpx;
+      color: #fff;
+      margin: 20px auto auto auto;
+      border-radius: 15rpx;
+    }
+  }
+}
+</style>
+<template>
+  <view class='addRoom'>
+    <view class='addRoom_item'>
+      <input @input="changeRoomName" type="text" name="homeName" placeholder="房间名称" value="{{roomName}}"/>
+    </view>
+    <view class='addRoom_columnTit'>
+      <view class='columnItem'><text>推荐</text></view>
+    </view>
+    <view class='recommendList'>
+      <view class='recommendName' wx:for-items="{{recommendList}}" wx:for-index="NameIndex" wx:for-item="NameItem" wx:key="NameIndex"><text @tap="chooseThisName({{NameItem}})">{{NameItem}}</text></view>
+    </view>
+    <view class='addRoom_bt' @tap="saveRoomName">确认</view>
+    <toast />
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import { changeAddRoomList } from '../store/actions'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../mixins/test'
+
+  @connect({
+  }, {
+    changeAddRoomList
+  })
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '添加房间'
+    }
+    components = {
+      toast: Toast
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      roomName: null,
+      recommendList: ['玄关', '阳台', '花室', '过道', '卫生间', '杂物间', '儿童房', '衣帽间']
+    }
+
+    computed = {
+
+    }
+    methods = {
+      changeRoomName (e) {
+        this.roomName = e.detail.value
+        this.$apply()
+      },
+      chooseThisName (NAME) {
+        console.log(NAME)
+        this.roomName = NAME
+        this.$apply()
+      },
+      saveRoomName () {
+        if (this.roomName) {
+          this.methods.changeAddRoomList(this.roomName)
+          wepy.navigateBack()
+        } else {
+          console.log('else------')
+          this.$invoke('toast', 'show', {
+            title: '请输入房间名称!',
+            img: '../images/icons/attention.png'
+          })
+          return false
+        }
+      }
+    }
+    events = {
+    }
+
+    onLoad() {
+    }
+  }
+</script>
