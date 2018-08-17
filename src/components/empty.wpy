@@ -1,0 +1,44 @@
+<style lang="less">
+page{
+  .empty{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20rpx;
+    text{
+      font-size: 30rpx;
+      color: #bfbfbf;
+    }
+    image{
+      width: 150rpx;
+      height: 150rpx;
+    }
+  }
+}
+</style>
+<template>
+  <view class='empty'>
+    <image src="../images/icons/box-empty.png"></image>
+    <text>{{tipTitle}}</text>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Empty extends wepy.component {
+    props = {
+      tipTitle: {
+        type: String,
+        default: ''
+      }
+    }
+    components = {
+    }
+
+    methods = {
+    }
+  }
+</script>

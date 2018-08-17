@@ -1,0 +1,253 @@
+<style lang="less">
+page{
+  font-size: 30rpx;
+}
+.TopSubmitBt{
+  width: 100%;
+  height: 100rpx;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  box-shadow: 0px 5px 5px #888888;
+}
+.CircleBt{
+  width: 100rpx;
+  height: 100rpx;
+  background: #3498db;
+}
+.CircleBt_innerCircle{
+  width: 80rpx;
+  height: 80rpx;
+  margin: 5rpx;
+  border: 5rpx dotted #fff;
+  border-radius: 50%;
+  background: #3498db;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: blod;
+  text-align: center;
+  line-height: 80rpx;
+}
+.Scene_EQList{
+  width: 750rpx;
+  padding: 10rpx 0;
+  margin-top: 100rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: space-between;
+  justify-content: center;
+}
+.Scene_EQList_item{
+  width: e("calc(100% - 40rpx)");
+  height: 130rpx;
+  padding: 0 20rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center; 
+  background: #fff;
+  border-bottom: 1px solid #efefef;
+}
+.Scene_EQList_item image{
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: inline-block;
+}
+.Scene_EQList_item_text{
+  width: e("calc(100% - 80rpx - 50rpx - 40rpx)");
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.Scene_EQList_item_text_name{
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+.Scene_EQList_item_text_room{
+  font-size: 30rpx;
+  color: #999;
+}
+.Scene_EQList .ControlBt{
+  width: 50rpx;
+  height: 50rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  border: 4rpx solid #3498db;
+}
+.Scene_EQList .ControlBt image{
+  width: 40rpx;
+  height: 40rpx;
+}
+</style>
+<template>
+  <view class='equipmentList'>
+    <view class='TopSubmitBt' wx:if="{{curHomeAllEQList.length > 0}}"  bindtap='Submit'>
+      <view class='TopFixedSubmitBt'>确定</view>
+    </view>
+    <!--curHomeAllEQList  -->
+    <view class='Scene_EQList'>
+      <view class='Scene_EQList_item' wx:for="{{curHomeAllEQList}}" wx:for-index="EQIdx" wx:for-item="Equipment" wx:key="EQIdx" bindtap='Choose' data-idx='{{EQIdx}}'>
+        <image src="{{Equipment.machine_img}}"></image>
+        <view class='Scene_EQList_item_text'>
+          <text class='Scene_EQList_item_text_name'>{{Equipment.second_name}}</text>
+          <text class='Scene_EQList_item_text_room'>{{Equipment.room_name}}</text>
+        </view>
+         <view class="ControlBt">
+          <image wx:if="{{Equipment.choosed}}" src='../../../images/icons/foodChoosed.png'></image>
+        </view> 
+      </view>
+    </view>
+    <Empty :tipTitle.sync="tipTitle_EQList" wx:if="{{curHomeAllEQList.length == 0}}"></Empty>
+    <toast/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../../../mixins/test'
+  import Empty from '../../../components/empty'
+  import { changeSceneInfo } from '../../../store/actions'
+
+  @connect({
+    curHome (state) {
+      return state.counter.curHome
+    },
+    urlPre (state) {
+      return state.counter.urlPre
+    },
+    CurHomeRole (state) {
+      return state.counter.CurHomeRole
+    },
+    SceneInfo (state) {
+      return state.counter.SceneInfo
+    }
+  }, {
+    changeSceneInfo
+  })
+
+  export default class Timing extends wepy.page {
+    config = {
+      navigationBarTitleText: '添加设备'
+    }
+    components = {
+      toast: Toast,
+      Empty: Empty
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      tipTitle_EQList: '暂无设备，请先去添加',
+      curHomeAllEQList: []
+    }
+
+    computed = {
+    }
+
+    methods = {
+      // 选择切换
+      Choose (e) {
+        this.curHomeAllEQList[e.currentTarget.dataset.idx].choosed = !this.curHomeAllEQList[e.currentTarget.dataset.idx].choosed
+      },
+      // 临时保存
+      Submit () {
+        if (this.CurHomeRole === 3) {
+          wepy.showModal({
+            title: '提示',
+            content: '权限不足！',
+            showCancel: false
+          })
+          return false
+        }
+        let ChoosedList = [...this.SceneInfo.Scene_EQList]
+        this.curHomeAllEQList.map((Item, Idx) => {
+          if (Item.choosed) {
+            Item.status = 0
+            Item.when = 0
+            ChoosedList.push(Item)
+          }
+        })
+        console.log('去重前-------------------')
+        console.log(ChoosedList)
+        // 去重
+        let tempObj = {}
+        ChoosedList = ChoosedList.reduce((item, next) => {
+          tempObj[next.id] ? '' : tempObj[next.id] = true && item.push(next)
+          return item
+        }, [])
+        console.log('去重后-------------------')
+        console.log(ChoosedList)
+        let NewTimeInfo = {
+          type: 'eq_update',
+          newInfo: ChoosedList
+        }
+        // 信息返回更新
+        this.methods.changeSceneInfo(NewTimeInfo)
+        wepy.navigateBack()
+      }
+    }
+
+    // self fun
+    // 获取当前家下除了传感器以外设备
+    GetCurEQList (ID) {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/selecteqlist?homeid=' + ID,
+          method: 'GET',
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }).then((res) => {
+          switch (res.data.result) {
+            case 1:
+              let Temp = res.data.registermachine
+              Temp.map((Item, Idx) => {
+                Item.choosed = false
+              })
+              this.curHomeAllEQList = Temp
+              this.$apply()
+              wepy.hideLoading()
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '设备获取失败',
+                img: '../../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+
+    events = {
+    }
+    onLoad (options) {
+      this.GetCurEQList(this.curHome.id)
+    }
+  }
+</script>

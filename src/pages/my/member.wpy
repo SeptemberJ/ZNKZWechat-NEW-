@@ -1,0 +1,295 @@
+<style lang="less">
+page{
+  background: #efefef;
+  font-size: 30rpx;
+  .member{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    .memberBar{
+      width: e("calc(100% - 40rpx)");
+      height:150rpx;
+      padding: 0 20rpx;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      text{
+        font-weight: bold;
+        color: #333;
+      }
+      image{
+        width: 80rpx;
+        height: 80rpx;
+        border-radius: 50%;
+      }
+      .memberInfo{
+        width: e("calc(100% - 40rpx)");
+        height:100rpx;
+        padding: 0 20rpx;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: space-between;
+        .memberPhone{
+          font-size: 28rpx;
+          font-weight: normal !important;
+          color: #666 !important;
+        }
+
+      }
+    }
+    &_columnTit{
+      width: e("calc(100% - 40rpx)");
+      height: 100rpx;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20rpx;
+      color: #666;
+      .columnItem{
+        display: flex;
+        align-items: center;
+      }
+      image{
+        width: 50rpx;
+        height: 50rpx;
+      }
+    }
+    .roomList{
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: space-between;
+      justify-content: center;
+      margin-bottom: 140rpx;
+      background: #fff;
+      .roomItem{
+        width: e("calc(100% - 40rpx)");
+        padding: 0 20rpx;
+        display: flex;
+        flex-direction: column;
+        align-items: space-between;
+        justify-content: flex-start;
+        border-bottom: 1px solid #efefef;
+        .noBotBorder{
+          border-bottom: 0px !important;
+        }
+        .roomInfo{
+          width: 100%;
+          height: 100rpx;
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          image{
+            width: 50rpx;
+            height: 50rpx;
+          }
+          text{
+            display: flex;
+            flex-grow: 1;
+            align-items: center;
+            justify-content: flex-start;
+          }
+          .open{
+            transform:rotate(90deg);
+          }
+          .close{
+            transform:rotate(-90deg);
+          }
+        }
+        .eqList{
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;
+          .eqItem{
+            width: 100%;
+            height: 80rpx;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            image{
+              width: 40rpx;
+              height: 40rpx;
+            }
+            text{
+              padding-left: 50rpx;
+            }
+          }
+        }
+      }
+    }
+    &_bt{
+      width: 100%;
+      height: 100rpx;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      left: 0;
+      bottom:0;
+      margin-top: 200px;
+      text-align: center;
+      line-height: 100rpx;
+      background: red;
+      font-size: 32rpx;
+      color: #fff;
+      margin: 20px auto auto auto;
+      border-radius: 0rpx;
+      .deleteMember{
+        width: 100%;
+        background: #666;
+        text-align: center;
+        line-height: 100rpx;
+      }
+      .saveModify{
+        width: 100%;
+        background: red;
+        text-align: center;
+        line-height: 100rpx;
+      }
+    }
+  }
+}
+</style>
+<template>
+  <view class='member'>
+    <view class='blankBar'  style="width: 100%;height: 20rpx;"></view>
+    <view class='memberBar'>
+      <image class='memberAvatar' src="https://i.loli.net/2017/08/21/599a521472424.jpg"></image>
+      <view class='memberInfo'>
+        <text>张三</text>
+        <text class='memberPhone'>111</text>
+      </view>
+    </view>
+
+    <view class='member_columnTit'>
+      <view class='columnItem'><text>共享设置：</text></view>
+    </view>
+
+    <!-- room -->
+    <view class='roomList'>
+      <view class="roomItem {{Idx == homeInfo.roomList.length-1?'noBotBorder':''}}" wx:for-items="{{homeInfo.roomList}}" wx:for-item="room" wx:key="roomIdx" wx:for-index="roomIdx">
+        <view class='roomInfo'>
+          <image @tap="toggleWhole({{roomIdx}})" src="{{room.ifCheck?'../../images/icons/check.png':'../../images/icons/square.png'}}"></image>
+          <text>{{room.roomName}}</text>
+          <image @tap="toggleOpenClose({{roomIdx}})" class="{{!room.ifOpen?'open':'close'}}" src='../../images/icons/arrow-right.png'></image>
+        </view>
+        <view wx:if="{{room.ifOpen}}" class='eqList' wx:for-items="{{room.equipments}}" wx:for-item="equipment" wx:key="equipmentIdx" wx:for-index="equipmentIdx">
+          <view class='eqItem'>
+            <text>{{equipment.eqName}}</text>
+            <image @tap="toggleSingleEq({{equipmentIdx}}, {{roomIdx}})" src="{{equipment.ifCheck?'../../images/icons/radioChecked.png':'../../images/icons/radiobox.png'}}"></image>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class='member_bt' @tap="deleteMember">
+      <view class='deleteMember'>移除成员</view>
+      <view class='saveModify'>保存修改</view>
+    </view>
+  <toast/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../../mixins/test'
+
+  @connect({
+    homeList (state) {
+      return state.counter.homeList
+    },
+    userInfo (state) {
+      return state.counter.userInfo
+    }
+  }, {
+  })
+
+  export default class My extends wepy.page {
+    config = {
+      navigationBarTitleText: '家庭成员'
+    }
+    components = {
+      toast: Toast
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      homeInfo: {
+        name: '留白的家',
+        id: 0,
+        roomList: [
+          {roomName: '书房', roomId: 0, ifOpen: true, ifCheck: true, equipments: [{eqName: '书房设备1', eqId: 0, ifCheck: true}, {eqName: '书房设备2', eqId: 2, ifCheck: true}]},
+          {roomName: '客厅', roomId: 0, ifOpen: false, ifCheck: true, equipments: [{eqName: '客厅设备1', eqId: 0, ifCheck: true}, {eqName: '客厅设备2', eqId: 2, ifCheck: true}]}
+        ]
+      }
+    }
+
+    computed = {
+    }
+
+    methods = {
+      ToCenter () {
+        this.$navigate('./center')
+      },
+      // 房间下全选切换
+      toggleWhole (IDX) {
+        let IfCheck = this.homeInfo.roomList[IDX].ifCheck
+        this.homeInfo.roomList[IDX].ifCheck = !IfCheck
+        this.homeInfo.roomList[IDX].equipments.map((Eq, Idx) => {
+          Eq.ifCheck = !IfCheck
+        })
+        this.$apply()
+      },
+      // 房间展开与否
+      toggleOpenClose (IDX) {
+        // 只有一个是展开的
+        this.homeInfo.roomList.map((Room, Idx) => {
+          if (Idx === IDX) {
+            Room.ifOpen = !Room.ifOpen
+          } else {
+            Room.ifOpen = false
+          }
+        })
+        // 允许多个是展开的
+        // let IfOpen = this.homeInfo.roomList[IDX].ifOpen
+        // this.homeInfo.roomList[IDX].ifOpen = !IfOpen
+        this.$apply()
+      },
+      // 单选设备
+      toggleSingleEq (EqIdx, RoomIdx) {
+        let EqList = this.homeInfo.roomList[RoomIdx].equipments
+        let EQ = EqList[EqIdx]
+        if (!EQ.ifCheck) {
+          this.homeInfo.roomList[RoomIdx].ifCheck = true
+        } else {
+          let hasCheckedItem = false
+          EqList.map((Eq, Idx) => {
+            if (Idx !== EqIdx) {
+              if (Eq.ifCheck) {
+                hasCheckedItem = true
+              }
+            }
+          })
+          // 是否含有勾选项
+          this.homeInfo.roomList[RoomIdx].ifCheck = (hasCheckedItem ? true : false)
+        }
+        // 单选状态切换
+        this.homeInfo.roomList[RoomIdx].equipments[EqIdx].ifCheck = !EQ.ifCheck
+      }
+
+    }
+
+    events = {
+    }
+    onLoad() {
+    }
+  }
+</script>

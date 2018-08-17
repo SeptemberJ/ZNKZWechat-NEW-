@@ -7,6 +7,34 @@
   justify-content: space-between;
   box-sizing: border-box;
 }
+.TopFixedSubmitBt{
+  width: 200rpx;
+  height: 30px;
+  float: right;
+  display: block;
+  background: #3498db;
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: bold;
+  text-align: center;
+  line-height: 30px;
+  margin-right: 20rpx;
+  border-radius: 10rpx;
+}
+.TopFixedSubmitBt_disabled{
+  width: 200rpx;
+  height: 30px;
+  float: right;
+  display: block;
+  background: #ccc;
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: bold;
+  text-align: center;
+  line-height: 30px;
+  margin-right: 20rpx;
+  border-radius: 10rpx;
+}
 </style>
 
 <script>
@@ -22,14 +50,29 @@ setStore(store)
 export default class extends wepy.app {
   config = {
     pages: [
+      'pages/sa/index',
+      'pages/sa/scene/index',
+      'pages/sa/scene/eqlist',
+      'pages/sa/scene/timing',
+      'pages/sa/scene/eqadd',
+      'pages/sa/automation/index',
       'pages/index',
-      'pages/guide',
+      'pages/my/member',
+      'pages/my/homeList',
+      'pages/my/my',
+      'pages/modifyPsd',
       'pages/sign',
+      'pages/addEquipment/masterControl',
+      'pages/addEquipment/Equipment',
+      'pages/addEquipment/SecondControlType',
+      'pages/addEquipment/SecondControl',
+      'pages/guide',
       'pages/readyToCreate',
       'pages/createHome',
       'pages/addRoom',
       'pages/login',
-      'pages/component'
+      'pages/demo',
+      'pages/my/center'
     ],
     window: {
       backgroundTextStyle: 'light',
@@ -50,7 +93,13 @@ export default class extends wepy.app {
           text: '我的家'
         },
         {
-          pagePath: 'pages/component',
+          pagePath: 'pages/sa/index',
+          iconPath: './images/icons/SA.png',
+          selectedIconPath: './images/icons/SA_active.png',
+          text: '智能'
+        },
+        {
+          pagePath: 'pages/my/my',
           iconPath: './images/icons/my.png',
           selectedIconPath: './images/icons/my_active.png',
           text: '我'
@@ -70,7 +119,7 @@ export default class extends wepy.app {
   }
 
   onLaunch() {
-    // this.testAsync()
+    // this.GetSceneIconList()
   }
 
   sleep (s) {

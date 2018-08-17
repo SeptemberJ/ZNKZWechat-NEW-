@@ -1,0 +1,133 @@
+<style lang="less">
+page{
+  background: #efefef;
+  font-size: 30rpx;
+  .Wrap{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    .secondControlList{
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      background: #fff;
+      .secondControl{
+        width: e("calc(100% - 40rpx)");
+        height:100rpx;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 0 20rpx;
+        border-bottom: 1px solid #efefef;
+        text{
+          width: 100%;
+          padding: 0 10rpx;
+        }
+        image{
+          width: 50rpx;
+          height: 50rpx;
+        }
+      }
+    }
+    .addBt{
+      width: 200rpx;
+      height: 80rpx;
+      line-height: 80rpx;
+      margin-top:40rpx;
+    }
+  }
+}
+</style>
+<template>
+  <view class='Wrap'>
+    <Empty :tipTitle.sync="tipTitle" wx:if="{{secondControlList.length == 0}}"></Empty>
+    <view class='secondControlList'>
+      <view class="secondControl" @tap="ToEquipment({{secondControl.id}})" wx:for-items="{{secondControlList}}" wx:for-item="secondControl" wx:key="Idx" wx:for-index="Idx">
+        <image src="../../images/icons/arrow-right.png"></image>
+        <text>{{secondControl.name}}</text>
+        <image src="../../images/icons/arrow-right.png"></image>
+      </view>
+      <toast/>
+    </view>
+    <button class='addBt' @tap="addSecondControl">添加</button>
+    <AddModal :addType.sync="addType" :ifShow.sync="ifAdd" wx:if="{{ifAdd}}"></AddModal>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../../mixins/test'
+  import Empty from '../../components/empty'
+  import AddModal from '../../components/addModal'
+
+  @connect({
+    curHome (state) {
+      return state.counter.curHome
+    },
+    curRoom (state) {
+      return state.counter.curRoom
+    }
+  }, {
+  })
+
+  export default class MasterControl extends wepy.page {
+    config = {
+      navigationBarTitleText: '从控列表'
+    }
+    components = {
+      toast: Toast,
+      Empty: Empty,
+      AddModal: AddModal
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      addType: 1,
+      ifAdd: false,
+      tipTitle: '暂无从控，请添加',
+      secondControlList: [{id: 0, name: '从控一'}, {id: 0, name: '从控一'}]
+    }
+
+    computed = {
+    }
+
+    watch = {
+      ifAdd (curVal, oldVal) {
+        console.log(`旧值：${oldVal}，新值：${curVal}`)
+      }
+    }
+
+    methods = {
+      addSecondControl () {
+        this.ifAdd = true
+        this.$apply()
+      },
+      ToEquipment (ID) {
+        this.$navigate('./Equipment?secondControlId=' + ID)
+      },
+      getSecondControlList () {
+        console.log('in getSecondControlList----------------')
+      }
+    }
+
+    events = {
+      'refreshSecondControl-emit': (...args) => {
+        console.log('emit---------------------')
+        let $event = args[args.length - 1]
+        console.log(`${this.$name} receive ${$event.name} from ${$event.source.$name}`)
+        this.methods.getSecondControlList()
+      }
+    }
+
+    onLoad(options) {
+      console.log(options.typeId)
+    }
+  }
+</script>

@@ -5,6 +5,7 @@
 @weatherWeekHeight: 350rpx;
 page{
   font-size: 30rpx;
+  background: #efefef;
   .Index{
     display: flex;
     flex-direction: column;
@@ -32,6 +33,7 @@ page{
       align-items: center;
       padding: 0 20rpx;
       overflow: hidden;
+      background: #fff;
       .ToggleArrow_Down{
         width: e("calc(100% - 40rpx)");
         padding: 0 20rpx;
@@ -184,37 +186,97 @@ page{
         }
       }
     }
-    .roomList{
-      width: e("calc(100% - 40rpx)");
-      height: @roomListBarHeight;
-      margin-top: 20rpx;
+    .roomTabWrap{
+      width: 100%;
       display: flex;
+      justify-content: flex-start;
       align-items: center;
-      overflow: hidden;
-      .listWrap{
-        width: e("calc(100% - 50rpx)");
-        white-space: nowrap; 
+      background: #fff;
+      .roomTab{
+        width: e("calc(100% - 40rpx)");
+        height: @roomListBarHeight;
+        margin-top: 20rpx;
         display: flex;
-        .roomItem{
-          width: 130rpx;
-          line-height: @roomListBarHeight;
-          display: inline-block;
-          text-align: center;
+        align-items: center;
+        overflow: hidden;
+        .listWrap{
+          width: e("calc(100% - 50rpx)");
+          white-space: nowrap; 
+          display: flex;
+          .roomItem{
+            width: 130rpx;
+            line-height: @roomListBarHeight;
+            display: inline-block;
+            text-align: center;
+          }
+          .roomAcitve{
+            font-size: 32rpx;
+            color: #000;
+            border-bottom: 4px solid red;
+          }
+          .roomNoraml{
+            color: #666;
+          }
         }
-        .roomAcitve{
-          font-size: 32rpx;
-          color: #000;
-          border-bottom: 4px solid red;
-        }
-        .roomNoraml{
-          color: #666;
+        image{
+          width: 50rpx;
+          height: 50rpx;
+          display: block;
         }
       }
-      image{
-        width: 50rpx;
-        height: 50rpx;
-        display: block;
+    }
+    .equipmentList{
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      margin-top:0rpx;
+      background: #fff;
+      .equipment{
+        width: e("calc(100% - 40rpx)");
+        height:100rpx;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        background: #fff;
+        border-bottom: 1px solid #efefef;
+        image{
+          width: 50rpx;
+          height:50rpx;
+        }
+        &_name{
+          width:e("calc(100% - 50rpx - 100rpx - 20rpx)");
+          padding:0 10rpx;
+        }
+        .active{
+          color: #3498db;
+        }
+        &_status{
+          width:100rpx;
+        }
       }
+      .empty{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20rpx;
+        text{
+          color: #bfbfbf;
+        }
+        image{
+          width: 150rpx;
+          height: 150rpx;
+        }
+      }
+    }
+    .addBt{
+      width: 250rpx;
+      height: 80rpx;
+      line-height: 80rpx;
+      margin-top:40rpx;
     }
     @keyframes breath /*Safari and Chrome*/
     {
@@ -307,15 +369,27 @@ page{
         <image src='../images/icons/double-arrow-down.png'></image>
       </view>
     </view>
-    <!-- equipment -->
-    <view class='roomList'>
-      <scroll-view class="listWrap" scroll-x="true" bindscroll="scroll" style="height:auto;">
-        <view class="{{CurRoom == roomIdx?'roomItem roomAcitve':'roomItem roomNoraml'}}" wx:for="{{roomList}}" wx:for-item="roomItem" wx:for-key="roomIdx" wx:for-index="roomIdx" @tap='Changeroom' data-idx='{{roomIdx}}'>
-          <text>{{roomItem.name}}</text>
-        </view>
-      </scroll-view>
-      <image src='../images/icons/Setting.png'></image>
+    <!-- roomTab -->
+    <view class='roomTabWrap'>
+      <view class='roomTab'>
+        <scroll-view class="listWrap" scroll-x="true" bindscroll="scroll" style="height:auto;">
+          <view class="{{CurRoom == roomIdx?'roomItem roomAcitve':'roomItem roomNoraml'}}" wx:for-items="{{roomList}}" wx:for-item="roomItem" wx:key="roomIdx" wx:for-index="roomIdx" @tap='Changeroom' data-idx='{{roomIdx}}'>
+            <text>{{roomItem.name}}</text>
+          </view>
+        </scroll-view>
+        <image src='../images/icons/Setting.png'></image>
+      </view>
     </view>
+    <!-- equipment -->
+    <view class='equipmentList'>
+      <Empty :tipTitle.sync="tipTitle" wx:if="{{equipmentList.length == 0}}"></Empty>
+      <view class='equipment' wx:if="{{equipmentList.length > 0}}" wx:for-items="{{equipmentList}}" wx:for-item="roomItem" wx:key="roomIdx" wx:for-index="roomIdx" >
+        <image src="../images/icons/box-empty.png"></image>
+        <text class='equipment_name'>{{roomItem.name}}</text>
+        <text class="{{roomItem.status==0?'equipment_status':'equipment_status active'}}">{{roomItem.status==0?'offline':'online'}}</text>
+      </view>
+    </view>
+    <button class='addBt' @tap="addEquipment">添加设备</button>
   <toast/>
   </view>
 </template>
@@ -325,6 +399,7 @@ page{
   import { connect } from 'wepy-redux'
   import Toast from 'wepy-com-toast'
   import testMixin from '../mixins/test'
+  import Empty from '../components/empty'
 
   @connect({
     homeList (state) {
@@ -344,15 +419,18 @@ page{
       navigationBarTitleText: '我的家'
     }
     components = {
-      toast: Toast
+      toast: Toast,
+      Empty: Empty
     }
 
     mixins = [testMixin]
 
     data = {
+      tipTitle: '暂无设备，请添加',
       airQuality: null,
       Toggle_show: 0,  // 0初始 1展开 -1关闭
-      CurRoom: 0
+      CurRoom: 0,
+      equipmentList: [{id: 0, name: '油烟机', status: 0}, {id: 0, name: '油烟机', status: 1}]
     }
 
     computed = {
@@ -378,6 +456,9 @@ page{
       Changeroom (e) {
         this.CurRoom = e.currentTarget.dataset.idx
         this.$apply()
+      },
+      addEquipment () {
+        this.$navigate('./addEquipment/masterControl')
       }
     }
 

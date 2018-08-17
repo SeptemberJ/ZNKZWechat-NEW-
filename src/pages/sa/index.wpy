@@ -1,0 +1,233 @@
+<style lang="less">
+page{
+  font-size: 30rpx;
+  .SAIndex{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    .tabBar{
+      width: 100%;
+      height: 100rpx;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      .tabItem{
+        height: 100%;
+        text-align:center;
+      }
+      .tabActive{
+        width: 60%;
+        height: 100%;
+        line-height:100rpx;
+        font-size: 36rpx;
+        color: #fff;
+        font-weight: bold;
+        background: #3498db;
+      }
+      .tabNormal{
+        height: 80rpx;
+        line-height:80rpx;
+        width: 40%;
+        color: #fff;
+        background: #3498db;
+      }
+    }
+    .SAList{
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      margin-top:0rpx;
+      background: #fff;
+      .listItem{
+        width: e("calc(100% - 40rpx)");
+        height:100rpx;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        background: #fff;
+        border-bottom: 1px solid #efefef;
+        image{
+          width: 50rpx;
+          height:50rpx;
+        }
+        &_name{
+          width:e("calc(100% - 50rpx - 100rpx - 20rpx)");
+          padding:0 10rpx;
+        }
+        .active{
+          color: #3498db;
+        }
+        &_status{
+          width:100rpx;
+        }
+      }
+      .empty{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-top: 80rpx;
+        text{
+          color: #bfbfbf;
+        }
+        image{
+          width: 150rpx;
+          height: 150rpx;
+        }
+      }
+    }
+    .addBt{
+      width: 250rpx;
+      height: 80rpx;
+      line-height: 80rpx;
+      margin-top:80rpx;
+    }
+  }
+}
+</style>
+<template>
+  <view class='SAIndex'>
+    <view class='tabBar'>
+      <view class="tabItem {{cur_index == 0?'tabActive':'tabNormal'}}" @tap="toggleTab(0)"><text>场景</text></view>
+      <view class="tabItem {{cur_index == 1?'tabActive':'tabNormal'}}" @tap="toggleTab(1)"><text>自动化</text></view>
+    </view>
+    <!-- SAList -->
+    <view class='SAList'>
+      <!-- scene -->
+      <Empty :tipTitle.sync="tipTitle_scene" wx:if="{{sceneList.length == 0 && cur_index == 0}}"></Empty>
+      <view class='listItem scene' wx:if="{{sceneList.length > 0}}" wx:for-items="{{sceneList}}" wx:for-item="scene" wx:key="sceneIdx" wx:for-index="sceneIdx" wx:if="{{sceneList.length > 0 && cur_index == 0}}">
+        <image src="{{scene.scenario_img}}" @tap="toEdit_scene" data-sceneid='{{scene.id}}'></image>
+        <text class='listItem_name' @tap="toEdit_scene" data-sceneid='{{scene.id}}'>{{scene.fname}}</text>
+        <text class="{{scene.on_off_status==0?'listItem_status':'listItem_status active'}}">{{scene.on_off_status==0?'offline':'online'}}</text>
+      </view>
+      <!-- automation -->
+      <Empty :tipTitle.sync="tipTitle_automation" wx:if="{{automationList.length == 0 && cur_index == 1}}"></Empty>
+      <view class='listItem equipment' wx:if="{{automationList.length > 0}}" wx:for-items="{{automationList}}" wx:for-item="automation" wx:key="automationIdx" wx:for-index="automationIdx" wx:if="{{automationList.length > 0 && cur_index == 1}}" >
+        <image src="../../images/icons/box-empty.png"></image>
+        <text class='listItem_name'>{{automation.fname}}</text>
+        <text class="{{automation.on_off_status==0?'listItem_status':'listItem_status active'}}">{{automation.on_off_status==0?'offline':'online'}}</text>
+      </view>
+    </view>
+    <button class='addBt' @tap="addSA">添加</button>
+  <toast/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../../mixins/test'
+  import Empty from '../../components/empty'
+  import { changeSceneInfo } from '../../store/actions'
+
+  @connect({
+    homeList (state) {
+      return state.counter.homeList
+    }
+  }, {
+    changeSceneInfo
+  })
+
+  export default class SAIndex extends wepy.page {
+    config = {
+      navigationBarTitleText: '添加智能'
+    }
+    components = {
+      toast: Toast,
+      Empty: Empty
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      cur_index: 0,
+      tipTitle_automation: '暂无场景，请添加',
+      tipTitle_scene: '暂无自动化，请添加',
+      automationList: [
+        {
+          fname: '自动化1',
+          id: '4384d530-dd08-410d-b5f7-9622d790aa63',
+          on_off_status: '1',
+          registerappuserid: 'ede157a2-f6a1-409c-8f4e-3d549cb12add'
+        },
+        {
+          fname: '自动化2',
+          id: '4384d530-dd08-410d-b5f7-9622d790aa63',
+          on_off_status: '1',
+          registerappuserid: 'ede157a2-f6a1-409c-8f4e-3d549cb12add'
+        }
+      ],
+      sceneList: [
+        {
+          fname: '场景1',
+          id: '3278e90c-b068-45c1-ae7d-2e74af593dc9',
+          on_off_status: '1',
+          registerappuserid: 'ede157a2-f6a1-409c-8f4e-3d549cb12add',
+          scenario_img: 'http://118.25.47.123:8080/upload/回家模式.png'
+        },
+        {
+          fname: '场景2',
+          id: '3278e90c-b068-45c1-ae7d-2e74af593dc9',
+          on_off_status: '1',
+          registerappuserid: 'ede157a2-f6a1-409c-8f4e-3d549cb12add',
+          scenario_img: 'http://118.25.47.123:8080/upload/回家模式.png'
+        }
+      ],
+      initSceneInfo: {
+        Scene_name: '',
+        Scene_Room_Icon: '', // 场景图片
+        Scene_timing: {
+          time_start: '',
+          time_end: '',
+          time_control: ''
+        },
+        Scene_EQList: [],
+        Scene_AutomaticList: [],
+        SceneEQCount: 0,  // 加入设备个数
+        SceneAutomaticCount: 0 // 加入联动个数
+      }
+    }
+
+    computed = {
+    }
+
+    methods = {
+      toggleTab (IDX) {
+        this.cur_index = IDX
+        this.$apply()
+      },
+      // 新增
+      addSA () {
+        if (this.cur_index === 0) {
+          this.$navigate('./scene/index?type=0')
+          // 清空之前的场景信息
+          let NewTimeInfo = {
+            type: 'init',
+            newInfo: this.initSceneInfo
+          }
+          // 信息返回更新
+          this.methods.changeSceneInfo(NewTimeInfo)
+        } else {
+          this.$navigate('./automation/index')
+        }
+      },
+      // 编辑
+      toEdit_scene (e) {
+        console.log('toEdit_scene-------')
+        this.$navigate('./scene/index?sceneid=' + e.currentTarget.dataset.sceneid + '&type=1')
+      }
+    }
+
+    events = {
+    }
+
+    onLoad() {
+    }
+  }
+</script>

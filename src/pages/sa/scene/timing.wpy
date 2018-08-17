@@ -1,0 +1,297 @@
+<style lang="less">
+page{
+  background: #efefef;
+}
+.Timing_time{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+.Timing_time_item{
+  width: 710rpx;
+  height: 80rpx;
+  margin-top: 20rpx;
+  padding: 0 20rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+}
+.Timing_time picker{
+  color: #666;
+}
+.Timing_control{
+  width: 750rpx;
+  height: 100rpx;
+  margin: 60rpx 0 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.Timing_control_item{
+  width: 80rpx;
+  height: 80rpx;
+  text-align: center;
+  line-height: 80rpx;
+  color: #3498db;
+  font-size: 30rpx;
+  font-weight: bold;
+  border-top: 2rpx solid #3498db;
+  border-bottom: 2rpx solid #3498db;
+  border-right: 2rpx solid #3498db;
+}
+.Timing_control_item:first-of-type{
+  border-left: 2rpx solid #3498db;
+}
+.Timing_control_choosed{
+  background: #3498db;
+  color: #fff;
+}
+</style>
+<template>
+  <view class='timing'>
+    <view class='Timing_time'>
+      <view class='Timing_time_item Timing_time_start'>
+        <text>开始时间</text>
+        <picker mode="time" value="{{TimeStart}}" end="{{TimeEnd}}"bindchange="bindTimeChange_start">
+          <text>{{TimeStart}}</text>
+        </picker>
+      </view>
+      <view class='Timing_time_item Timing_time_end'>
+        <text>结束时间</text>
+        <picker mode="time" value="{{TimeEnd}}" start="{{TimeStart}}" bindchange="bindTimeChange_end">
+          <text>{{TimeEnd}}</text>
+        </picker>
+      </view>
+    </view>
+
+    <view class='Timing_control'>
+      <view bindtap='ChooseControl' data-idx='0' class="Timing_control_item {{SingleTime?'Timing_control_choosed':''}}">单</view>
+      <view bindtap='ChooseControl' data-idx='1' class="Timing_control_item {{Monday?'Timing_control_choosed':''}}">一</view>
+      <view bindtap='ChooseControl' data-idx='2' class="Timing_control_item {{Tuesday?'Timing_control_choosed':''}}">二</view>
+      <view bindtap='ChooseControl' data-idx='3' class="Timing_control_item {{Wednesday?'Timing_control_choosed':''}}">三</view>
+      <view bindtap='ChooseControl' data-idx='4' class="Timing_control_item {{Thursday?'Timing_control_choosed':''}}">四</view>
+      <view bindtap='ChooseControl' data-idx='5' class="Timing_control_item {{Friday?'Timing_control_choosed':''}}">五</view>
+      <view bindtap='ChooseControl' data-idx='6' class="Timing_control_item {{Saturday?'Timing_control_choosed':''}}">六</view>
+      <view bindtap='ChooseControl' data-idx='7' class="Timing_control_item {{Sunday?'Timing_control_choosed':''}}">日</view>
+    </view>
+
+    <button wx:if="{{CurHomeRole == 1}}" class='MarginT_40 HarfLongBt ColorWhite BgRed' bindtap='Submit'>确定</button>
+
+  <toast/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../../../mixins/test'
+  import { changeSceneInfo } from '../../../store/actions'
+
+  @connect({
+    homeList (state) {
+      return state.counter.homeList
+    },
+    urlPre (state) {
+      return state.counter.urlPre
+    },
+    RoomIconList (state) {
+      return state.counter.RoomIconList
+    },
+    CurHomeRole (state) {
+      return state.counter.CurHomeRole
+    }
+  }, {
+    changeSceneInfo
+  })
+
+  export default class Timing extends wepy.page {
+    config = {
+      navigationBarTitleText: '定时'
+    }
+    components = {
+      toast: Toast
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      TimeStart: '00:00',
+      TimeEnd: '23:59',
+      SingleTime: true,
+      Monday: false,
+      Tuesday: false,
+      Wednesday: false,
+      Thursday: false,
+      Friday: false,
+      Saturday: false,
+      Sunday: false
+    }
+
+    computed = {
+    }
+
+    methods = {
+      bindTimeChange_start (e) {
+        this.TimeStart = e.detail.value
+        this.$apply()
+      },
+      bindTimeChange_end (e) {
+        this.TimeEnd = e.detail.value
+        this.$apply()
+      },
+      ChooseControl (e) {
+        switch (e.currentTarget.dataset.idx) {
+          case '0':
+            this.SingleTime = true
+            this.Monday = false
+            this.Tuesday = false
+            this.Wednesday = false
+            this.Thursday = false
+            this.Friday = false
+            this.Saturday = false
+            this.Sunday = false
+            this.$apply()
+            break
+          case '1':
+            this.SingleTime = false
+            this.Monday = !this.Monday
+            this.$apply()
+            break
+          case '2':
+            this.SingleTime = false
+            this.Tuesday = !this.Tuesday
+            this.$apply()
+            break
+          case '3':
+            this.SingleTime = false
+            this.Wednesday = !this.Wednesday
+            this.$apply()
+            break
+          case '4':
+            this.SingleTime = false
+            this.Thursday = !this.Thursday
+            this.$apply()
+            break
+          case '5':
+            this.SingleTime = false
+            this.Friday = !this.Friday
+            this.$apply()
+            break
+          case '6':
+            this.SingleTime = false
+            this.Saturday = !this.Saturday
+            this.$apply()
+            break
+          case '7':
+            this.SingleTime = false
+            this.Sunday = !this.Sunday
+            this.$apply()
+            break
+        }
+      },
+      Submit () {
+        if (!this.SingleTime && !this.Monday && !this.Tuesday && !this.Wednesday && !this.Thursday && !this.Friday && !this.Saturday && !this.Sunday) {
+          this.$invoke('toast', 'show', {
+            title: '请选择定时日期！',
+            img: '../../../images/icons/attention.png'
+          })
+          return false
+        }
+        let NewTimeInfo = {
+          type: 'timing',
+          newInfo: {
+            time_start: this.TimeStart,
+            time_end: this.data.TimeEnd,
+            time_control: {
+              SingleTime: this.SingleTime ? '1' : '0',
+              Monday: this.Monday ? '1' : '0',
+              Tuesday: this.Tuesday ? '1' : '0',
+              Wednesday: this.Wednesday ? '1' : '0',
+              Thursday: this.Thursday ? '1' : '0',
+              Friday: this.Friday ? '1' : '0',
+              Saturday: this.Saturday ? '1' : '0',
+              Sunday: this.Sunday ? '1' : '0'
+            }
+          }
+        }
+        // 信息返回更新
+        this.methods.changeSceneInfo(NewTimeInfo)
+        wepy.navigateBack()
+      }
+    }
+
+    // self fn
+    // 该场景的定时信息
+    GetSceneInfo (ID) {
+      wepy.showLoading({
+        title: '加载中...'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/selectnoscenario?id=' + ID,
+          method: 'GET',
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }).then((res) => {
+          console.log(res.data.scenario)
+          switch (res.data.result) {
+            case 1:
+              wepy.hideLoading()
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+
+    async GetInfo (options) {
+      const ResGetSceneInfo = await this.GetSceneInfo(options.sceneid)
+      let Info = ResGetSceneInfo.data.scenario.scenarios.Scene_timing
+      this.TimeStart = Info.time_start
+      this.TimeEnd = Info.time_end
+      this.SingleTime = Info.time_control.SingleTime !== '0'  // Info.time_control.SingleTime === 0 ? false : true
+      this.Monday = Info.time_control.Monday !== '0'
+      this.Tuesday = Info.time_control.Tuesday !== '0'
+      this.Wednesday = Info.time_control.Wednesday !== '0'
+      this.Thursday = Info.time_control.Thursday !== '0'
+      this.Friday = Info.time_control.Friday !== '0'
+      this.Saturday = Info.time_control.Saturday !== '0'
+      this.Sunday = Info.time_control.Sunday !== '0'
+      this.$apply()
+      console.log(this.SingleTime)
+    }
+    events = {
+    }
+
+    onLoad (options) {
+      if (options.sceneid !== '') {
+        this.GetInfo(options)
+      }
+    }
+  }
+</script>

@@ -1,0 +1,175 @@
+<style lang="less">
+page{
+  .modifyModal{
+    .modalMask{
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: #000;
+      opacity: 0.5;
+    }
+    .modalMainWrap{
+      width: 80%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 10rpx;
+      z-index: 99;
+      background: #fff;
+      .modalMain{
+        width: e("calc(100% - 40rpx)");
+        padding: 20rpx 20rpx 0rpx 20rpx;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        .addTit{
+          width: 100%;
+          height: 50rpx;
+          line-height: 20rpx;
+          font-size: 34rpx;
+          text-align: center;
+        }
+        .addItem{
+          width: 100%;
+          height: 80rpx;
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+          text{
+            width: 150rpx;
+          }
+          input[disabled]{color:#999;opacity:1;border-bottom: 0px;};
+          input{
+            width: e("calc(100% - 0rpx)");
+            padding: 0 10rpx;
+            border-bottom: 1px solid #efefef;
+          }
+          image{
+            width: 50rpx;
+            height: 50rpx;
+            display: block;
+            background: pink;
+          }
+        }
+      }
+      .BtBlock{
+        width: 100%;
+        height: 80rpx;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20rpx;
+        .Bt{
+          width: 50%;
+          height: 70rpx;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 32rpx;
+        }
+        .Bt_cancel{
+          color: green;
+          border-right: 1px solid #efefef;
+        }
+        .Bt_sure{
+          color: red;
+        }
+      }
+    }
+  }
+}
+</style>
+<template>
+  <view class='modifyModal'>
+    <view class='modalMask'></view>
+    <view class='modalMainWrap'>
+    <view class='modalMain'>
+      <text class='addTit'>{{modifyType == 0?'修改昵称':(modifyType == 1?'修改房间名称':'修改设备名称')}}</text>
+      <!-- masterControl -->
+      <view class='addItem' wx:if="{{modifyType == 0}}">
+        <text>新昵称</text>
+        <input @input="changeInput" type="text" name="新昵称" disabled="{{modifyType != 0}}" value="{{newNickName}}" />
+      </view>
+    </view>
+    <view class='BtBlock'>
+      <view class='Bt Bt_cancel' @tap="CancelModify">取消</view>
+      <view class='Bt Bt_sure' @tap="SureModify">保存</view>
+    </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class ModifyModal extends wepy.component {
+    props = {
+      modifyType: {
+        type: Number,
+        default: 0   // 0-主控  1-从控  2-设备
+      },
+      newNickName: {
+        twoWay: true
+      },
+      ifShow: {
+        twoWay: true
+      }
+    }
+
+    data = {
+    }
+
+    components = {
+    }
+
+    methods = {
+      changeInput (e) {
+        switch (this.modifyType) {
+          case 0:
+            console.log('0---------------')
+            this.newNickName = e.detail.value
+            this.$parent.newNickName = e.detail.value
+            this.$parent.$apply()
+            break
+          case 1:
+            console.log('1---------------')
+            break
+          case 2:
+            console.log('2---------------')
+            break
+        }
+      },
+      CancelModify () {
+        this.$parent.ifModify = false
+        this.$parent.$apply()
+      },
+      SureModify () {
+        // dosomething
+        this.$parent.ifModify = false
+        this.$parent.$apply()
+        switch (this.modifyType) {
+          case 0:
+            console.log('0---------------')
+            this.$emit('modifyNickName-emit', 1, 2, 3)
+            break
+          case 1:
+            console.log('1---------------')
+            this.$emit('refreshSecondControl-emit', 1, 2, 3)
+            break
+          case 2:
+            console.log('2---------------')
+            this.$emit('refreshEquipment-emit', 1, 2, 3)
+            break
+        }
+      }
+    }
+  }
+</script>

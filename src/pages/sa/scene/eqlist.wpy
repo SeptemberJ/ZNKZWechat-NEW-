@@ -1,0 +1,315 @@
+<style lang="less">
+page{
+  font-size: 30rpx;
+}
+.TopSubmitBt{
+  width: 100%;
+  height: 100rpx;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  box-shadow: 0px 5px 5px #888888;
+}
+.Scene_EQList{
+  width: 100%;
+  padding: 10rpx 0;
+  margin-top: 100rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+.Scene_EQList_item{
+  width: e("calc(100% - 40rpx)");
+  height: 130rpx;
+  padding: 0 20rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center; 
+  border-bottom: 1px solid #ccc;
+}
+.Scene_EQList_item image{
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: inline-block;
+}
+.Scene_EQList_item_info{
+  width: e("calc(100% - 80rpx - 200rpx - 40rpx)");
+  padding: 0 20rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+.Scene_EQList_item_status , .Scene_EQList_item_when{
+  width: 100rpx;
+}
+.Scene_EQ_FixedCircle{
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: #3498db;
+  position: fixed;
+  top: 50%;
+  right: 20rpx;
+  z-index: 999;
+  transform: translateY(-50%);
+}
+.Scene_EQ_innerCircle{
+  width: 80rpx;
+  height: 80rpx;
+  margin: 5rpx;
+  border: 5rpx dotted #fff;
+  border-radius: 50%;
+  background: #3498db;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: blod;
+  text-align: center;
+  line-height: 80rpx;
+}
+</style>
+<template>
+  <view class='includeEq'>
+    <view class='TopSubmitBt'>
+      <view wx:if="{{CurHomeRole != 0}}" class='TopFixedSubmitBt' bindtap='ToAddEq'>选择设备</view>
+      <view wx:if="{{CurHomeRole == 0}}" class='TopFixedSubmitBt_disabled'>选择设备</view>
+    </view>
+
+    <view class="Scene_EQList">
+      <view class='Scene_EQList_item' wx:for-index="EQIdx" wx:for-items="{{SceneInfo.Scene_EQList}}"  wx:for-item="Equipment" wx:key="EQIdx" @longtap='Delete' data-idx='{{EQIdx}}'>
+        <image src="{{Equipment.machine_img}}"></image>
+        <view class='Scene_EQList_item_info'>
+          <text>{{Equipment.second_name}}</text>
+          <text>{{Equipment.room_name}}</text>
+        </view>
+        <view class='Scene_EQList_item_status'>
+          <picker mode="multiSelector" bindchange="bindMultiPickerChange"  range="{{objectMultiArray}}" range-key='name' data-idx='{{EQIdx}}'>
+            <text>{{objectMultiArray[0][Equipment.status].name}}</text>
+          </picker>
+        </view>
+        <view class='Scene_EQList_item_when'>
+          <picker mode="multiSelector" bindchange="bindMultiPickerChange"  range="{{objectMultiArray}}" range-key='name' data-idx='{{EQIdx}}'>
+            <text>{{objectMultiArray[1][Equipment.when].name}}</text>
+          </picker>
+        </view>
+      </view>
+    </view>
+
+    <!-- <button wx:if="{{SceneInfo.Scene_EQList.length>0 && CurHomeRole != 0}}" class='MarginT_40 HarfLongBt ColorWhite BgRed'  @tap='Submit'>确定</button> -->
+  <toast/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../../../mixins/test'
+  import { changeSceneInfo } from '../../../store/actions'
+
+  @connect({
+    homeList (state) {
+      return state.counter.homeList
+    },
+    urlPre (state) {
+      return state.counter.urlPre
+    },
+    RoomIconList (state) {
+      return state.counter.RoomIconList
+    },
+    CurHomeRole (state) {
+      return state.counter.CurHomeRole
+    },
+    SceneInfo (state) {
+      return state.counter.SceneInfo
+    }
+  }, {
+    changeSceneInfo
+  })
+
+  export default class Timing extends wepy.page {
+    config = {
+      navigationBarTitleText: '选定设备'
+    }
+    components = {
+      toast: Toast
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      SceneId: '',
+      RoomId: '',
+      EQList: [],
+      objectMultiArray: [
+        [
+          {
+            id: 0,
+            name: '打开'
+          },
+          {
+            id: 1,
+            name: '关闭'
+          }
+        ], [
+          {
+            id: 0,
+            name: '立即'
+          },
+          {
+            id: 1,
+            name: '1分钟'
+          },
+          {
+            id: 2,
+            name: '2分钟'
+          },
+          {
+            id: 3,
+            name: '3分钟'
+          },
+          {
+            id: 4,
+            name: '4分钟'
+          },
+          {
+            id: 5,
+            name: '5分钟'
+          }
+        ]
+      ]
+    }
+
+    computed = {
+    }
+
+    methods = {
+      Delete (e) {
+        return new Promise((resolve, reject) => {
+          wepy.showModal({
+            title: '提示',
+            content: '确定移除该设备？'
+          }).then((res) => {
+            if (res.confirm) {
+              console.log('用户点击确定')
+              let temp = this.SceneInfo.Scene_EQList
+              temp.splice(e.currentTarget.dataset.idx, 1)
+              // let temp = this.EQList.slice(0)
+              // temp.splice(e.currentTarget.dataset.idx, 1)
+              // this.EQList = temp
+              // this.$apply()
+              let NewTimeInfo = {
+                type: 'eq_update',
+                newInfo: temp
+              }
+              // 信息返回更新
+              this.methods.changeSceneInfo(NewTimeInfo)
+            } else if (res.cancel) {
+              console.log('用户点击取消')
+            }
+            resolve(res)
+          }).catch((res) => {
+            console.log(res)
+          })
+        })
+      },
+      bindMultiPickerChange(e) {
+        console.log(e.detail.value)
+        let temp = this.SceneInfo.Scene_EQList
+        // this.EQList[e.currentTarget.dataset.idx].status = e.detail.value[0]
+        // this.EQList[e.currentTarget.dataset.idx].when = e.detail.value[1]
+        temp[e.currentTarget.dataset.idx].status = e.detail.value[0]
+        temp[e.currentTarget.dataset.idx].when = e.detail.value[1]
+        let NewTimeInfo = {
+          type: 'eq_update',
+          newInfo: temp
+        }
+        // 信息返回更新
+        this.methods.changeSceneInfo(NewTimeInfo)
+        // this.$apply()
+      },
+      // 加入设备
+      ToAddEq () {
+        this.$navigate('./eqadd')
+      },
+      Submit () {
+        if (this.CurHomeRole === 3) {
+          wepy.showModal({
+            title: '提示',
+            content: '权限不足！',
+            showCancel: false
+          })
+          return false
+        }
+        wepy.navigateBack()
+      }
+    }
+
+    // self fun
+    // 已加入的设备列表
+    GetSceneInfo (ID) {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/selectnoscenario?id=' + ID,
+          method: 'GET',
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }).then((res) => {
+          switch (res.data.result) {
+            case 1:
+              this.EQList = res.data.scenario.scenarios.Scene_EQList
+              this.$apply()
+              wepy.hideLoading()
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '获取失败！',
+                img: '../../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+
+    events = {
+    }
+    onLoad (options) {
+      this.SceneId = options.sceneid
+      this.RoomId = options.roomid
+      this.$apply()
+      // let IndexList =[]
+      // this.EQList.map((Item,Idx)=>{
+      //   let temp = [Item.status, Item.when]
+      //   IndexList.push(temp)
+      // })
+      // this.setData({
+      //   multiIndexList: IndexList,
+      // })
+      if (options.sceneid !== '') {
+        // this.EQList = this.SceneInfo.Scene_EQList
+        // this.GetSceneInfo(options.sceneid)
+      }
+    }
+  }
+</script>

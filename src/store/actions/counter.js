@@ -1,4 +1,4 @@
-import { ASYNC_INCREMENT, CHANGEADDROOMLIST } from '../types/counter'
+import { ASYNC_INCREMENT, CHANGEADDROOMLIST, CHANGESCENEINFO } from '../types/counter'
 import { createAction } from 'redux-actions'
 
 export const asyncInc = createAction(ASYNC_INCREMENT, () => {
@@ -14,6 +14,14 @@ export const changeAddRoomList = createAction(CHANGEADDROOMLIST, (name) => {
     setTimeout(() => {
     	console.log(name)
       resolve(name)
+    }, 1000)
+  })
+})
+
+export const changeSceneInfo = createAction(CHANGESCENEINFO, (info) => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(info)
     }, 1000)
   })
 })

@@ -1,0 +1,49 @@
+<style lang="less">
+page{
+}
+</style>
+<template>
+  <view class='AutomationIndex'>
+  <toast/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../../../mixins/test'
+
+  @connect({
+    homeList (state) {
+      return state.counter.homeList
+    }
+  }, {
+  })
+
+  export default class AutomationIndex extends wepy.page {
+    config = {
+      navigationBarTitleText: '自动化'
+    }
+    components = {
+      toast: Toast
+    }
+
+    mixins = [testMixin]
+
+    data = {
+    }
+
+    computed = {
+    }
+
+    methods = {
+    }
+
+    events = {
+    }
+
+    onLoad() {
+    }
+  }
+</script>

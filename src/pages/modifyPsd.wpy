@@ -1,12 +1,19 @@
 <style lang="less">
 page{
-  background:#efefef;
-  .sign{
+  background: #efefef;
+  font-size: 30rpx;
+  .modifyPsd{
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: space-between;
     justify-content: center;
+    .codeTips{
+      width: 100%;
+      height: 100rpx;
+      text-align: center;
+      line-height: 100rpx;
+    }
     &_item{
       width: e("calc(100% - 40rpx)");
       height: 100rpx;
@@ -18,19 +25,6 @@ page{
         height: 100%;
         padding: 0 5rpx;
         font-size: 30rpx;
-      }
-    }
-    &_clause {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 10px auto;
-      image{
-        width: 50rpx;
-        height: 50rpx;
-      }
-      text{
-       font-size: 30rpx; 
       }
     }
     &_bt{
@@ -69,46 +63,46 @@ page{
     }
   }
 }
-
-.container{
-  width: 710rpx;
-  height: 200px;
-  margin: 0 auto;
-}
 </style>
 <template>
-  <view class='sign'>
-    <view class='sign_item phone'><input @input="changePhone" value="{{user_phone}}" type="text" name="phone" placeholder="手机号" /></view>
-    <view class='sign_item code'>
-      <input @input="changeCode" value="{{user_code}}" type="text" name="phone" placeholder="验证码" />
+  <view class='modifyPsd'>
+    <!-- <text class='accountTit'>您当前绑定的账号为：</text> -->
+    <text class='codeTips'>验证码已发送至：{{userInfo.phone}}</text>
+    <view class="modifyPsd_item code">
+      <input @input="changeCode" type="text" value="{{user_code}}" name="验证码" placeholder="验证码" />
       <text @tap="getCode">{{haGetCode?CountDown + 's':'获取验证码'}}</text>
     </view>
-    <view class='sign_item password'>
-      <input @input="changePsd" wx:if="{{ifShowPsd}}" type="text" value="{{user_psd}}" name="password" placeholder="密码" />
-      <input @input="changePsd" wx:if="{{!ifShowPsd}}" type="password" value="{{user_psd}}" name="password" placeholder="密码" />
+    <view class="modifyPsd_item password">
+      <input @input="changePsd" wx:if="{{ifShowPsd}}" type="text" value="{{user_psd}}" name="输入新密码" placeholder="输入新密码" />
+      <input @input="changePsd" wx:if="{{!ifShowPsd}}" type="password" value="{{user_psd}}" name="输入新密码" placeholder="输入新密码" />
       <image @tap="toggleShowPsd" src="{{ifShowPsd?'../images/icons/sign-eyeon.png':'../images/icons/icon_closeeye.png'}}"></image>
     </view>
-    <view class='sign_item password'>
-      <input @input="changePsdAgain" wx:if="{{ifShowPsd}}" type="text" value="{{user_psd_again}}" name="password" placeholder="确认密码" />
-      <input @input="changePsdAgain" wx:if="{{!ifShowPsd}}" type="password" value="{{user_psd_again}}" name="password" placeholder="确认密码" />
+    <view class="modifyPsd_item password">
+      <input @input="changePsdAgain" wx:if="{{ifShowPsd}}" type="text" value="{{user_psd_again}}" name="再次输入新密码" placeholder="再次输入新密码" />
+      <input @input="changePsdAgain" wx:if="{{!ifShowPsd}}" type="password" value="{{user_psd_again}}" name="再次输入新密码" placeholder="再次输入新密码" />
       <image @tap="toggleShowPsd" src="{{ifShowPsd?'../images/icons/sign-eyeon.png':'../images/icons/icon_closeeye.png'}}"></image>
     </view>
-    <view class='sign_clause'>
-      <image src="{{ifAgreed?'../images/icons/check.png':'../images/icons/square.png'}}" @tap="toggleAgree"></image><text>我同意 服务协议与隐私政策</text>
-    </view>
-    <view class='sign_item sign_bt' @tap="toSign">确定注册</view>
-    <toast />
+    <view class='modifyPsd_item modifyPsd_bt' @tap="toModify">确定修改</view>
+  <toast/>
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
   import Toast from 'wepy-com-toast'
   import testMixin from '../mixins/test'
 
-  export default class Index extends wepy.page {
+  @connect({
+    userInfo (state) {
+      return state.counter.userInfo
+    }
+  }, {
+  })
+
+  export default class ModifyPsd extends wepy.page {
     config = {
-      navigationBarTitleText: '注册'
+      navigationBarTitleText: '修改密码'
     }
     components = {
       toast: Toast
@@ -117,52 +111,31 @@ page{
     mixins = [testMixin]
 
     data = {
+      user_code: '',
+      real_code: '',
+      user_psd: '',
+      user_psd_again: '',
       haGetCode: false,
-      code_R: '111',
-      CountDown: 5,
       ifShowPsd: false,
-      user_phone: null,
-      user_psd: null,
-      user_psd_again: null,
-      user_code: null,
-      ifAgreed: false
+      CountDown: 5
     }
 
     computed = {
     }
 
     methods = {
-      toast () {
-        console.log('hahah')
-        let promise = this.$invoke('toast', 'show', {
-          title: '自定义标题',
-          img: 'https://raw.githubusercontent.com/kiinlam/wetoast/master/images/star.png'
-        })
-        promise.then((d) => {
-          console.log('toast done')
-        })
-      },
       toggleShowPsd () {
         this.ifShowPsd = !this.ifShowPsd
         this.$apply()
       },
-      changePhone (e) {
-        this.user_phone = e.detail.value
-        this.$apply()
+      changeCode (e) {
+        this.user_code = e.detail.value
       },
       changePsd (e) {
         this.user_psd = e.detail.value
       },
       changePsdAgain (e) {
         this.user_psd_again = e.detail.value
-        this.$apply()
-      },
-      changeCode (e) {
-        this.user_code = e.detail.value
-        this.$apply()
-      },
-      toggleAgree (e) {
-        this.ifAgreed = !this.ifAgreed
         this.$apply()
       },
       getCode () {
@@ -191,17 +164,10 @@ page{
           _this.$apply()
         }
       },
-      toSign () {
-        if (!this.user_phone) {
+      toModify () {
+        if (!this.user_code) {
           this.$invoke('toast', 'show', {
-            title: '请输入手机号！',
-            img: '../images/icons/attention.png'
-          })
-          return false
-        }
-        if (!(/^1[34578]\d{9}$/.test(this.user_phone))) {
-          this.$invoke('toast', 'show', {
-            title: '手机号格式不正确！',
+            title: '请输入验证码！',
             img: '../images/icons/attention.png'
           })
           return false
@@ -213,14 +179,7 @@ page{
           })
           return false
         }
-        if (!this.user_code) {
-          this.$invoke('toast', 'show', {
-            title: '请输入验证码！',
-            img: '../images/icons/attention.png'
-          })
-          return false
-        }
-        if (this.user_code !== this.code_R) {
+        if (this.user_code !== this.real_code) {
           this.$invoke('toast', 'show', {
             title: '验证码不正确！',
             img: '../images/icons/attention.png'
@@ -234,18 +193,11 @@ page{
           })
           return false
         }
-        if (!this.ifAgreed) {
-          this.$invoke('toast', 'show', {
-            title: '请先同意协议！',
-            img: '../images/icons/attention.png'
-          })
-          return false
-        }
       }
     }
+
     events = {
     }
-
     onLoad() {
     }
   }

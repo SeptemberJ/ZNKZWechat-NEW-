@@ -1,0 +1,215 @@
+<style lang="less">
+page{
+  .addModal{
+    .modalMask{
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: #000;
+      opacity: 0.5;
+    }
+    .modalMainWrap{
+      width: 80%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 10rpx;
+      z-index: 99;
+      background: #fff;
+      .modalMain{
+        width: e("calc(100% - 40rpx)");
+        padding: 20rpx 20rpx 0rpx 20rpx;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        .addTit{
+          width: 100%;
+          height: 50rpx;
+          line-height: 20rpx;
+          font-size: 34rpx;
+          text-align: center;
+        }
+        .addItem{
+          width: 100%;
+          height: 80rpx;
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+          text{
+            width: 150rpx;
+          }
+          input[disabled]{color:#999;opacity:1;border-bottom: 0px;};
+          input{
+            width: e("calc(100% - 0rpx)");
+            padding: 0 10rpx;
+            border-bottom: 1px solid #efefef;
+          }
+          image{
+            width: 50rpx;
+            height: 50rpx;
+            display: block;
+            background: pink;
+          }
+        }
+      }
+      .BtBlock{
+        width: 100%;
+        height: 80rpx;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20rpx;
+        .Bt{
+          width: 50%;
+          height: 70rpx;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 32rpx;
+        }
+        .Bt_cancel{
+          color: green;
+          border-right: 1px solid #efefef;
+        }
+        .Bt_sure{
+          color: red;
+        }
+      }
+    }
+  }
+}
+</style>
+<template>
+  <view class='addModal'>
+    <view class='modalMask'></view>
+    <view class='modalMainWrap'>
+    <view class='modalMain'>
+      <text class='addTit'>{{addType == 0?'添加主控':(addType == 1?'添加从控':'添加设备')}}</text>
+      <!-- masterControl -->
+      <view class='addItem' wx:if="{{addType == 1 || addType == 0}}">
+        <text>主控名称</text>
+        <input type="text" name="主控名称" disabled="{{addType != 0}}" value="{{masterControl_Name}}" />
+      </view>
+      <view class='addItem' wx:if="{{addType == 0}}">
+        <text>主控码</text>
+        <input type="text" name="主控码" disabled value="{{masterControl_Code}}" />
+        <image src="../../images/icons/scan.png" @tap="ScanCode(0)"></image>
+      </view>
+      <!-- secondControl -->
+      <view class='addItem' wx:if="{{addType == 2 || addType == 1}}">
+        <text>从控名称</text>
+        <input type="text" name="从控名称" disabled="{{addType != 1}}" value="{{secondControl_Name}}" />
+      </view>
+      <view class='addItem' wx:if="{{addType == 1}}">
+        <text>从控码</text>
+        <input type="text" name="从控码" disabled value="{{secondControl_Code}}" />
+        <image src="../../images/icons/scan.png" @tap="ScanCode(1)"></image>
+      </view>
+      <!-- equpiment -->
+      <view class='addItem' wx:if="{{addType == 2}}">
+        <text>设备名称</text>
+        <input type="text" name="设备名称" disabled="{{addType != 2}}" value="{{euqipment_Name}}" />
+      </view>
+      <view class='addItem' wx:if="{{addType == 2}}">
+        <text>设备码</text>
+        <input type="text" name="设备码" disabled value="{{euqipment_Code}}" />
+        <image src="../../images/icons/scan.png" @tap="ScanCode(2)"></image>
+      </view>
+    </view>
+    <view class='BtBlock'>
+      <view class='Bt Bt_cancel' @tap="CancelAdd">取消</view>
+      <view class='Bt Bt_sure' @tap="SureAdd">添加</view>
+    </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class AddModal extends wepy.component {
+    props = {
+      addType: {
+        type: Number,
+        default: 0   // 0-主控  1-从控  2-设备
+      },
+
+      ifShow: {
+        twoWay: true
+      }
+    }
+
+    data = {
+      masterControl_Name: '12',
+      masterControl_Code: '12KLKK',
+      secondControl_Name: '12',
+      secondControl_Code: '12KLKK',
+      euqipment_Name: 'sb',
+      euqipment_Code: '12345678901234567890'
+    }
+
+    components = {
+    }
+
+    methods = {
+      ScanCode (TYPE) {
+        return new Promise((resolve, reject) => {
+          wepy.scanCode({
+            onlyFromCamera: false
+          }).then((res) => {
+            switch (TYPE) {
+              case '0':
+                console.log('0---------------')
+                this.masterControl_Code = res.result
+                this.$apply()
+                break
+              case '1':
+                console.log('1---------------')
+                this.secondControl_Code = res.result
+                this.$apply()
+                break
+              case '2':
+                console.log('2---------------')
+                this.euqipment_Code = res.result
+                this.$apply()
+                break
+            }
+          }).catch((res) => {
+            console.log(res)
+          })
+        })
+      },
+      CancelAdd () {
+        this.$parent.ifAdd = false
+        this.$parent.$apply()
+      },
+      SureAdd () {
+        // dosomething
+        this.$parent.ifAdd = false
+        this.$parent.$apply()
+        switch (this.addType) {
+          case 0:
+            console.log('0---------------')
+            this.$emit('refreshMasterControl-emit', 1, 2, 3)
+            break
+          case 1:
+            console.log('1---------------')
+            this.$emit('refreshSecondControl-emit', 1, 2, 3)
+            break
+          case 2:
+            console.log('2---------------')
+            this.$emit('refreshEquipment-emit', 1, 2, 3)
+            break
+        }
+      }
+    }
+  }
+</script>
