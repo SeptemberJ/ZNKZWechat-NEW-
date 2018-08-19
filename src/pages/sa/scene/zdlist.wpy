@@ -1,0 +1,207 @@
+<style lang="less">
+page{
+  font-size: 30rpx;
+}
+.TopSubmitBt{
+  width: 100%;
+  height: 100rpx;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  box-shadow: 0px 5px 5px #888888;
+}
+.Scene_EQList{
+  width: 750rpx;
+  padding: 10rpx 0;
+  margin-top: 100rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: space-between;
+  justify-content: center;
+}
+.Scene_EQList_item{
+  width: 750rpx;
+  height: 130rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center; 
+  background: #fff;
+  border-bottom: 1px solid #efefef;
+}
+.Scene_EQList_item image{
+  width: 80rpx;
+  height: 80rpx;
+  margin: 0 10rpx;
+  border-radius: 50%;
+  display: inline-block;
+}
+.Scene_EQList_item_text{
+  width: e("calc(750rpx - 0rpx - 150rpx - 20rpx)");
+  height: 100%;
+  padding-left: 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.Scene_EQList_item_text_name{
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+.Scene_EQList_item_text_room{
+  font-size: 30rpx;
+  color: #999;
+}
+.Scene_EQList .ControlBt{
+  width: 50rpx;
+  height: 50rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  border: 4rpx solid #3498db;
+}
+.Scene_EQList .ControlBt image{
+  width: 40rpx;
+  height: 40rpx;
+}
+.Scene_EQ_FixedCircle{
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: #3498db;
+  position: fixed;
+  top: 50%;
+  right: 20rpx;
+  z-index: 999;
+  transform: translateY(-50%);
+}
+.Scene_EQ_innerCircle{
+  width: 80rpx;
+  height: 80rpx;
+  margin: 5rpx;
+  border: 5rpx dotted #fff;
+  border-radius: 50%;
+  background: #3498db;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: blod;
+  text-align: center;
+  line-height: 80rpx;
+}
+</style>
+<template>
+  <view class='includeZd'>
+    <view class='TopSubmitBt'>
+    <view wx:if="{{CurHomeRole != 0}}"  @tap='ToAddZd' class='TopFixedSubmitBt'>选择自动化</view>
+    <view wx:if="{{CurHomeRole == 0}}" class='TopFixedSubmitBt_disabled'>选择自动化</view>
+  </view>
+  <!--EQList  -->
+  <view class='Scene_EQList'>
+    <view class='Scene_EQList_item' wx:for-items="{{SceneInfo.Scene_AutomaticList}}" wx:for-index="Automaticdx" wx:for-item="Automatic" wx:key="Automaticdx" @longtap='Delete' data-idx='{{Automaticdx}}'>
+      <view class='Scene_EQList_item_text'>
+        <text class='Scene_EQList_item_text_name'>{{Automatic.fname}}</text>
+        <text class='Scene_EQList_item_text_room'></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- <button wx:if="{{SceneInfo.Scene_AutomaticList.length>0 && CurHomeRole != 0}}" class='MarginT_40 HarfLongBt ColorWhite BgRed' bindtap='Submit'>确定</button>  -->
+  <toast/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../../../mixins/test'
+  import { changeSceneInfo } from '../../../store/actions'
+
+  @connect({
+    homeList (state) {
+      return state.counter.homeList
+    },
+    urlPre (state) {
+      return state.counter.urlPre
+    },
+    RoomIconList (state) {
+      return state.counter.RoomIconList
+    },
+    CurHomeRole (state) {
+      return state.counter.CurHomeRole
+    },
+    SceneInfo (state) {
+      return state.counter.SceneInfo
+    }
+  }, {
+    changeSceneInfo
+  })
+
+  export default class Timing extends wepy.page {
+    config = {
+      navigationBarTitleText: '选定自动化'
+    }
+    components = {
+      toast: Toast
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      SceneId: '',
+      RoomId: ''
+    }
+
+    computed = {
+    }
+
+    methods = {
+      Delete (e) {
+        return new Promise((resolve, reject) => {
+          wepy.showModal({
+            title: '提示',
+            content: '确定移除该设备？'
+          }).then((res) => {
+            if (res.confirm) {
+              console.log('用户点击确定')
+              let temp = this.SceneInfo.Scene_AutomaticList
+              temp.splice(e.currentTarget.dataset.idx, 1)
+              let NewZdInfo = {
+                type: 'zd_update',
+                newInfo: temp
+              }
+              // 信息返回更新
+              this.methods.changeSceneInfo(NewZdInfo)
+            } else if (res.cancel) {
+              console.log('用户点击取消')
+            }
+            resolve(res)
+          }).catch((res) => {
+            console.log(res)
+          })
+        })
+      },
+      // 加入设备
+      ToAddZd () {
+        this.$navigate('./zdadd')
+      }
+    }
+
+    // self fun
+
+    events = {
+    }
+    onLoad (options) {
+      this.SceneId = options.sceneid
+      this.RoomId = options.roomid
+      this.$apply()
+    }
+  }
+</script>

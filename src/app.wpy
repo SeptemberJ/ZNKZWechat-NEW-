@@ -35,6 +35,39 @@
   margin-right: 20rpx;
   border-radius: 10rpx;
 }
+.ColorWhite{
+  color: #fff;
+}
+.ColorRed{
+  color: red;
+}
+.BgBlue{
+  background: #3498db;
+}
+.BgGray{
+  background: #333;
+}
+.BgRed{
+  background: red;
+}
+.smallIcon{
+  width: 50rpx;
+  height: 50rpx;
+  margin: 0 5rpx;
+  display: block;
+}
+.HarfLongBt{
+  width: 200rpx;
+  height: 32px;
+  line-height: 32px;
+  font-size: 16px;
+}
+.MarginTB_40{
+  margin: 40px auto !important;
+}
+.noBorderRadius{
+  border-radius: 0 !important;
+}
 </style>
 
 <script>
@@ -53,9 +86,13 @@ export default class extends wepy.app {
       'pages/sa/index',
       'pages/sa/scene/index',
       'pages/sa/scene/eqlist',
+      'pages/sa/scene/zdlist',
+      'pages/sa/scene/zdadd',
       'pages/sa/scene/timing',
       'pages/sa/scene/eqadd',
       'pages/sa/automation/index',
+      'pages/sa/automation/condition',
+      'pages/sa/automation/action',
       'pages/index',
       'pages/my/member',
       'pages/my/homeList',

@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions'
-import { INCREMENT, DECREMENT, ASYNC_INCREMENT, CHANGEADDROOMLIST, CHANGESCENEINFO } from '../types/counter'
+import { INCREMENT, DECREMENT, ASYNC_INCREMENT, CHANGEADDROOMLIST, CHANGESCENEINFO, CHANGEAUTOMATIONINFO } from '../types/counter'
 
 export default handleActions({
   // 创建场景的信息
@@ -34,6 +34,37 @@ export default handleActions({
       break
       case 'eq_update':
       return { ...state, SceneInfo: { ...state.SceneInfo, Scene_EQList: action.payload.newInfo }}
+      break
+      case 'zd_update':
+      return { ...state, SceneInfo: { ...state.SceneInfo, Scene_AutomaticList: action.payload.newInfo }}
+      break
+    } 
+  },
+  // 创建自动化的信息
+  [CHANGEAUTOMATIONINFO] (state, action) {
+    // action.payload.type   init-初始化信息为空 scene_icon-修改场景图标  scene_name-修改场景名称 initFill-初始填充场景信息  timing-场景定时 eq_update-设备信息更新
+    // action.payload.newInfo
+    console.log('CHANGEAUTOMATIONINFO----------')
+    switch (action.payload.type) {
+      case 'init':
+      return {
+        ...state,
+        AutomationInfo: action.payload.newInfo
+      }
+      case 'initFill':
+      return {
+        ...state,
+        AutomationInfo: action.payload.newInfo
+      }
+      break
+      case 'automation_name':
+      return { ...state, AutomationInfo: { ...state.AutomationInfo, AutomaticName: action.payload.newInfo }}
+      break
+      case 'automation_update_ConditionList':
+      return { ...state, AutomationInfo: { ...state.AutomationInfo, ConditionList: action.payload.newInfo }}
+      break
+      case 'automation_update_ActionList':
+      return { ...state, AutomationInfo: { ...state.AutomationInfo, ActionList: action.payload.newInfo }}
       break
     } 
   },
@@ -109,5 +140,10 @@ export default handleActions({
     Scene_AutomaticList: [],
     SceneEQCount: 0,  // 加入设备个数
     SceneAutomaticCount: 0 // 加入联动个数
+  },
+  AutomationInfo: {
+    AutomaticName: '',
+    ConditionList: [],
+    ActionList: []
   }
 })

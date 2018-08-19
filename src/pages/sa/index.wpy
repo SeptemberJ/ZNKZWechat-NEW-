@@ -108,8 +108,8 @@ page{
       <!-- automation -->
       <Empty :tipTitle.sync="tipTitle_automation" wx:if="{{automationList.length == 0 && cur_index == 1}}"></Empty>
       <view class='listItem equipment' wx:if="{{automationList.length > 0}}" wx:for-items="{{automationList}}" wx:for-item="automation" wx:key="automationIdx" wx:for-index="automationIdx" wx:if="{{automationList.length > 0 && cur_index == 1}}" >
-        <image src="../../images/icons/box-empty.png"></image>
-        <text class='listItem_name'>{{automation.fname}}</text>
+        <image src="../../images/icons/box-empty.png" @tap="toEdit_automation" data-automaticid='{{automation.id}}'></image>
+        <text class='listItem_name' @tap="toEdit_automation" data-automaticid='{{automation.id}}'>{{automation.fname}}</text>
         <text class="{{automation.on_off_status==0?'listItem_status':'listItem_status active'}}">{{automation.on_off_status==0?'offline':'online'}}</text>
       </view>
     </view>
@@ -124,14 +124,15 @@ page{
   import Toast from 'wepy-com-toast'
   import testMixin from '../../mixins/test'
   import Empty from '../../components/empty'
-  import { changeSceneInfo } from '../../store/actions'
+  import { changeSceneInfo, changeAutomationInfo } from '../../store/actions'
 
   @connect({
     homeList (state) {
       return state.counter.homeList
     }
   }, {
-    changeSceneInfo
+    changeSceneInfo,
+    changeAutomationInfo
   })
 
   export default class SAIndex extends wepy.page {
@@ -151,14 +152,14 @@ page{
       tipTitle_scene: '暂无自动化，请添加',
       automationList: [
         {
-          fname: '自动化1',
+          fname: '123',
           id: '4384d530-dd08-410d-b5f7-9622d790aa63',
           on_off_status: '1',
           registerappuserid: 'ede157a2-f6a1-409c-8f4e-3d549cb12add'
         },
         {
-          fname: '自动化2',
-          id: '4384d530-dd08-410d-b5f7-9622d790aa63',
+          fname: '自动2',
+          id: '771d85f9-90d3-4dc2-8c29-56efd834d250',
           on_off_status: '1',
           registerappuserid: 'ede157a2-f6a1-409c-8f4e-3d549cb12add'
         }
@@ -191,6 +192,11 @@ page{
         Scene_AutomaticList: [],
         SceneEQCount: 0,  // 加入设备个数
         SceneAutomaticCount: 0 // 加入联动个数
+      },
+      initAutomationInfo: {
+        AutomaticName: '',
+        ConditionList: [],
+        ActionList: []
       }
     }
 
@@ -205,22 +211,32 @@ page{
       // 新增
       addSA () {
         if (this.cur_index === 0) {
-          this.$navigate('./scene/index?type=0')
           // 清空之前的场景信息
-          let NewTimeInfo = {
+          let NewSceneInfo = {
             type: 'init',
             newInfo: this.initSceneInfo
           }
           // 信息返回更新
-          this.methods.changeSceneInfo(NewTimeInfo)
+          this.methods.changeSceneInfo(NewSceneInfo)
+          this.$navigate('./scene/index?type=0')
         } else {
-          this.$navigate('./automation/index')
+          // 清空之前的自动化信息
+          let NewAutomationInfo = {
+            type: 'init',
+            newInfo: this.initAutomationInfo
+          }
+          // 信息返回更新
+          this.methods.changeAutomationInfo(NewAutomationInfo)
+          this.$navigate('./automation/index?type=0')
         }
       },
-      // 编辑
+      // 编辑场景
       toEdit_scene (e) {
-        console.log('toEdit_scene-------')
         this.$navigate('./scene/index?sceneid=' + e.currentTarget.dataset.sceneid + '&type=1')
+      },
+      // 编辑自动化
+      toEdit_automation (e) {
+        this.$navigate('./automation/index?automaticid=' + e.currentTarget.dataset.automaticid + '&type=1')
       }
     }
 

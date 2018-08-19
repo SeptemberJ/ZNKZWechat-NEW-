@@ -91,19 +91,17 @@ page{
 </style>
 <template>
   <view class='equipmentList'>
-    <view class='TopSubmitBt' wx:if="{{curHomeAllEQList.length > 0}}"  bindtap='Submit'>
+    <view class='TopSubmitBt' wx:if="{{AutomaticList.length > 0}}"  @tap='Submit'>
       <view class='TopFixedSubmitBt'>确定</view>
     </view>
-    <!--curHomeAllEQList  -->
     <view class='Scene_EQList'>
-      <view class='Scene_EQList_item' wx:for-items="{{curHomeAllEQList}}"  wx:for-index="EQIdx" wx:for-item="Equipment" wx:key="EQIdx" @tap='Choose' data-idx='{{EQIdx}}'>
-        <image src="{{Equipment.machine_img}}"></image>
+      <view class='Scene_EQList_item' wx:for-items="{{AutomaticList}}" wx:for-index="Automaticdx" wx:for-item="Automatic" wx:key="Automaticdx" @tap='Choose' data-idx='{{Automaticdx}}'>
         <view class='Scene_EQList_item_text'>
-          <text class='Scene_EQList_item_text_name'>{{Equipment.second_name}}</text>
-          <text class='Scene_EQList_item_text_room'>{{Equipment.room_name}}</text>
+          <text class='Scene_EQList_item_text_name'>{{Automatic.fname}}</text>
+          <text class='Scene_EQList_item_text_room'></text>
         </view>
          <view class="ControlBt">
-          <image wx:if="{{Equipment.choosed}}" src='../../../images/icons/foodChoosed.png'></image>
+          <image wx:if="{{Automatic.choosed}}" src='../../../images/icons/foodChoosed.png'></image>
         </view> 
       </view>
     </view>
@@ -149,8 +147,8 @@ page{
     mixins = [testMixin]
 
     data = {
-      tipTitle_EQList: '暂无设备，请先去添加',
-      curHomeAllEQList: []
+      tipTitle_EQList: '暂无自动化，请先去添加',
+      AutomaticList: []
     }
 
     computed = {
@@ -159,7 +157,7 @@ page{
     methods = {
       // 选择切换
       Choose (e) {
-        this.curHomeAllEQList[e.currentTarget.dataset.idx].choosed = !this.curHomeAllEQList[e.currentTarget.dataset.idx].choosed
+        this.AutomaticList[e.currentTarget.dataset.idx].choosed = !this.AutomaticList[e.currentTarget.dataset.idx].choosed
       },
       // 临时保存
       Submit () {
@@ -171,8 +169,8 @@ page{
           })
           return false
         }
-        let ChoosedList = [...this.SceneInfo.Scene_EQList]
-        this.curHomeAllEQList.map((Item, Idx) => {
+        let ChoosedList = [...this.SceneInfo.Scene_AutomaticList]
+        this.AutomaticList.map((Item, Idx) => {
           if (Item.choosed) {
             Item.status = 0
             Item.when = 0
@@ -189,22 +187,22 @@ page{
         }, [])
         console.log('去重后-------------------')
         console.log(ChoosedList)
-        let NewTimeInfo = {
-          type: 'eq_update',
+        let NewZdInfo = {
+          type: 'zd_update',
           newInfo: ChoosedList
         }
         // 信息返回更新
-        this.methods.changeSceneInfo(NewTimeInfo)
+        this.methods.changeSceneInfo(NewZdInfo)
         wepy.navigateBack()
       }
     }
 
     // self fun
-    // 获取当前家下除了传感器以外设备
-    GetCurEQList (ID) {
+    // 获取当前家下自动化
+    GetCurAutomaticList (ID) {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/selecteqlist?homeid=' + ID,
+          url: this.urlPre + '/selectallautomation?id=' + ID,
           method: 'GET',
           header: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -212,32 +210,32 @@ page{
         }).then((res) => {
           switch (res.data.result) {
             case 1:
-              let Temp = res.data.registermachine
+              let Temp = res.data.automationlist
               Temp.map((Item, Idx) => {
                 Item.choosed = false
               })
-              this.curHomeAllEQList = Temp
+              this.AutomaticList = Temp
               this.$apply()
               wepy.hideLoading()
               break
             case 0:
               wepy.hideLoading()
               this.$invoke('toast', 'show', {
-                title: '设备获取失败!',
+                title: '获取自动化失败!',
                 img: '../../../images/icons/attention.png'
               })
               break
             default:
               wepy.hideLoading()
               this.$invoke('toast', 'show', {
-                title: '服务器繁忙！',
+                title: '服务器繁忙!',
                 img: '../../../images/icons/attention.png'
               })
           }
         }).catch((res) => {
           console.log(res)
           this.$invoke('toast', 'show', {
-            title: '服务器繁忙！',
+            title: '服务器繁忙!',
             img: '../../../images/icons/attention.png'
           })
         })
@@ -247,7 +245,7 @@ page{
     events = {
     }
     onLoad (options) {
-      this.GetCurEQList(this.curHome.id)
+      this.GetCurAutomaticList(this.curHome.id)
     }
   }
 </script>

@@ -102,8 +102,8 @@ page{
       </view>
     </view>
 
-    <button wx:if="{{CurHomeRole != 0}}" class='MarginT_40 HarfLongBt ColorWhite BgRed' bindtap='Submit'>保存</button>
-    <button wx:if="{{CurSceneId && CurHomeRole != 0}}" class='MarginT_40 HarfLongBt ColorWhite BgGray' bindtap='DeleteScene'>删除</button>
+    <button wx:if="{{CurHomeRole != 0}}" class='MarginTB_40 HarfLongBt ColorWhite BgRed' bindtap='Submit'>保存</button>
+    <button wx:if="{{CurSceneId && CurHomeRole != 0}}" class='MarginTB_40 HarfLongBt ColorWhite  BgGray' bindtap='DeleteScene'>删除</button>
   <toast/>
   </view>
 </template>
@@ -176,7 +176,7 @@ page{
         this.$navigate('./eqlist?sceneid=' + this.CurSceneId + '&roomid=' + this.RoomId)
       },
       ToLinkage () {
-        this.$navigate('../ldlist/index?sceneid=' + this.CurSceneId + '&roomid=' + this.RoomId)
+        this.$navigate('./zdlist?sceneid=' + this.CurSceneId + '&roomid=' + this.RoomId)
       },
       ToLog () {
         // this.$navigate('../log/index?sceneid=' + this.CurSceneId)
@@ -431,7 +431,7 @@ page{
             roomid: this.RoomId,
             scenarios: DATA
           },
-          method: 'POST',
+          method: 'POST'
         }).then((res) => {
           console.log(res)
           switch (res.data.result) {

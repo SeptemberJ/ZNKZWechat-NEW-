@@ -279,7 +279,8 @@ page{
             }
           })
           // 是否含有勾选项
-          this.homeInfo.roomList[RoomIdx].ifCheck = (hasCheckedItem ? true : false)
+          this.homeInfo.roomList[RoomIdx].ifCheck === hasCheckedItem
+          // this.homeInfo.roomList[RoomIdx].ifCheck = (hasCheckedItem ? true : false)
         }
         // 单选状态切换
         this.homeInfo.roomList[RoomIdx].equipments[EqIdx].ifCheck = !EQ.ifCheck

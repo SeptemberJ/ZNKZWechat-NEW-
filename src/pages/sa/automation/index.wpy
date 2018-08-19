@@ -1,9 +1,202 @@
 <style lang="less">
 page{
+  font-size: 30rpx;
+  background: #efefef;
+}
+.Automation_name{
+  width: 100%;
+  height: 80rpx;
+  margin: 20rpx auto;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  background: #fff;
+}
+.Automation_name text{
+  width: 180rpx;
+  padding: 10rpx 20rpx;
+}
+.Automation_name input{
+  width: e("calc(100% - 220rpx - 20rpx)");
+  padding: 10rpx;
+  font-size: 32rpx;
+}
+.Automation_addBar{
+  width: e("calc(100% - 40rpx)");
+  height: 80rpx;
+  padding: 20rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.Automation_addBar text{
+  font-size: 50rpx;
+  font-weight: 700;
+  color: #333;
+}
+.Automation_addBar_circle{
+  width: 50rpx;
+  height: 50rpx;
+  border-radius: 50%;
+  border: 1px solid #3498db;
+  overflow: hidden;
+}
+.Automation_addBar_circle image{
+  width: 50rpx;
+  height: 50rpx;
+  display: block;
+}
+.ListEmptyBlock{
+  width: e("calc(100% - 40rpx)");
+  padding: 20rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+}
+.ListEmptyBlock_top{
+  width: 100%;
+  margin: 20rpx auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.ListEmptyBlock_top text{
+  padding: 0 10rpx;
+  color: #3498db;
+  font-size: 32rpx;
+}
+/*条件列表  */
+.Automation_conditionList{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background: #fff;
+}
+.Automation_EQ_item{
+  width: 710rpx;
+  height: 120rpx;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  border-bottom: 1px solid #ccc;
+}
+.Automation_EQ_item_info{
+  width: 310rpx;
+  padding: 0 20rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+.Automation_EQ_item_info text:first-of-type{
+  font-size: 32rpx;
+  color: #3498db;
+}
+.Automation_EQ_item_info text:last-of-type{
+  font-size: 30rpx;
+  color: #999;
+}
+.Automation_condition_when , .Automation_condition_status{
+  width: 150rpx;
+  color: #3498db;
+}
+.Automation_condition_status{
+  text-align: right;
 }
 </style>
 <template>
   <view class='AutomationIndex'>
+    <view class='Automation_name'>
+    <text>自动化名称：</text>
+    <input placeholder='请输入自动化名称' @input='ChangeName' value='{{AutomationInfo.AutomaticName}}' disabled='{{CurHomeRole == 0}}'></input>
+  </view>
+  <!--条件  -->
+  <view class='Automation_addBar'>
+    <text>如果</text>
+    <view class='Automation_addBar_circle' wx:if="{{AutomationInfo.ConditionList.length>0 && CurHomeRole == 1}}" bindtap='AddCondition'>
+      <image src='../../../images/icons/add.png'></image>
+    </view>
+  </view>
+  <view class='ListEmptyBlock' wx:if="{{AutomationInfo.ConditionList.length<=0}}">
+    <view class='ListEmptyBlock_top' bindtap='AddCondition'>
+      <view class='Automation_addBar_circle' >
+        <image src='../../../images/icons/add.png'></image>
+      </view>
+      <text>添加自动化条件</text>
+    </view>
+    <text class='ColorRed'>'或'表示两个或两个以上条件,只要满足其中一项,所以列表中至少有两项为'或',请继续添加!</text>
+  </view>
+  <!--条件列表  -->
+  <view class="Automation_conditionList" wx:if="{{AutomationInfo.ConditionList.length>0}}">
+    <view class='Automation_EQ_item' wx:for-items="{{AutomationInfo.ConditionList}}" wx:for-index="ConditionIdx" wx:for-item="Condition" wx:key="ConditionIdx" @longtap='Delete' data-idx='{{ConditionIdx}}'>
+      <image class='smallIcon' src="{{Condition.kind_name=='时间' || Condition.kind_name=='time' ? '../../../../images/icons/scene_timing.png' : Condition.kind_img}}"></image>
+      <view class='Automation_EQ_item_info'>
+        <text>{{Condition.kind_name}}</text>
+        <text></text>
+      </view>
+      <view class='Automation_condition_when'>
+        <picker mode="multiSelector" bindchange="bindMultiPickerChange"  range="{{ConditionKind[Condition.kind_code]}}" range-key='name' data-idx='{{ConditionIdx}}'>
+          <text>{{ConditionKind[Condition.kind_code][0][Condition.when].name}}</text>
+        </picker>
+      </view>
+      <view class='Automation_condition_status' wx:if="{{Condition.kind!='time'}}">
+        <picker mode="multiSelector" bindchange="bindMultiPickerChange"  range="{{ConditionKind[Condition.kind_code]}}" range-key='name' data-idx='{{ConditionIdx}}'>
+          <text>{{ConditionKind[Condition.kind_code][1][Condition.status].name}}</text>
+        </picker>
+      </view>
+      <view class='Automation_condition_status' wx:if="{{Condition.kind_name=='时间'}}">
+        <picker mode="time" value="{{Condition.time_start}}" bindchange="bindTimeChange_start" data-idx='{{ConditionIdx}}'>
+          <text>{{Condition.time_start}}</text>
+        </picker>
+        <picker mode="time" value="{{Condition.time_end}}" bindchange="bindTimeChange_end" data-idx='{{ConditionIdx}}'>
+          <text>{{Condition.time_end}}</text>
+        </picker>
+      </view>
+    </view>
+  </view>
+  <!--动作  -->
+  <view class='Automation_addBar'>
+    <text>就</text>
+    <view class='Automation_addBar_circle' wx:if="{{AutomationInfo.ActionList.length>0 && CurHomeRole == 1}}" bindtap='AddAction'>
+      <image src='../../../images/icons/add.png'></image>
+    </view>
+  </view>
+  <view class='ListEmptyBlock' wx:if="{{AutomationInfo.ActionList.length<=0}}">
+    <view class='ListEmptyBlock_top' bindtap='AddAction'>
+      <view class='Automation_addBar_circle'>
+        <image src='../../../images/icons/add.png'></image>
+      </view>
+      <text>添加自动化动作</text>
+    </view>
+  </view>
+  <!--动作列表  -->
+  <view class="Automation_conditionList" wx:if="{{AutomationInfo.ActionList.length>0}}">
+    <view class='Automation_EQ_item' wx:for-items="{{AutomationInfo.ActionList}}" wx:for-index="ActionIdx" wx:for-item="Action" wx:key="ActionIdx" bindlongtap='Delete' data-idx='{{ActionIdx}}'>
+      <image class='smallIcon' src="{{Action.kind == 'scene'?Action.scenario_img:Action.machine_img}}"></image>
+      <view class='Automation_EQ_item_info'>
+        <text>{{Action.kind == 'scene'?Action.fname:Action.second_name}}</text>
+        <text>{{Action.kind == 'equipment'?Action.room_name:''}}</text>
+      </view>
+      <view class='Automation_condition_when'>
+        <picker mode="multiSelector" bindchange="bindMultiPickerChangeAction"  range="{{ActionKind[Action.kind]}}" range-key='name' data-idx='{{ActionIdx}}'>
+          <text>{{ActionKind[Action.kind][0][Action.status].name}}</text>
+        </picker>
+      </view>
+      <view class='Automation_condition_status'>
+        <picker mode="multiSelector" bindchange="bindMultiPickerChangeAction"  range="{{ActionKind[Action.kind]}}" range-key='name' data-idx='{{ActionIdx}}'>
+          <text>{{ActionKind[Action.kind][1][Action.when].name}}</text>
+        </picker>
+      </view>
+    </view>
+  </view>
+
+
+  <button wx:if="{{CurHomeRole != 0}}" class='MarginTB_40 HarfLongBt ColorWhite BgRed' @tap='Submit'>确定</button>
+  <button wx:if="{{CurAutomaticId && CurHomeRole != 0}}" class='MarginTB_40 HarfLongBt ColorWhite BgGray' bindtap='DeleteAutomatic'>删除</button>
   <toast/>
   </view>
 </template>
@@ -13,17 +206,41 @@ page{
   import { connect } from 'wepy-redux'
   import Toast from 'wepy-com-toast'
   import testMixin from '../../../mixins/test'
+  import { changeAutomationInfo } from '../../../store/actions'
 
   @connect({
     homeList (state) {
       return state.counter.homeList
+    },
+    urlPre (state) {
+      return state.counter.urlPre
+    },
+    RoomIconList (state) {
+      return state.counter.RoomIconList
+    },
+    CurHomeRole (state) {
+      return state.counter.CurHomeRole
+    },
+    curHome (state) {
+      return state.counter.curHome
+    },
+    AutomationInfo (state) {
+      return state.counter.AutomationInfo
     }
   }, {
+    changeAutomationInfo
   })
 
-  export default class AutomationIndex extends wepy.page {
+  export default class SceneIndex extends wepy.page {
     config = {
-      navigationBarTitleText: '自动化'
+      navigationBarTitleText: '场景'
+    }
+    watch = {
+      AutomationInfo (curVal, oldVal) {
+        console.log('update---------')
+        console.log(oldVal)
+        console.log(curVal)
+      }
     }
     components = {
       toast: Toast
@@ -32,18 +249,459 @@ page{
     mixins = [testMixin]
 
     data = {
+      Type: 0,
+      CurAutomaticId: '',
+      RoomId: '',
+      AutomaticName: '',
+      ConditionList: [],
+      ActionList: [],
+      ConditionKind: {
+        'time': [
+          [
+            {
+              id: 0,
+              name: '变为'
+            },
+            {
+              id: 1,
+              name: '此时正好'
+            }
+          ]
+        ],
+        'd002': [
+          [
+            {
+              id: 0,
+              name: '变为'
+            },
+            {
+              id: 1,
+              name: '此时正好'
+            }
+          ], [
+            {
+              id: 0,
+              name: '寒冷'
+            },
+            {
+              id: 1,
+              name: '舒适'
+            },
+            {
+              id: 2,
+              name: '炎热'
+            }
+          ]
+        ],
+        'd001': [
+          [
+            {
+              id: 0,
+              name: '变为'
+            },
+            {
+              id: 1,
+              name: '此时正好'
+            }
+          ], [
+            {
+              id: 0,
+              name: '昏暗'
+            },
+            {
+              id: 1,
+              name: '舒适'
+            },
+            {
+              id: 2,
+              name: '明亮'
+            }
+          ]
+        ],
+        'd003': [
+          [
+            {
+              id: 0,
+              name: '变为'
+            },
+            {
+              id: 1,
+              name: '此时正好'
+            }
+          ], [
+            {
+              id: 0,
+              name: '有人'
+            },
+            {
+              id: 1,
+              name: '无人'
+            }
+          ]
+        ]
+      },
+      ActionKind: {
+        'equipment': [
+          [
+            {
+              id: 0,
+              name: '立即'
+            },
+            {
+              id: 1,
+              name: '1分钟'
+            },
+            {
+              id: 2,
+              name: '2分钟'
+            },
+            {
+              id: 3,
+              name: '3分钟'
+            },
+            {
+              id: 4,
+              name: '4分钟'
+            },
+            {
+              id: 5,
+              name: '5分钟'
+            }
+          ],
+          [
+            {
+              id: 0,
+              name: '打开'
+            },
+            {
+              id: 1,
+              name: '关闭'
+            }
+          ]
+        ],
+        'scene': [
+          [
+            {
+              id: 0,
+              name: '立即'
+            },
+            {
+              id: 1,
+              name: '1分钟'
+            },
+            {
+              id: 2,
+              name: '2分钟'
+            },
+            {
+              id: 3,
+              name: '3分钟'
+            },
+            {
+              id: 4,
+              name: '4分钟'
+            },
+            {
+              id: 5,
+              name: '5分钟'
+            }
+          ],
+          [
+            {
+              id: 0,
+              name: '执行'
+            }
+          ]
+        ]
+      }
     }
 
     computed = {
     }
 
     methods = {
+      ChangeName (e) {
+        let NewAutomationNameInfo = {
+          type: 'automation_name',
+          newInfo: e.detail.value
+        }
+        this.methods.changeAutomationInfo(NewAutomationNameInfo)
+      },
+      // AddAction
+      AddAction () {
+        this.$navigate('./action')
+      },
+      // AddCondition
+      AddCondition () {
+        this.$navigate('./condition')
+      },
+      // 改变时间
+      bindTimeChange_start (e) {
+        let Temp = this.AutomationInfo.ConditionList
+        Temp[e.currentTarget.dataset.idx].time_start = e.detail.value
+        let NewConditionInfo = {
+          type: 'automation_update_ConditionList',
+          newInfo: Temp
+        }
+        this.methods.changeAutomationInfo(NewConditionInfo)
+      },
+      bindTimeChange_end (e) {
+        let Temp = this.AutomationInfo.ConditionList
+        Temp[e.currentTarget.dataset.idx].time_end = e.detail.value
+        let NewConditionInfo = {
+          type: 'automation_update_ConditionList',
+          newInfo: Temp
+        }
+        this.methods.changeAutomationInfo(NewConditionInfo)
+      },
+      bindMultiPickerChange(e) {
+        let Temp = this.AutomationInfo.ConditionList
+        Temp[e.currentTarget.dataset.idx].when = e.detail.value[0]
+        if (e.detail.value[1]) {
+          Temp[e.currentTarget.dataset.idx].status = e.detail.value[1]
+        }
+        let NewConditionInfo = {
+          type: 'automation_update_ConditionList',
+          newInfo: Temp
+        }
+        this.methods.changeAutomationInfo(NewConditionInfo)
+      },
+      bindMultiPickerChangeAction(e) {
+        let Temp = this.AutomationInfo.ActionList
+        Temp[e.currentTarget.dataset.idx].when = e.detail.value[1]
+        Temp[e.currentTarget.dataset.idx].status = e.detail.value[0]
+        let NewConditionInfo = {
+          type: 'automation_update_ActionList',
+          newInfo: Temp
+        }
+        this.methods.changeAutomationInfo(NewConditionInfo)
+      },
+      Submit() {
+        if (this.data.Type === '0') {
+          this.SubmitAdd()
+        } else {
+          this.SubmitModify()
+        }
+      }
     }
 
-    events = {
+    // self FN
+    // 获取创建信息
+    GetAutomaticInfo(ID) {
+      wepy.showLoading({
+        title: '加载中...'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/selectnoautomation?id=' + ID,
+          method: 'GET',
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }).then((res) => {
+          console.log(res.data.scenario)
+          switch (res.data.result) {
+            case 1:
+              let NewTimeInfo = {
+                type: 'init',
+                newInfo: res.data.automation.automations
+              }
+              this.methods.changeAutomationInfo(NewTimeInfo)
+              wepy.hideLoading()
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    // 新增
+    SubmitAdd () {
+      // 校验
+      if (this.AutomationInfo.AutomaticName === '') {
+        this.$invoke('toast', 'show', {
+          title: '请填写名称',
+          img: '../../../images/icons/attention.png'
+        })
+        return false
+      }
+      if (this.AutomationInfo.ConditionList.length === 0) {
+        this.$invoke('toast', 'show', {
+          title: '请添加条件!',
+          img: '../../../images/icons/attention.png'
+        })
+        return false
+      }
+      if (this.AutomationInfo.ActionList.length === 0) {
+        this.$invoke('toast', 'show', {
+          title: '请添加动作!',
+          img: '../../../images/icons/attention.png'
+        })
+        return false
+      }
+      if (this.CurHomeRole === 3) {
+        wepy.showModal({
+          title: '提示',
+          content: '权限不足！',
+          showCancel: false
+        })
+        return false
+      }
+      wepy.showLoading({
+        title: '加载中'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/insertautomation',
+          method: 'POST',
+          data: {
+            id: this.curHome.id,
+            roomid: '',
+            automations: this.AutomationInfo
+          }
+        }).then((res) => {
+          console.log(res.data.scenario)
+          switch (res.data.result) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '添加成功！',
+                icon: 'success',
+                duration: 1500
+              })
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    // 修改
+    SubmitModify () {
+      // 校验
+      if (this.AutomationInfo.AutomaticName === '') {
+        this.$invoke('toast', 'show', {
+          title: '请填写名称!',
+          img: '../../../images/icons/attention.png'
+        })
+        return false
+      }
+      if (this.AutomationInfo.ConditionList.length === 0) {
+        this.$invoke('toast', 'show', {
+          title: '请添加条件!',
+          img: '../../../images/icons/attention.png'
+        })
+        return false
+      }
+      if (this.AutomationInfo.ActionList.length === 0) {
+        this.$invoke('toast', 'show', {
+          title: '请添加动作!',
+          img: '../../../images/icons/attention.png'
+        })
+        return false
+      }
+      if (this.CurHomeRole === 3) {
+        wepy.showModal({
+          title: '提示',
+          content: '权限不足！',
+          showCancel: false
+        })
+        return false
+      }
+      wepy.showLoading({
+        title: '加载中'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/updateautomation',
+          method: 'POST',
+          data: {
+            automationid: this.CurAutomaticId,
+            id: this.curHome.id,
+            roomid: '',
+            automations: this.AutomationInfo
+          }
+        }).then((res) => {
+          console.log(res.data.scenario)
+          switch (res.data.result) {
+            case 1:
+              wepy.hideLoading()
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
     }
 
-    onLoad() {
+    onLoad(options) {
+      this.Type = options.type // 0新增  1-修改
+      this.CurAutomaticId = options.automaticid
+      if (options.automaticid) {
+        this.GetAutomaticInfo(options.automaticid)
+      } else {
+        console.log('no options.sceneid--------------')
+      }
+      this.$apply()
+    }
+    onShow() {
     }
   }
 </script>

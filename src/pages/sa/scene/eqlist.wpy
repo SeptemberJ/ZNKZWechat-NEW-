@@ -77,7 +77,7 @@ page{
 <template>
   <view class='includeEq'>
     <view class='TopSubmitBt'>
-      <view wx:if="{{CurHomeRole != 0}}" class='TopFixedSubmitBt' bindtap='ToAddEq'>选择设备</view>
+      <view wx:if="{{CurHomeRole != 0}}" class='TopFixedSubmitBt' @tap='ToAddEq'>选择设备</view>
       <view wx:if="{{CurHomeRole == 0}}" class='TopFixedSubmitBt_disabled'>选择设备</view>
     </view>
 
@@ -204,12 +204,12 @@ page{
               // temp.splice(e.currentTarget.dataset.idx, 1)
               // this.EQList = temp
               // this.$apply()
-              let NewTimeInfo = {
+              let NewEqInfo = {
                 type: 'eq_update',
                 newInfo: temp
               }
               // 信息返回更新
-              this.methods.changeSceneInfo(NewTimeInfo)
+              this.methods.changeSceneInfo(NewEqInfo)
             } else if (res.cancel) {
               console.log('用户点击取消')
             }
@@ -253,44 +253,44 @@ page{
 
     // self fun
     // 已加入的设备列表
-    GetSceneInfo (ID) {
-      return new Promise((resolve, reject) => {
-        wepy.request({
-          url: this.urlPre + '/selectnoscenario?id=' + ID,
-          method: 'GET',
-          header: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
-        }).then((res) => {
-          switch (res.data.result) {
-            case 1:
-              this.EQList = res.data.scenario.scenarios.Scene_EQList
-              this.$apply()
-              wepy.hideLoading()
-              break
-            case 0:
-              wepy.hideLoading()
-              this.$invoke('toast', 'show', {
-                title: '获取失败！',
-                img: '../../../images/icons/attention.png'
-              })
-              break
-            default:
-              wepy.hideLoading()
-              this.$invoke('toast', 'show', {
-                title: '服务器繁忙！',
-                img: '../../../images/icons/attention.png'
-              })
-          }
-        }).catch((res) => {
-          console.log(res)
-          this.$invoke('toast', 'show', {
-            title: '服务器繁忙！',
-            img: '../../../images/icons/attention.png'
-          })
-        })
-      })
-    }
+    // GetSceneInfo (ID) {
+    //   return new Promise((resolve, reject) => {
+    //     wepy.request({
+    //       url: this.urlPre + '/selectnoscenario?id=' + ID,
+    //       method: 'GET',
+    //       header: {
+    //         'Content-Type': 'application/x-www-form-urlencoded'
+    //       }
+    //     }).then((res) => {
+    //       switch (res.data.result) {
+    //         case 1:
+    //           this.EQList = res.data.scenario.scenarios.Scene_EQList
+    //           this.$apply()
+    //           wepy.hideLoading()
+    //           break
+    //         case 0:
+    //           wepy.hideLoading()
+    //           this.$invoke('toast', 'show', {
+    //             title: '获取失败！',
+    //             img: '../../../images/icons/attention.png'
+    //           })
+    //           break
+    //         default:
+    //           wepy.hideLoading()
+    //           this.$invoke('toast', 'show', {
+    //             title: '服务器繁忙！',
+    //             img: '../../../images/icons/attention.png'
+    //           })
+    //       }
+    //     }).catch((res) => {
+    //       console.log(res)
+    //       this.$invoke('toast', 'show', {
+    //         title: '服务器繁忙！',
+    //         img: '../../../images/icons/attention.png'
+    //       })
+    //     })
+    //   })
+    // }
 
     events = {
     }
