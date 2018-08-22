@@ -187,9 +187,9 @@ page{
         </view>
       </view>
     </view>
-    <view class='member_bt' @tap="deleteMember">
-      <view class='deleteMember'>移除成员</view>
-      <view class='saveModify'>保存修改</view>
+    <view class='member_bt'>
+      <view class='deleteMember' @tap="deleteMember">移除成员</view>
+      <view class='saveModify' @tap="saveSet">保存修改</view>
     </view>
   <toast/>
   </view>
@@ -284,6 +284,9 @@ page{
         }
         // 单选状态切换
         this.homeInfo.roomList[RoomIdx].equipments[EqIdx].ifCheck = !EQ.ifCheck
+      },
+      saveSet () {
+        console.log(this.homeInfo)
       }
 
     }

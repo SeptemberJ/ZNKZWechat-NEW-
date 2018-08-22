@@ -1,0 +1,200 @@
+<style lang="less">
+
+</style>
+<template>
+  <button open-type="getUserInfo">授权</button>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../mixins/test'
+  import { updateHomeList, updateCurHome, wxUserInfo } from '../store/actions'
+
+  @connect({
+    urlPre (state) {
+      return state.counter.urlPre
+    }
+  }, {
+    updateHomeList,
+    updateCurHome,
+    wxUserInfo
+  })
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: 'SmartHox'
+    }
+    components = {
+      toast: Toast
+    }
+
+    mixins = [testMixin]
+
+    data = {
+    }
+
+    computed = {
+    }
+
+    methods = {
+      toLogin () {
+        this.$navigate('./index')
+      },
+      toSign () {
+        this.$navigate('./sign')
+      }
+    }
+
+    // self fun
+    getUserInfo () {
+      console.log('index getUserInfo---')
+      return new Promise((resolve, reject) => {
+        wepy.login().then((RES) => {
+          wepy.getUserInfo().then((res) => {
+            let UserData = {
+              code: RES.code,
+              userInfo: res.userInfo
+            }
+            console.log('getuserinfo success')
+            console.log(RES)
+            console.log(res)
+            resolve(UserData)
+          }).catch(reject)
+        }).catch(reject)
+      })
+    }
+
+    getOpenid (CODE) {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/getOpen_id?code=' + CODE,
+          method: 'GET'
+        }).then((res) => {
+          console.log(res)
+          this.$parent.globalData.openid = res.data.openid
+          this.$apply()
+          resolve(res.data.openid)
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+
+    // 获取用户家庭列表
+    getUserHomeList (ID) {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/home?register_id=' + ID,
+          method: 'GET'
+        }).then((res) => {
+          console.log(res)
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              if (res.data.homeList.length > 0) { // 已创建家的进入首页，否则先创建家
+                this.methods.updateHomeList(res.data.homeList)
+                res.data.homeList.map((item, idx) => {
+                  if (item.isdefault === '1') {
+                    this.methods.updateCurHome(item)
+                  }
+                })
+                this.$switch('./index')
+              } else {
+                this.$redirect('./readyToCreate')
+              }
+              resolve(res)
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../images/icons/attention.png'
+          })
+        })
+      })
+    }
+
+    getBindingStatus (Openid) {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/userInfo?open_id=' + Openid,
+          method: 'GET'
+        }).then((res) => {
+          console.log(res)
+          resolve(res.data.openid)
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              let NewNickNameInfo = {
+                type: 'nickName',
+                newInfo: res.data.userInfo.wx_name
+              }
+              let NewPhoneInfo = {
+                type: 'phone',
+                newInfo: res.data.userInfo.ftelephone
+              }
+              let NewAvatarInfo = {
+                type: 'avatarUrl',
+                newInfo: res.data.userInfo.wx_pic
+              }
+              this.methods.wxUserInfo(NewNickNameInfo)
+              this.methods.wxUserInfo(NewPhoneInfo)
+              this.methods.wxUserInfo(NewAvatarInfo)
+              this.$parent.globalData.register_id = res.data.userInfo.id
+              this.getUserHomeList(res.data.userInfo.id)
+              this.$apply()
+              resolve(res)
+              break
+            case 0: // 未绑定手机号
+              wepy.hideLoading()
+              this.$navigate('./sign')
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../images/icons/attention.png'
+          })
+        })
+      })
+    }
+
+    async userInfoAsync () {
+      const UserInfoData = await this.getUserInfo()
+      this.$parent.globalData.userInfo = UserInfoData.userInfo
+      this.$apply()
+      const Openid = await this.getOpenid(UserInfoData.code)
+      this.getBindingStatus(Openid)
+    }
+
+    events = {
+    }
+
+    onLoad() {
+      this.userInfoAsync()
+    }
+  }
+</script>

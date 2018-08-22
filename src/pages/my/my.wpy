@@ -41,7 +41,6 @@ page{
         width: 150rpx;
         height: 150rpx;
         border-radius: 50%;
-        border: 1px solid red;
       }
     }
     .itemBar{
@@ -67,12 +66,13 @@ page{
 <template>
   <view class='my'>
     <view class='userAccount' @tap="ToCenter">
-      <image class='avatar' src="../../images/icons/arrow-right.png"></image>
+      <image class='avatar' src="{{userInfo.avatarUrl}}"></image>
       <view class='userInfo'>
-        <text class='nickName'>{{userInfo.nickName?userInfo.nickName:'点击设置昵称'}}</text>
+      <text class='nickName'>{{userInfo.nickName}}</text>
+        <!-- <text class='nickName'>{{userInfo.nickName?userInfo.nickName:'点击设置昵称'}}</text> -->
         <text class='phone'>{{userInfo.phone}}</text>
       </view>
-      <image src="../../images/icons/arrow-right.png"></image>
+      <!-- <image src="../../images/icons/arrow-right.png"></image> -->
     </view>
 
     <view class='itemBar' @tap="toHomeList">
@@ -143,9 +143,9 @@ page{
     }
 
     methods = {
-      ToCenter () {
-        this.$navigate('./center')
-      },
+      // ToCenter () {
+      //   this.$navigate('./center')
+      // },
       toHomeList () {
         this.$navigate('./homeList')
       }

@@ -2,12 +2,47 @@
 page{
   background: #efefef;
   font-size: 30rpx;
-  .homeList{
+  .my{
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
+    .userAccount{
+      width: 710rpx;
+      height:200rpx;
+      padding: 0 20rpx;
+      margin-bottom: 20rpx;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      background: #fff;
+      .userInfo{
+        width: 490rpx;
+        height: 150rpx;
+        padding-left: 20rpx;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: space-around;
+        .nickName{
+          font-size: 32rpx;
+          font-weight: bold;
+        }
+        .phone{
+          color: #666;
+        }
+      }
+      image{
+        width: 50rpx;
+        height: 50rpx;
+      }
+      .avatar{
+        width: 150rpx;
+        height: 150rpx;
+        border-radius: 50%;
+      }
+    }
     .itemBar{
       width: e("calc(100% - 40rpx)");
       height:100rpx;
@@ -24,124 +59,19 @@ page{
         width: 50rpx;
         height: 50rpx;
       }
-      .memberRole{
-        color: #666;
-        font-weight: normal;
-      }
-      .incidentalText{
-        display: flex;
-        flex-grow: 1;
-        justify-content: flex-end;
-        font-weight: normal;
-        color: #666;
-      }
-    }
-    &_columnTit{
-      width: e("calc(100% - 40rpx)");
-      height: 100rpx;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20rpx;
-      color: #666;
-      .columnItem{
-        display: flex;
-        align-items: center;
-      }
-      image{
-        width: 50rpx;
-        height: 50rpx;
-      }
-    }
-    .memberBar{
-      height: 150rpx;
-    }
-    &_member{
-      padding-left: 20rpx;
-      display: flex;
-      flex-grow: 1;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: space-between;
-      .memberPhone{
-        font-size: 28rpx;
-        font-weight: normal !important;
-        color: #666 !important;
-      }
-    }
-    .memberAvatar{
-      width: 80rpx !important;
-      height: 80rpx !important;
-      border-radius: 50%;
-    }
-    .hasTopBorder{
-      border-top: 1px solid #efefef;
-    }
-    &_bt{
-      width: 100%;
-      position: fixed;
-      left: 0;
-      bottom:0;
-      margin-top: 200px;
-      text-align: center;
-      line-height: 100rpx;
-      background: red;
-      font-size: 32rpx;
-      color: #fff;
-      margin: 20px auto auto auto;
-      border-radius: 0rpx;
-    }
-    .theLast{
-      margin-bottom: 140rpx;
     }
   }
 }
 </style>
 <template>
-  <view class='homeList'>
+  <view class='my'>
+    <view class='itemBar' @tap="toHomeDetail({{homeItem.home_id}})" wx:for-items="{{homeList}}" wx:for-item="homeItem" wx:for-index="homeIdx" wx:key="homeIdx">
+      <text>{{homeItem.home_name}}</text>
+      <image src="../../images/icons/arrow-right.png"></image>
+    </view>
+
     <view class='blankBar'  style="width: 100%;height: 20rpx;"></view>
 
-    <view class='itemBar'>
-      <text>家庭名称</text>
-      <text class='incidentalText'>liubai的家</text>
-      <image src="../../images/icons/arrow-right.png"></image>
-    </view>
-    <view class='itemBar'>
-      <text>房间个数</text>
-      <text class='incidentalText'>7</text>
-      <image src="../../images/icons/arrow-right.png"></image>
-    </view>
-
-    <view class='itemBar'>
-      <text>家庭位置</text>
-      <text class='incidentalText'>liubai的家</text>
-      <image src="../../images/icons/arrow-right.png"></image>
-    </view>
-
-    <view class='homeList_columnTit'>
-      <view class='columnItem'><text>家庭成员：</text></view>
-      <view class='columnItem' @tap="addMember"><image src='../../images/icons/add.png'></image><text style='color:#3498db;'>添加</text></view>
-    </view>
-
-    <!-- memberList -->
-    <view class='itemBar memberBar'>
-      <image class='memberAvatar' src="{{userInfo.avatarUrl}}"></image>
-      <view class='homeList_member'>
-        <text>{{userInfo.nickName}}</text>
-        <text class='memberPhone'>{{userInfo.phone}}</text>
-      </view>
-      <text class='memberRole'>管理员</text>
-    </view>
-    <view @tap="setMember" class="itemBar memberBar hasTopBorder {{Idx == memberList.length-1?'theLast':''}}" wx:for-items="{{memberList}}" wx:for-item="member" wx:key="Idx" wx:for-index="Idx">
-      <image class='memberAvatar' src="{{member.avatarUrl}}"></image>
-      <view class='homeList_member'>
-        <text>{{member.name}}</text>
-        <text class='memberPhone'>{{member.phone}}</text>
-      </view>
-      <image src="../../images/icons/arrow-right.png"></image>
-    </view>
-
-    <view class='homeList_bt' @tap="deleteHome">移除家庭</view>
 
   <toast/>
   </view>
@@ -154,6 +84,9 @@ page{
   import testMixin from '../../mixins/test'
 
   @connect({
+    urlPre (state) {
+      return state.counter.urlPre
+    },
     homeList (state) {
       return state.counter.homeList
     },
@@ -165,7 +98,7 @@ page{
 
   export default class My extends wepy.page {
     config = {
-      navigationBarTitleText: '家庭列表'
+      navigationBarTitleText: '家列表'
     }
     components = {
       toast: Toast
@@ -174,33 +107,20 @@ page{
     mixins = [testMixin]
 
     data = {
-      memberList: [
-        {
-          name: '张三',
-          avatarUrl: 'https://i.loli.net/2017/08/21/599a521472424.jpg',
-          phone: '18234567899',
-          room: [
-            {roomName: '书房', roomId: 0, equipments: [{eqName: '书房设备1', eqId: 0}, {eqName: '书房设备2', eqId: 2}]},
-            {roomName: '客厅', roomId: 0, equipments: [{eqName: '客厅设备1', eqId: 0}, {eqName: '客厅设备2', eqId: 2}]}
-          ]
-        }
-      ]
     }
 
     computed = {
     }
 
     methods = {
-      setMember () {
-        this.$navigate('./member')
-      },
-      addMember () {
-
+      toHomeDetail (HomeId) {
+        this.$navigate('./homeSet?HomeId=' + HomeId)
       }
     }
 
     events = {
     }
+
     onLoad() {
     }
   }

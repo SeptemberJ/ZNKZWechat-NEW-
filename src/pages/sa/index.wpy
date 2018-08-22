@@ -129,6 +129,9 @@ page{
   @connect({
     homeList (state) {
       return state.counter.homeList
+    },
+    curHome (state) {
+      return state.counter.curHome
     }
   }, {
     changeSceneInfo,
@@ -238,6 +241,49 @@ page{
       toEdit_automation (e) {
         this.$navigate('./automation/index?automaticid=' + e.currentTarget.dataset.automaticid + '&type=1')
       }
+    }
+
+    // 获取场景
+    GetSceneIconList (_this) {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: _this.urlPre + '/selectallscenario?id=' + this.curHome.home_id,
+          method: 'POST',
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }).then((res) => {
+          switch (res.data.result) {
+            case 1:
+              // this.SceneIconList = res.data.scenariolist
+              // this.$apply()
+              wepy.hideLoading()
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '获取图标失败！',
+                img: '../../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
     }
 
     events = {

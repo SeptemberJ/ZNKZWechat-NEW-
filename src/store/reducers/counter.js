@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions'
-import { INCREMENT, DECREMENT, ASYNC_INCREMENT, CHANGEADDROOMLIST, CHANGESCENEINFO, CHANGEAUTOMATIONINFO } from '../types/counter'
+import { INCREMENT, DECREMENT, ASYNC_INCREMENT,WXUSERINFO, CHANGEADDROOMLIST, CHANGESCENEINFO, CHANGEAUTOMATIONINFO, UPDATEHOMELIST, UPDATECURHOME, UPDATECURROOMLIST, UPDATECURROOM } from '../types/counter'
 
 export default handleActions({
   // 创建场景的信息
@@ -68,11 +68,62 @@ export default handleActions({
       break
     } 
   },
+  // 用户微信信息
+  [WXUSERINFO] (state, action) {
+    switch (action.payload.type) {
+      case 'nickName':
+      return {
+        ...state,
+        userInfo: { ...state.userInfo, nickName: action.payload.newInfo }
+      }
+      break
+      case 'phone':
+      return {
+        ...state,
+        userInfo: { ...state.userInfo, phone: action.payload.newInfo }
+      }
+      break
+      case 'avatarUrl':
+      return {
+        ...state,
+        userInfo: { ...state.userInfo, avatarUrl: action.payload.newInfo }
+      }
+      break
+    }
+  },
   // 创建家时房间list
   [CHANGEADDROOMLIST] (state, action) {
     return {
       ...state,
-      addRoomList: [...state.addRoomList,{'name':action.payload,'choosed': true}]
+      addRoomList: [...state.addRoomList,{'house_name':action.payload,'choosed': true}]
+    }
+  },
+  // 更新家列表
+  [UPDATEHOMELIST] (state, action) {
+    return {
+      ...state,
+      homeList: action.payload
+    }
+  },
+  // 更新当前家
+  [UPDATECURHOME] (state, action) {
+    return {
+      ...state,
+      curHome: action.payload
+    }
+  },
+  // 更新当前房间
+  [UPDATECURROOM] (state, action) {
+    return {
+      ...state,
+      curRoom: action.payload
+    }
+  },
+  // 更新当前家下房间列表
+  [UPDATECURROOMLIST] (state, action) {
+    return {
+      ...state,
+      roomList: action.payload
     }
   },
   [INCREMENT] (state) {
@@ -96,35 +147,29 @@ export default handleActions({
 }, {
   num: 0,
   asyncNum: 0,
-  urlPre: 'https://jingshangs.com/zk_hky',
+  urlPre: 'http://205.168.1.100:8083',// https://jingshangs.com/zk_hky',
   userInfo:{
     nickName: '留白', // '留白'
     phone: '18234567890',
     avatarUrl: 'https://i.loli.net/2017/08/21/599a521472424.jpg'
   },
   addRoomList: [
-    {name: '客厅', choosed: true},
-    {name: '主卧', choosed: true},
-    {name: '次卧', choosed: true},
-    {name: '餐厅', choosed: true},
-    {name: '厨房', choosed: true},
-    {name: '书房', choosed: true}
+    {house_name: '客厅', choosed: true},
+    {house_name: '主卧', choosed: true},
+    {house_name: '次卧', choosed: true},
+    {house_name: '餐厅', choosed: true},
+    {house_name: '厨房', choosed: true},
+    {house_name: '书房', choosed: true}
   ],
-  curHome: {id:'ede157a2-f6a1-409c-8f4e-3d549cb12add', name: 'liubai的家'},
+  curHome: {
+    faddress: "江苏省南通市海门市北京中路600号",
+    home_id: "a12188809f254e989be3cde374a0f076",
+    home_name: "11",
+    isdefault: "1"
+  },
   curRoom: {id:0, name: '客厅'},
-  homeList: [
-    {id:0, name: 'liubai的家'},
-    {id:1, name: 'liubai的家2'},
-    {id:2, name: 'liubai的家3'}
-  ],
-  roomList: [
-    {id:0, name: '客厅'},
-    {id:1, name: '主卧'},
-    {id:2, name: '次卧'},
-    {id:3, name: '餐厅'},
-    {id:4, name: '厨房'},
-    {id:5, name: '书房'}
-  ],
+  homeList: [],
+  roomList: [],
   CurHomeRole: 1,  //1-管理员 0-家庭成员 3-体验者
   // RoomIconList: [], // 房间icon
   // SceneIconList: [],// 场景icon

@@ -48,13 +48,13 @@ page{
     <view class='secondControlList'>
       <view class="secondControl" @tap="ToEquipment({{secondControl.id}})" wx:for-items="{{secondControlList}}" wx:for-item="secondControl" wx:key="Idx" wx:for-index="Idx">
         <image src="../../images/icons/arrow-right.png"></image>
-        <text>{{secondControl.name}}</text>
+        <text>{{secondControl.second_control_name}}</text>
         <image src="../../images/icons/arrow-right.png"></image>
       </view>
       <toast/>
     </view>
     <button class='addBt' @tap="addSecondControl">添加</button>
-    <AddModal :addType.sync="addType" :ifShow.sync="ifAdd" wx:if="{{ifAdd}}"></AddModal>
+    <AddModal :addType.sync="addType" :MasterCode.sync="MasterCode" :SecondControlType.sync="SecondControlType" :ifShow.sync="ifAdd" wx:if="{{ifAdd}}"></AddModal>
   </view>
 </template>
 
@@ -67,6 +67,9 @@ page{
   import AddModal from '../../components/addModal'
 
   @connect({
+    urlPre (state) {
+      return state.counter.urlPre
+    },
     curHome (state) {
       return state.counter.curHome
     },
@@ -91,6 +94,8 @@ page{
     data = {
       addType: 1,
       ifAdd: false,
+      MasterCode: null,
+      SecondControlType: null,
       tipTitle: '暂无从控，请添加',
       secondControlList: [{id: 0, name: '从控一'}, {id: 0, name: '从控一'}]
     }
@@ -110,11 +115,30 @@ page{
         this.$apply()
       },
       ToEquipment (ID) {
-        this.$navigate('./Equipment?secondControlId=' + ID)
-      },
-      getSecondControlList () {
-        console.log('in getSecondControlList----------------')
+        this.$navigate('./Equipment?secondControlId=' + ID + '&MasterCode=' + this.MasterCode)
       }
+    }
+
+    // self fn
+    // 当前家从控列表
+    getSecondControlList (MasterCode, Type) {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/secondControl?main_control_code=' + MasterCode + '&second_control_category=' + Type,
+          method: 'GET'
+        }).then((res) => {
+          this.secondControlList = res.data.secondControlList
+          this.$apply()
+          resolve(res.data.openid)
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
     }
 
     events = {
@@ -122,12 +146,16 @@ page{
         console.log('emit---------------------')
         let $event = args[args.length - 1]
         console.log(`${this.$name} receive ${$event.name} from ${$event.source.$name}`)
-        this.methods.getSecondControlList()
+        this.methods.getSecondControlList(this.MasterCode, this.SecondControlType)
       }
     }
 
     onLoad(options) {
       console.log(options.typeId)
+      this.MasterCode = options.MasterCode
+      this.SecondControlType = options.Type
+      this.$apply()
+      this.getSecondControlList(options.MasterCode, options.Type)
     }
   }
 </script>

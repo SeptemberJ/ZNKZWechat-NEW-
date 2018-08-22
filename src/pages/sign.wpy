@@ -81,34 +81,42 @@ page{
     <view class='sign_item phone'><input @input="changePhone" value="{{user_phone}}" type="text" name="phone" placeholder="手机号" /></view>
     <view class='sign_item code'>
       <input @input="changeCode" value="{{user_code}}" type="text" name="phone" placeholder="验证码" />
-      <text @tap="getCode">{{haGetCode?CountDown + 's':'获取验证码'}}</text>
+      <text @tap="toGetCode">{{haGetCode?CountDown + 's':'获取验证码'}}</text>
     </view>
-    <view class='sign_item password'>
+    <!-- <view class='sign_item password'>
       <input @input="changePsd" wx:if="{{ifShowPsd}}" type="text" value="{{user_psd}}" name="password" placeholder="密码" />
       <input @input="changePsd" wx:if="{{!ifShowPsd}}" type="password" value="{{user_psd}}" name="password" placeholder="密码" />
       <image @tap="toggleShowPsd" src="{{ifShowPsd?'../images/icons/sign-eyeon.png':'../images/icons/icon_closeeye.png'}}"></image>
-    </view>
-    <view class='sign_item password'>
+    </view> -->
+    <!-- <view class='sign_item password'>
       <input @input="changePsdAgain" wx:if="{{ifShowPsd}}" type="text" value="{{user_psd_again}}" name="password" placeholder="确认密码" />
       <input @input="changePsdAgain" wx:if="{{!ifShowPsd}}" type="password" value="{{user_psd_again}}" name="password" placeholder="确认密码" />
       <image @tap="toggleShowPsd" src="{{ifShowPsd?'../images/icons/sign-eyeon.png':'../images/icons/icon_closeeye.png'}}"></image>
-    </view>
+    </view> -->
     <view class='sign_clause'>
       <image src="{{ifAgreed?'../images/icons/check.png':'../images/icons/square.png'}}" @tap="toggleAgree"></image><text>我同意 服务协议与隐私政策</text>
     </view>
-    <view class='sign_item sign_bt' @tap="toSign">确定注册</view>
+    <view class='sign_item sign_bt' @tap="toBindPhone">绑定</view>
+    <!-- <button open-type="getUserInfo">授权</button> -->
     <toast />
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
   import Toast from 'wepy-com-toast'
   import testMixin from '../mixins/test'
+  @connect({
+    urlPre (state) {
+      return state.counter.urlPre
+    }
+  }, {
+  })
 
   export default class Index extends wepy.page {
     config = {
-      navigationBarTitleText: '注册'
+      navigationBarTitleText: '绑定手机号'
     }
     components = {
       toast: Toast
@@ -118,7 +126,7 @@ page{
 
     data = {
       haGetCode: false,
-      code_R: '111',
+      code_R: null,
       CountDown: 5,
       ifShowPsd: false,
       user_phone: null,
@@ -165,33 +173,7 @@ page{
         this.ifAgreed = !this.ifAgreed
         this.$apply()
       },
-      getCode () {
-        if (!this.haGetCode) {
-          this.methods.CountDownFN(this)
-        } else {
-          return false
-        }
-      },
-      CountDownFN (_this) {
-        console.log('CountDown-------')
-        let self = this
-        let Timer = setTimeout(() => {
-          self.CountDownFN(_this)
-        }, 1000)
-        let num = _this.CountDown
-        if (num === 0) {
-          clearTimeout(Timer)
-          _this.CountDown = 5
-          _this.haGetCode = false
-          _this.$apply()
-          return false
-        } else {
-          _this.CountDown -= 1
-          _this.haGetCode = true
-          _this.$apply()
-        }
-      },
-      toSign () {
+      toGetCode () {
         if (!this.user_phone) {
           this.$invoke('toast', 'show', {
             title: '请输入手机号！',
@@ -206,14 +188,41 @@ page{
           })
           return false
         }
-        if (!this.user_psd) {
+        if (!this.haGetCode) {
+          this.CountDownFN(this)
+          this.getCode()
+        }
+      },
+      toBindPhone () {
+        if (!this.user_phone) {
           this.$invoke('toast', 'show', {
-            title: '请输入密码！',
+            title: '请输入手机号！',
             img: '../images/icons/attention.png'
           })
           return false
         }
-        if (!this.user_code) {
+        if (!(/^1[34578]\d{9}$/.test(this.user_phone))) {
+          this.$invoke('toast', 'show', {
+            title: '手机号格式不正确！',
+            img: '../images/icons/attention.png'
+          })
+          return false
+        }
+        // if (!this.user_psd) {
+        //   this.$invoke('toast', 'show', {
+        //     title: '请输入密码！',
+        //     img: '../images/icons/attention.png'
+        //   })
+        //   return false
+        // }
+        // if (!this.user_code) {
+        //   this.$invoke('toast', 'show', {
+        //     title: '请输入验证码！',
+        //     img: '../images/icons/attention.png'
+        //   })
+        //   return false
+        // }
+        if (!this.user_code || this.user_code === '') {
           this.$invoke('toast', 'show', {
             title: '请输入验证码！',
             img: '../images/icons/attention.png'
@@ -227,13 +236,13 @@ page{
           })
           return false
         }
-        if (this.user_psd !== this.user_psd_again) {
-          this.$invoke('toast', 'show', {
-            title: '两次输入的密码不一致！',
-            img: '../images/icons/attention.png'
-          })
-          return false
-        }
+        // if (this.user_psd !== this.user_psd_again) {
+        //   this.$invoke('toast', 'show', {
+        //     title: '两次输入的密码不一致！',
+        //     img: '../images/icons/attention.png'
+        //   })
+        //   return false
+        // }
         if (!this.ifAgreed) {
           this.$invoke('toast', 'show', {
             title: '请先同意协议！',
@@ -241,12 +250,119 @@ page{
           })
           return false
         }
+        // 绑定
+        return new Promise((resolve, reject) => {
+          wepy.request({
+            url: this.urlPre + '/userInsert?nickname=' + this.$parent.globalData.userInfo.nickName + '&head_img=' + this.$parent.globalData.userInfo.avatarUrl + '&open_id=' + this.$parent.globalData.openid + '&mobile=' + this.user_phone,
+            method: 'POST'
+          }).then((res) => {
+            switch (res.data.code) {
+              case 1:
+                wepy.hideLoading()
+                wepy.showToast({
+                  title: '绑定成功!',
+                  icon: 'success'
+                })
+                this.$redirect('./readyToCreate')
+                resolve(res)
+                break
+              default:
+                wepy.hideLoading()
+                this.$invoke('toast', 'show', {
+                  title: '绑定失败！',
+                  img: '../images/icons/attention.png'
+                })
+            }
+          }).catch((res) => {
+            console.log(res)
+            wepy.hideLoading()
+            this.$invoke('toast', 'show', {
+              title: '服务器繁忙！',
+              img: '../images/icons/attention.png'
+            })
+          })
+        })
       }
     }
     events = {
     }
 
+    // sefl fn
+    CountDownFN2 (_this) {
+      console.log('CountDown-------')
+      let self = this
+      let Timer = setTimeout(() => {
+        self.CountDownFN(_this)
+      }, 1000)
+      let num = _this.CountDown
+      if (num === 0) {
+        clearTimeout(Timer)
+        _this.CountDown = 5
+        _this.haGetCode = false
+        _this.$apply()
+        return false
+      } else {
+        _this.CountDown -= 1
+        _this.haGetCode = true
+        _this.$apply()
+      }
+    }
+    CountDownFN () {
+      console.log('CountDown-------')
+      let Timer = setTimeout(() => {
+        this.CountDownFN()
+      }, 1000)
+      let num = this.CountDown
+      if (num === 0) {
+        clearTimeout(Timer)
+        this.CountDown = 5
+        this.haGetCode = false
+        this.$apply()
+        return false
+      } else {
+        this.CountDown -= 1
+        this.haGetCode = true
+        this.$apply()
+      }
+    }
+    getCode () {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/checkMessage?mobile=' + this.user_phone,
+          method: 'GET'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              this.code_R = res.data.validateCode
+              this.$apply()
+              wepy.hideLoading()
+              resolve(res)
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '验证码获取失败！',
+                img: '../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../images/icons/attention.png'
+          })
+        })
+      })
+    }
+
     onLoad() {
+      setTimeout(() => {
+        console.log('userInfo----------------')
+        console.log(this.$parent.globalData.userInfo)
+      }, 1000)
+      // console.log(this.$parent.globalData.userInfo)
+      // console.log(this.$parent.globalData.test)
     }
   }
 </script>

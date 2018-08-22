@@ -52,8 +52,8 @@
     <view class='frosted-glass'></view>
   </view>
   <image class='logo' src='../images/ZNKZLogo.png'></image>
-  <view class='Bt'>创建新账户</view>
-  <text class='loginText'>使用已有账户登陆</text>
+  <view class='Bt' @tap="toSign">创建新账户</view>
+  <text class='loginText' @tap="toLogin">使用已有账户登陆</text>
 </template>
 
 <script>
@@ -91,6 +91,12 @@
     }
 
     methods = {
+      toLogin () {
+        this.$navigate('./login')
+      },
+      toSign () {
+        this.$navigate('./sign')
+      }
     }
 
     events = {

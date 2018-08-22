@@ -45,7 +45,7 @@
   <view class='readyToCreate'>
     <image src='../images/readyToCreate.jpg'></image>
     <text>创建您的第一个智慧家庭</text>
-    <view animation="{{animationData}}" class='readyToCreate_bt'>开启智慧生活</view>
+    <view animation="{{animationData}}" class='readyToCreate_bt' @tap="ToCreateFirstHome">开启智慧生活</view>
   </view>
 </template>
 
@@ -73,7 +73,9 @@
     }
 
     methods = {
-
+      ToCreateFirstHome () {
+        this.$navigate('./createHome')
+      }
     }
 
     events = {

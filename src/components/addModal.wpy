@@ -56,7 +56,6 @@ page{
             width: 50rpx;
             height: 50rpx;
             display: block;
-            background: pink;
           }
         }
       }
@@ -94,9 +93,9 @@ page{
     <view class='modalMain'>
       <text class='addTit'>{{addType == 0?'添加主控':(addType == 1?'添加从控':'添加设备')}}</text>
       <!-- masterControl -->
-      <view class='addItem' wx:if="{{addType == 1 || addType == 0}}">
+      <view class='addItem' wx:if="{{addType == 0}}">
         <text>主控名称</text>
-        <input type="text" name="主控名称" disabled="{{addType != 0}}" value="{{masterControl_Name}}" />
+        <input @input="changeMasterControlName" type="text" name="主控名称" disabled="{{addType != 0}}" value="{{masterControl_Name}}" />
       </view>
       <view class='addItem' wx:if="{{addType == 0}}">
         <text>主控码</text>
@@ -104,9 +103,9 @@ page{
         <image src="../../images/icons/scan.png" @tap="ScanCode(0)"></image>
       </view>
       <!-- secondControl -->
-      <view class='addItem' wx:if="{{addType == 2 || addType == 1}}">
+      <view class='addItem' wx:if="{{addType == 1}}">
         <text>从控名称</text>
-        <input type="text" name="从控名称" disabled="{{addType != 1}}" value="{{secondControl_Name}}" />
+        <input @input="changeSecondControlName" type="text" name="从控名称" disabled="{{addType != 1}}" value="{{secondControl_Name}}" />
       </view>
       <view class='addItem' wx:if="{{addType == 1}}">
         <text>从控码</text>
@@ -115,8 +114,15 @@ page{
       </view>
       <!-- equpiment -->
       <view class='addItem' wx:if="{{addType == 2}}">
+        <text>设备类型{{MasterCode}}</text>
+        <picker bindchange="bindPickerChangeType" value="{{euqipment_Type_index}}" range-key="device_type_name" range="{{TypeList}}">
+          <text>{{TypeList[euqipment_Type_index].device_type_name}}</text>
+        </picker>
+        <image src="../images/icons/arrow-down.png"></image>
+      </view>
+      <view class='addItem' wx:if="{{addType == 2}}">
         <text>设备名称</text>
-        <input type="text" name="设备名称" disabled="{{addType != 2}}" value="{{euqipment_Name}}" />
+        <input @input="changeEuqipment_Name" type="text" name="设备名称" disabled="{{addType != 2}}" value="{{euqipment_Name}}" />
       </view>
       <view class='addItem' wx:if="{{addType == 2}}">
         <text>设备码</text>
@@ -134,6 +140,26 @@ page{
 
 <script>
   import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+
+  @connect({
+    homeList (state) {
+      return state.counter.homeList
+    },
+    curHome (state) {
+      return state.counter.curHome
+    },
+    curRoom (state) {
+      return state.counter.curRoom
+    },
+    roomList (state) {
+      return state.counter.roomList
+    },
+    urlPre (state) {
+      return state.counter.urlPre
+    }
+  }, {
+  })
 
   export default class AddModal extends wepy.component {
     props = {
@@ -141,18 +167,28 @@ page{
         type: Number,
         default: 0   // 0-主控  1-从控  2-设备
       },
-
+      MasterCode: {
+        type: String
+      },
+      SecondControlType: {
+        type: String
+      },
+      secondControlId: {
+        type: String
+      },
       ifShow: {
         twoWay: true
       }
     }
 
     data = {
-      masterControl_Name: '12',
-      masterControl_Code: '12KLKK',
-      secondControl_Name: '12',
-      secondControl_Code: '12KLKK',
-      euqipment_Name: 'sb',
+      TypeList: [],
+      masterControl_Name: '',
+      masterControl_Code: '',
+      secondControl_Name: '',
+      secondControl_Code: 'CK-KLKK',
+      euqipment_Type_index: 0,
+      euqipment_Name: 'sheibei',
       euqipment_Code: '12345678901234567890'
     }
 
@@ -160,6 +196,26 @@ page{
     }
 
     methods = {
+      // 主控名称
+      changeMasterControlName (e) {
+        this.masterControl_Name = e.detail.value
+        this.$apply()
+      },
+      // 从控名称
+      changeSecondControlName (e) {
+        this.secondControl_Name = e.detail.value
+        this.$apply()
+      },
+      // 设备名称
+      changeEuqipment_Name (e) {
+        this.euqipment_Name = e.detail.value
+        this.$apply()
+      },
+      // 选择设备类型
+      bindPickerChangeType (e) {
+        this.euqipment_Type_index = e.detail.value
+        this.$apply()
+      },
       ScanCode (TYPE) {
         return new Promise((resolve, reject) => {
           wepy.scanCode({
@@ -198,18 +254,168 @@ page{
         switch (this.addType) {
           case 0:
             console.log('0---------------')
-            this.$emit('refreshMasterControl-emit', 1, 2, 3)
+            this.addMasterControl()
             break
           case 1:
             console.log('1---------------')
-            this.$emit('refreshSecondControl-emit', 1, 2, 3)
+            this.addSecondControl()
             break
           case 2:
             console.log('2---------------')
-            this.$emit('refreshEquipment-emit', 1, 2, 3)
+            this.addEQ()
+            // this.$emit('refreshEquipment-emit', 1, 2, 3)
             break
         }
       }
+    }
+
+    // self fun
+    // 设备类别
+    getEQType () {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/deviceType',
+          method: 'GET'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              this.TypeList = res.data.deviceTypeList
+              this.$apply()
+              resolve(res)
+              break
+            default:
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+          resolve(res.data.openid)
+        }).catch((res) => {
+          console.log(res)
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    addMasterControl () {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/mainControl?home_id=' + this.curHome.home_id + '&main_control_name=' + this.masterControl_Name + '&main_control_code=' + this.masterControl_Code,
+          method: 'POST'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '添加成功!',
+                icon: 'success'
+              })
+              this.$emit('refreshMasterControl-emit', 1, 2, 3)
+              resolve(res)
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+          resolve(res.data.openid)
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+
+    addSecondControl () {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/secondControl?home_id=' + this.curHome.home_id + '&second_control_name=' + this.secondControl_Name + '&main_control_code=' + this.MasterCode + '&second_contrl_code=' + this.secondControl_Code + '&second_control_category=' + this.SecondControlType,
+          method: 'POST'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '添加成功!',
+                icon: 'success'
+              })
+              this.$emit('refreshSecondControl-emit')
+              resolve(res)
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+          resolve(res.data.openid)
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+
+    addEQ () {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/device',
+          data: {
+            register_id: this.curRoom.register_id,
+            home_id: this.curHome.home_id,
+            house_id: this.curRoom.id,
+            main_control_code: this.MasterCode,
+            second_control_id: this.secondControlId,
+            device_name: this.euqipment_Name,
+            device_code: this.euqipment_Code,
+            defalut_device_type: this.TypeList[this.euqipment_Type_index].device_type_code
+          },
+          method: 'POST'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '添加成功!',
+                icon: 'success'
+              })
+              this.$emit('refreshEquipment-emit')
+              resolve(res)
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+          resolve(res)
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+
+    onLoad () {
+      this.getEQType()
     }
   }
 </script>

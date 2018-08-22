@@ -58,6 +58,10 @@ page{
             display: block;
             background: pink;
           }
+          .chooseAddress{
+            font-weight:bold !important;
+            color:#3498db !important;
+          }
         }
       }
       .BtBlock{
@@ -85,6 +89,10 @@ page{
       }
     }
   }
+  .chooseAddress{
+    font-weight:bold !important;
+    color:#3498db !important;
+  }
 }
 </style>
 <template>
@@ -92,11 +100,12 @@ page{
     <view class='modalMask'></view>
     <view class='modalMainWrap'>
     <view class='modalMain'>
-      <text class='addTit'>{{modifyType == 0?'修改昵称':(modifyType == 1?'修改房间名称':'修改设备名称')}}</text>
+      <text class='addTit'>修改{{modifyTit}}</text>
       <!-- masterControl -->
-      <view class='addItem' wx:if="{{modifyType == 0}}">
-        <text>新昵称</text>
-        <input @input="changeInput" type="text" name="新昵称" disabled="{{modifyType != 0}}" value="{{newNickName}}" />
+      <view class='addItem'>
+        <text>{{modifyTit}}</text>
+        <input @input="changeInput" wx:if="{{modifyType == 0}}" type="text" name="新名称" disabled="{{modifyType != 0}}" value="{{newModifyContent}}" />
+        <view @tap="chooseAddress" wx:if="{{modifyType == 1}}" ><text>{{newModifyContent}}</text><text class='chooseAddress'>选择</tex></view>
       </view>
     </view>
     <view class='BtBlock'>
@@ -109,14 +118,25 @@ page{
 
 <script>
   import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+
+  @connect({
+    urlPre (state) {
+      return state.counter.urlPre
+    }
+  }, {
+  })
 
   export default class ModifyModal extends wepy.component {
     props = {
       modifyType: {
         type: Number,
-        default: 0   // 0-主控  1-从控  2-设备
+        default: 0   // 0-家名称 1-家地址
       },
-      newNickName: {
+      modifyTit: {
+        type: String
+      },
+      newModifyContent: {
         twoWay: true
       },
       ifShow: {
@@ -125,6 +145,7 @@ page{
     }
 
     data = {
+
     }
 
     components = {
@@ -132,20 +153,40 @@ page{
 
     methods = {
       changeInput (e) {
-        switch (this.modifyType) {
-          case 0:
-            console.log('0---------------')
-            this.newNickName = e.detail.value
-            this.$parent.newNickName = e.detail.value
-            this.$parent.$apply()
-            break
-          case 1:
-            console.log('1---------------')
-            break
-          case 2:
-            console.log('2---------------')
-            break
-        }
+        this.$parent.newModifyContent = e.detail.value
+        this.$parent.$apply()
+        // switch (this.modifyType) {
+        //   case 0:
+        //     console.log('0---------------')
+        //     this.newNickName = e.detail.value
+        //     this.$parent.newModifyContent = e.detail.value
+        //     this.$parent.$apply()
+        //     break
+        //   case 1:
+        //     console.log('1---------------')
+        //     break
+        //   case 2:
+        //     console.log('2---------------')
+        //     break
+        // }
+      },
+      chooseAddress () {
+        console.log('chooseAddress---------------')
+        let _THIS = this
+        return new Promise((resolve, reject) => {
+          wepy.chooseLocation({
+          }).then((res) => {
+            console.log(res)
+            _THIS.$parent.newModifyContent = res.address
+            _THIS.$parent.$apply()
+            resolve(res.address)
+          }).catch((res) => {
+            console.log(res)
+          })
+        })
+        // const addressInfo = this.getLocationInfo()
+        // this.$parent.newModifyContent = addressInfo
+        // this.$parent.$apply()
       },
       CancelModify () {
         this.$parent.ifModify = false
@@ -157,12 +198,12 @@ page{
         this.$parent.$apply()
         switch (this.modifyType) {
           case 0:
-            console.log('0---------------')
-            this.$emit('modifyNickName-emit', 1, 2, 3)
+            console.log('修改家名称---------------')
+            this.modifyHomeInfo(this.$parent.newModifyContent, this.$parent.homeAddress, this.$parent.homeIsDefault)
             break
           case 1:
-            console.log('1---------------')
-            this.$emit('refreshSecondControl-emit', 1, 2, 3)
+            console.log('修改家地址---------------')
+            this.modifyHomeInfo(this.$parent.homeName, this.$parent.newModifyContent, this.$parent.homeIsDefault)
             break
           case 2:
             console.log('2---------------')
@@ -170,6 +211,54 @@ page{
             break
         }
       }
+    }
+
+    // self fu
+    getLocationInfo () {
+      return new Promise((resolve, reject) => {
+        wepy.chooseLocation({
+        }).then((res) => {
+          console.log(res)
+          resolve(res.address)
+        }).catch((res) => {
+          console.log(res)
+        })
+      })
+    }
+    modifyHomeInfo (HomeName, HomeAddress, HomeIsDefault) {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/home?id=' + this.$parent.homeId + '&home_name=' + HomeName + '&faddress=' + HomeAddress + '&isdefault=0' + '&register_id=' + this.$parent.registerId,
+          data: {
+          },
+          method: 'PUT'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '修改成功!',
+                icon: 'success'
+              })
+              this.$emit('refreshHomeInfo-emit')
+              resolve(res)
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '修改失败！',
+                img: '../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../images/icons/attention.png'
+          })
+        })
+      })
     }
   }
 </script>
