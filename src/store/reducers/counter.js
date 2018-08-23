@@ -153,7 +153,8 @@ export default handleActions({
     phone: '18234567890',
     avatarUrl: 'https://i.loli.net/2017/08/21/599a521472424.jpg'
   },
-  addRoomList: [
+  addRoomList: [],
+  addRoomList2: [
     {house_name: '客厅', choosed: true},
     {house_name: '主卧', choosed: true},
     {house_name: '次卧', choosed: true},

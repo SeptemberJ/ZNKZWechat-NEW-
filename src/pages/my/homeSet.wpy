@@ -124,21 +124,14 @@ page{
     </view>
 
     <!-- memberList -->
-    <view class='itemBar memberBar'>
-      <image class='memberAvatar' src="{{userInfo.avatarUrl}}"></image>
-      <view class='homeList_member'>
-        <text>{{userInfo.nickName}}</text>
-        <text class='memberPhone'>{{userInfo.phone}}</text>
-      </view>
-      <text class='memberRole'>管理员</text>
-    </view>
     <view  class="itemBar memberBar hasTopBorder {{Idx == memberList.length-1?'theLast':''}}" wx:for-items="{{memberList}}" wx:for-item="member" wx:key="Idx" wx:for-index="Idx">
       <image class='memberAvatar' src="{{member.wx_pic}}"></image>
       <view class='homeList_member'>
         <text>{{member.wx_name}}</text>
         <text class='memberPhone'>{{member.ftelephone}}</text>
       </view>
-      <image @tap="setMember" src="../../images/icons/arrow-right.png"></image>
+      <text wx:if="{{member.ismanager == 1}}" class='memberRole'>管理员</text>
+      <image wx:if="{{member.ismanager == 0}}" @tap="setMember" data-avatar="{{member.wx_pic}}" data-name="{{member.wx_name}}" data-phone="{{member.ftelephone}}" src="../../images/icons/arrow-right.png"></image>
     </view>
 
     <view class='homeList_bt' @tap="deleteHome">移除家庭</view>
@@ -155,6 +148,7 @@ page{
   import Toast from 'wepy-com-toast'
   import testMixin from '../../mixins/test'
   import ModifyModal from '../../components/Modify'
+  import { updateHomeList, updateCurHome } from '../../store/actions'
 
   @connect({
     urlPre (state) {
@@ -167,6 +161,8 @@ page{
       return state.counter.userInfo
     }
   }, {
+    updateCurHome,
+    updateHomeList
   })
 
   export default class My extends wepy.page {
@@ -216,12 +212,16 @@ page{
     }
 
     methods = {
-      setMember () {
+      setMember (e) {
         console.log('setMember-------------------')
-        this.$navigate('./member')
+        wepy.navigateTo({
+          url: './member?avatar=' + e.currentTarget.dataset.avatar + '&name=' + e.currentTarget.dataset.name + '&phone=' + e.currentTarget.dataset.phone + '&HomeId=' + this.homeId + '&registerId=' + this.registerId
+        })
       },
       addMember () {
-
+        wepy.navigateTo({
+          url: './searchMember?HomeId=' + this.homeId
+        })
       },
       modifyHomeName () {
         this.modifyType = 0
@@ -234,9 +234,66 @@ page{
         this.modifyTit = '家地址'
         this.ifModify = true
         this.$apply()
+      },
+      deleteHome () {
+        return new Promise((resolve, reject) => {
+          wepy.showModal({
+            title: '提示',
+            content: '确定删除改家?'
+          }).then((res) => {
+            if (res.confirm) {
+              console.log('用户点击确定')
+              this.sureDelete()
+            } else if (res.cancel) {
+              console.log('用户点击取消')
+            }
+            resolve(res)
+          }).catch((res) => {
+            console.log(res)
+          })
+        })
       }
     }
-
+    // sefl fun
+    sureDelete () {
+      wepy.showLoading({
+        title: '加载中...'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/home?register_id=' + this.$parent.globalData.register_id + '&home_id=' + this.homeId,
+          data: {
+          },
+          method: 'DELETE'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '删除成功!',
+                icon: 'success'
+              })
+              wepy.navigateBack()
+              // this.$navigate('./homeList?ifRefresh=true')
+              resolve(res)
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '删除失败！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
     // 家信息
     getHomeInfo (HomeId) {
       return new Promise((resolve, reject) => {

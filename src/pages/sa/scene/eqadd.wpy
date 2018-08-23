@@ -97,7 +97,7 @@ page{
     <!--curHomeAllEQList  -->
     <view class='Scene_EQList'>
       <view class='Scene_EQList_item' wx:for-items="{{curHomeAllEQList}}"  wx:for-index="EQIdx" wx:for-item="Equipment" wx:key="EQIdx" @tap='Choose' data-idx='{{EQIdx}}'>
-        <image src="{{Equipment.machine_img}}"></image>
+        <!-- <image src="{{Equipment.machine_img}}"></image> -->
         <view class='Scene_EQList_item_text'>
           <text class='Scene_EQList_item_text_name'>{{Equipment.second_name}}</text>
           <text class='Scene_EQList_item_text_room'>{{Equipment.room_name}}</text>
@@ -204,15 +204,15 @@ page{
     GetCurEQList (ID) {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/selecteqlist?homeid=' + ID,
+          url: this.urlPre + '/selecteqlist?home_id=' + ID,
           method: 'GET',
           header: {
             'Content-Type': 'application/x-www-form-urlencoded'
           }
         }).then((res) => {
-          switch (res.data.result) {
+          switch (res.data.code) {
             case 1:
-              let Temp = res.data.registermachine
+              let Temp = res.data.deviceHomeList
               Temp.map((Item, Idx) => {
                 Item.choosed = false
               })
@@ -247,7 +247,7 @@ page{
     events = {
     }
     onLoad (options) {
-      this.GetCurEQList(this.curHome.id)
+      this.GetCurEQList(this.curHome.home_id)
     }
   }
 </script>

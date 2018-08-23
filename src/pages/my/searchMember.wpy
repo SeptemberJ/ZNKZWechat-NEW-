@@ -1,0 +1,154 @@
+<style lang="less">
+page{
+  background: #efefef;
+  font-size: 30rpx;
+  .searchMember{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    .inputBar{
+      margin-top: 20rpx;
+      width: 100%;
+      height: 100rpx;
+      background: #fff;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      .memberPhone{
+        width: 150rpx;
+        padding-left: 20rpx;
+      }
+      input{
+        padding: 0 10rpx;
+      }
+    }
+    .add_bt{
+      width: 60%;
+      text-align: center;
+      line-height: 100rpx;
+      background: #3498db;
+      font-size: 32rpx;
+      font-weight: bold;
+      color: #fff;
+      margin: 20px auto auto auto;
+      border-radius: 15rpx;
+
+    }
+  }
+}
+</style>
+<template>
+  <view class='searchMember'>
+    <view class='inputBar'>
+      <text class="memberPhone">手机号</text>
+      <input @input="changeMemberPhone" placeholder="输入要添加的成员手机号" value="{{memberPhone}}" />
+    </view>
+    <view class='add_bt' @tap="toAdd">确认添加</view>
+    
+  <toast/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../../mixins/test'
+
+  @connect({
+    homeList (state) {
+      return state.counter.homeList
+    },
+    userInfo (state) {
+      return state.counter.userInfo
+    },
+    urlPre (state) {
+      return state.counter.urlPre
+    }
+  }, {
+  })
+
+  export default class My extends wepy.page {
+    config = {
+      navigationBarTitleText: '查询成员'
+    }
+    components = {
+      toast: Toast
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      homeId: null,
+      memberPhone: '13962862067'
+    }
+
+    computed = {
+    }
+
+    methods = {
+      changeMemberPhone (e) {
+        this.memberPhone = e.detail.value
+        this.$apply()
+      },
+      toAdd () {
+        if (this.memberPhone === this.userInfo.phone) {
+          this.$invoke('toast', 'show', {
+            title: '请输入除了管理员以外的用户手机号！',
+            img: '../../images/icons/attention.png'
+          })
+        } else {
+          this.searchMmeber()
+        }
+      }
+
+    }
+
+    // sefl fun
+    searchMmeber () {
+      wepy.showLoading({
+        title: '加载中...'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/homeMember?mobile=' + this.memberPhone + '&home_id=' + this.homeId,
+          data: {
+          },
+          method: 'POST'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '添加成功!',
+                icon: 'success'
+              })
+              wepy.navigateBack()
+              resolve(res)
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '添加失败！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+
+    events = {
+    }
+    onLoad (options) {
+      this.homeId = options.HomeId
+    }
+  }
+</script>

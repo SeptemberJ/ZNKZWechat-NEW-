@@ -18,6 +18,7 @@ export const updateHomeList = createAction(UPDATEHOMELIST, (info) => {
 })
 
 export const updateCurHome = createAction(UPDATECURHOME, (info) => {
+  console.log('updateCurHome-----------------------')
   return new Promise(resolve => {
     setTimeout(() => {
       resolve(info)

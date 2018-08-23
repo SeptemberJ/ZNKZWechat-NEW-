@@ -1,8 +1,58 @@
 <style lang="less">
-
+  .container{
+    width: 100vw;   
+    height: 100vh;
+    background: url('https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1527675541760&di=ab2fabe587b140a66482d9cdf83d3bc9&imgtype=0&src=http%3A%2F%2Fn1.itc.cn%2Fimg8%2Fwb%2Frecom%2F2016%2F06%2F17%2F146614328257949855.JPEG') no-repeat center center/cover;
+    -webkit-filter: blur(5px);
+  }
+  .frosted-glass{   
+    width: 100vw;   
+    height: 100vh;   
+    background: inherit;   
+    -webkit-filter: blur(5px); 
+    filter: blur(5px);   
+    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=4, MakeShadow=false); 
+  }
+  .logo{
+    width: 280rpx;
+    height: 132rpx;
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .Bt{
+    width: 60%;
+    height: 100rpx;
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 1px solid #eee;
+    border-radius: 50rpx;
+    line-height: 100rpx;
+    color: #fff;
+    text-align: center;
+  }
+  .loginText{
+    width: 60%;
+    height: 60rpx;
+    position: absolute;
+    top: e("calc(70% + 100rpx)");
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top:20px;
+    color: #eee;
+    font-size: 30rpx;
+    text-align: center;
+  }
 </style>
 <template>
-  <button open-type="getUserInfo">授权</button>
+  <view class='container'>
+    <view class='frosted-glass'></view>
+  </view>
+  <button class='Bt' style='background: transparent' type='primary' wx:if="{{ifShowBt}}" open-type="getUserInfo" bindgetuserinfo="bindgetuserinfo">授权</button>
+  <toast/>
 </template>
 
 <script>
@@ -33,6 +83,7 @@
     mixins = [testMixin]
 
     data = {
+      ifShowBt: false
     }
 
     computed = {
@@ -44,10 +95,36 @@
       },
       toSign () {
         this.$navigate('./sign')
+      },
+      bindgetuserinfo (e) {
+        if (e.detail.userInfo) {
+          this.userInfoAsync()
+          // 发送 res.code 到后台换取 openId, sessionKey, unionId
+          // wx.login({
+          //   success: res => {
+          //     console.log(e.detail)
+          //     app.globalData.avatarUrl = e.detail.userInfo.avatarUrl
+          //     app.globalData.yulu_nickname = '@' + e.detail.userInfo.nickName
+          //     this.Login(res.code, e.detail.userInfo.nickName, e.detail.userInfo.avatarUrl, this)
+          //   }
+          // })
+        } else {
+          console.log(333, '执行到这里，说明拒绝了授权')
+          this.$invoke('toast', 'show', {
+            title: '为了您更好的体验,请先同意授权!',
+            img: '../images/icons/attention.png'
+          })
+          // wepy.showToast({
+          //   title: '为了您更好的体验,请先同意授权',
+          //   icon: 'none',
+          //   duration: 2000
+          // })
+        }
       }
     }
 
-    // self fun
+    // self fn
+
     getUserInfo () {
       console.log('index getUserInfo---')
       return new Promise((resolve, reject) => {
@@ -61,7 +138,10 @@
             console.log(RES)
             console.log(res)
             resolve(UserData)
-          }).catch(reject)
+          }).catch((res) => {
+            this.ifShowBt = true
+            this.$apply()
+          })
         }).catch(reject)
       })
     }
@@ -102,6 +182,7 @@
                 this.methods.updateHomeList(res.data.homeList)
                 res.data.homeList.map((item, idx) => {
                   if (item.isdefault === '1') {
+                    console.log(item)
                     this.methods.updateCurHome(item)
                   }
                 })

@@ -427,7 +427,7 @@ page{
         wepy.request({
           url: this.urlPre + '/insertscenario',
           data: {
-            id: this.curHome.id,
+            id: this.curHome.home_id,
             roomid: this.RoomId,
             scenarios: DATA
           },

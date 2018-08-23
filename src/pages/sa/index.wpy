@@ -132,6 +132,9 @@ page{
     },
     curHome (state) {
       return state.counter.curHome
+    },
+    urlPre (state) {
+      return state.counter.urlPre
     }
   }, {
     changeSceneInfo,
@@ -243,20 +246,62 @@ page{
       }
     }
 
-    // 获取场景
-    GetSceneIconList (_this) {
+    // 获取当前家下所有场景
+    GetSceneIconList () {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: _this.urlPre + '/selectallscenario?id=' + this.curHome.home_id,
-          method: 'POST',
+          url: this.urlPre + '/selectallscenario?id=' + this.curHome.home_id,
+          method: 'GET',
           header: {
             'Content-Type': 'application/x-www-form-urlencoded'
           }
         }).then((res) => {
           switch (res.data.result) {
             case 1:
-              // this.SceneIconList = res.data.scenariolist
-              // this.$apply()
+              this.sceneList = res.data.scenariolist
+              this.$apply()
+              wepy.hideLoading()
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '获取图标失败！',
+                img: '../../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    // GetCurAutomaticList
+    GetCurAutomaticList () {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/selectallautomation?id=' + this.curHome.home_id,
+          method: 'GET',
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }).then((res) => {
+          switch (res.data.result) {
+            case 1:
+              this.automationList = res.data.automationlist
+              this.$apply()
               wepy.hideLoading()
               resolve(res)
               break
@@ -290,6 +335,8 @@ page{
     }
 
     onLoad() {
+      this.GetSceneIconList()
+      this.GetCurAutomaticList()
     }
   }
 </script>

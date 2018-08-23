@@ -316,9 +316,11 @@ page{
 <template>
   <view class='Index'>
     <!-- homelist -->
-    <view class='homeBlock' @tap="showActionSheet">
-      <text>{{curHome.home_name}}</text>
-      <image src='../images/icons/arrow-down.png'></image>
+    <view class='homeBlock'>
+      <picker bindchange="bindPickerChangeCurHome" value="{{picker_home_index}}" range-key="home_name" range="{{homeList}}">
+        <text>{{curHome.home_name}}</text>
+        <image src='../images/icons/arrow-down.png'></image>
+      </picker>
     </view>
     <!-- weather -->
     <view class='weatherForecast_wrap'>
@@ -377,7 +379,7 @@ page{
             <text>{{roomItem.house_name}}</text>
           </view>
         </scroll-view>
-        <image src='../images/icons/Setting.png'></image>
+        <image @tap="setRoomManage" src='../images/icons/Setting.png'></image>
       </view>
     </view>
     <!-- equipment -->
@@ -400,7 +402,7 @@ page{
   import Toast from 'wepy-com-toast'
   import testMixin from '../mixins/test'
   import Empty from '../components/empty'
-  import { updateHomeList, updateCurRoomList, updateCurRoom } from '../store/actions'
+  import { updateHomeList, updateCurRoomList, updateCurRoom, updateCurHome } from '../store/actions'
 
   @connect({
     homeList (state) {
@@ -417,12 +419,23 @@ page{
     }
   }, {
     updateCurRoomList,
-    updateCurRoom
+    updateCurRoom,
+    updateCurHome
   })
 
   export default class Index extends wepy.page {
     config = {
       navigationBarTitleText: '我的家'
+    }
+    watch = {
+      curHome (curVal, oldVal) {
+        console.log('curHome--------------')
+        console.log(curVal)
+      }
+      // roomList (curVal, oldVal) {
+      //   console.log(oldVal)
+      //   console.log(curVal)
+      // }
     }
     components = {
       toast: Toast,
@@ -436,31 +449,18 @@ page{
       airQuality: null,
       Toggle_show: 0,  // 0初始 1展开 -1关闭
       CurRoomIndex: 0,
-      equipmentList: []
+      equipmentList: [],
+      picker_home_index: 0
     }
 
     computed = {
     }
 
-    watch = {
-      roomList (curVal, oldVal) {
-        console.log(oldVal)
-        console.log(curVal)
-      }
-    }
-
     methods = {
-      showActionSheet () {
-        return new Promise((resolve, reject) => {
-          wepy.showActionSheet({
-            itemList: ['A', 'B', 'C']
-          }).then((res) => {
-            console.log(res.tapIndex)
-            resolve(res.tapIndex)
-          }).catch((res) => {
-            console.log(res)
-          })
-        })
+      bindPickerChangeCurHome (e) {
+        this.methods.updateCurHome(this.homeList[e.detail.value])
+        this.getRoomList(this.homeList[e.detail.value].home_id)
+        this.modifyHomeInfo(this.homeList[e.detail.value].home_id, this.homeList[e.detail.value].home_name, this.homeList[e.detail.value].faddress, 1)
       },
       Toggle () {
         this.Toggle_show = (this.Toggle_show === 0) ? 1 : (this.data.Toggle_show === 1 ? -1 : 1)
@@ -473,10 +473,54 @@ page{
         this.$apply()
       },
       addEquipment () {
-        this.$navigate('./addEquipment/masterControl')
+        wepy.navigateTo({
+          url: './addEquipment/masterControl'
+        })
+        // this.$navigate('./addEquipment/masterControl')
+      },
+      setRoomManage () {
+        wepy.navigateTo({
+          url: './room/roomManage'
+        })
       }
     }
 
+    // self fun
+    modifyHomeInfo (HomeId, HomeName, HomeAddress, HomeIsDefault) {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/home?id=' + HomeId + '&home_name=' + HomeName + '&faddress=' + HomeAddress + '&isdefault=' + HomeIsDefault + '&register_id=' + this.$parent.globalData.register_id,
+          data: {
+          },
+          method: 'PUT'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '修改成功!',
+                icon: 'success'
+              })
+              this.$emit('refreshHomeInfo-emit')
+              resolve(res)
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '修改失败！',
+                img: '../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../images/icons/attention.png'
+          })
+        })
+      })
+    }
     // 当前空气质量
     GetAirQuality () {
       return new Promise((resolve, reject) => {
@@ -515,16 +559,16 @@ page{
       })
     }
     // 当前家下房间列表
-    getRoomList (CODE) {
+    getRoomList (HOMEID) {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/house?home_id=' + this.curHome.home_id,
+          url: this.urlPre + '/house?home_id=' + HOMEID,
           method: 'GET'
         }).then((res) => {
           this.methods.updateCurRoomList(res.data.houseList)
           this.methods.updateCurRoom(res.data.houseList[0])
           this.getRoomEQ(res.data.houseList[0].id)
-          resolve(res.data.openid)
+          resolve(res)
         }).catch((res) => {
           console.log(res)
           wepy.hideLoading()
@@ -560,10 +604,11 @@ page{
     }
 
     onShow() {
+      console.log(this.curHome)
       this.CurRoomIndex = 0
       this.$apply()
       this.GetAirQuality()
-      this.getRoomList()
+      this.getRoomList(this.curHome.home_id)
     }
   }
 </script>

@@ -273,9 +273,9 @@ page{
           }
         }).then((res) => {
           console.log(res.data.scenario)
-          switch (res.data.result) {
+          switch (res.data.code) {
             case 1:
-              let Temp = res.data.registermachine
+              let Temp = res.data.deviceHomeList
               Temp.map((Item, Idx) => {
                 Item.choosed = false
               })
@@ -322,7 +322,7 @@ page{
           }
         }).then((res) => {
           console.log(res.data.scenario)
-          switch (res.data.result) {
+          switch (res.data.code) {
             case 1:
               this.SceneList = res.data.scenariolist
               this.$apply()
@@ -355,8 +355,8 @@ page{
     }
 
     onLoad(options) {
-      this.GetCurEQlist(this.curHome.id)
-      this.GetCurSceneList(this.curHome.id)
+      this.GetCurEQlist(this.curHome.home_id)
+      this.GetCurSceneList(this.curHome.home_id)
     }
     onShow() {
     }
