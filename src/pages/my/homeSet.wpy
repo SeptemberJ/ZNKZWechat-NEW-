@@ -131,7 +131,7 @@ page{
         <text class='memberPhone'>{{member.ftelephone}}</text>
       </view>
       <text wx:if="{{member.ismanager == 1}}" class='memberRole'>管理员</text>
-      <image wx:if="{{member.ismanager == 0}}" @tap="setMember" data-avatar="{{member.wx_pic}}" data-name="{{member.wx_name}}" data-phone="{{member.ftelephone}}" src="../../images/icons/arrow-right.png"></image>
+      <image wx:if="{{member.ismanager == 0}}" @tap="setMember" data-avatar="{{member.wx_pic}}" data-name="{{member.wx_name}}" data-phone="{{member.ftelephone}}" data-registeridm="{{member.id}}" src="../../images/icons/arrow-right.png"></image>
     </view>
 
     <view class='homeList_bt' @tap="deleteHome">移除家庭</view>
@@ -183,6 +183,7 @@ page{
       newModifyContent: '',
       registerId: null,
       homeId: null,
+      homeRegisterId: null,
       homeIsDefault: null,
       homeName: null,
       roomNumber: 0,
@@ -215,7 +216,7 @@ page{
       setMember (e) {
         console.log('setMember-------------------')
         wepy.navigateTo({
-          url: './member?avatar=' + e.currentTarget.dataset.avatar + '&name=' + e.currentTarget.dataset.name + '&phone=' + e.currentTarget.dataset.phone + '&HomeId=' + this.homeId + '&registerId=' + this.registerId
+          url: './member?avatar=' + e.currentTarget.dataset.avatar + '&name=' + e.currentTarget.dataset.name + '&phone=' + e.currentTarget.dataset.phone + '&HomeId=' + this.homeId + '&registerId=' + this.registerId + '&MemberRegisterId=' + e.currentTarget.dataset.registeridm + '&homeRegisterId=' + this.homeRegisterId
         })
       },
       addMember () {
@@ -338,6 +339,7 @@ page{
       this.homeName = ResHomeInfo.home.home_name
       this.roomNumber = ResHomeInfo.houseCount
       this.homeAddress = ResHomeInfo.home.faddress
+      this.homeRegisterId= ResHomeInfo.home.register_id
       this.memberList = ResMemberList
       this.$apply()
     }

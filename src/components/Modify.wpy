@@ -104,7 +104,8 @@ page{
       <!-- masterControl -->
       <view class='addItem'>
         <text>{{modifyTit}}</text>
-        <input @input="changeInput" wx:if="{{modifyType == 0}}" type="text" name="新名称" disabled="{{modifyType != 0}}" value="{{newModifyContent}}" />
+        <input @input="changeInput" wx:if="{{modifyType != 1}}" type="text" name="新名称" value="{{newModifyContent}}" />
+        <!-- <input @input="changeInput" wx:if="{{modifyType != 1}}" type="text" name="新名称" disabled="{{modifyType != 0}}" value="{{newModifyContent}}" /> -->
         <view @tap="chooseAddress" wx:if="{{modifyType == 1}}" ><text>{{newModifyContent}}</text><text class='chooseAddress'>选择</tex></view>
       </view>
     </view>
@@ -123,6 +124,9 @@ page{
   @connect({
     urlPre (state) {
       return state.counter.urlPre
+    },
+    curHome (state) {
+      return state.counter.curHome
     }
   }, {
   })
@@ -131,12 +135,15 @@ page{
     props = {
       modifyType: {
         type: Number,
-        default: 0   // 0-家名称 1-家地址
+        default: 0   // 0-家名称 1-家地址 2-房间名称
       },
       modifyTit: {
         type: String
       },
       newModifyContent: {
+        twoWay: true
+      },
+      houseId: {
         twoWay: true
       },
       ifShow: {
@@ -206,8 +213,8 @@ page{
             this.modifyHomeInfo(this.$parent.homeName, this.$parent.newModifyContent, this.$parent.homeIsDefault)
             break
           case 2:
-            console.log('2---------------')
-            this.$emit('refreshEquipment-emit', 1, 2, 3)
+            console.log('修改房间名称---------------')
+            this.modifyRoomName()
             break
         }
       }
@@ -241,6 +248,41 @@ page{
                 icon: 'success'
               })
               this.$emit('refreshHomeInfo-emit')
+              resolve(res)
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '修改失败！',
+                img: '../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    modifyRoomName () {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/house?id=' + this.houseId + '&house_name=' + this.$parent.newModifyContent + '&home_id=' + this.curHome.home_id,
+          data: {
+          },
+          method: 'PUT'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '修改成功!',
+                icon: 'success'
+              })
+              this.$emit('refreshHouseInfo-emit')
               resolve(res)
               break
             default:

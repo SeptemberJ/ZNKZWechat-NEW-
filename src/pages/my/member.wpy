@@ -226,6 +226,8 @@ page{
 
     data = {
       homeId: null,
+      homeRegisterId: null,
+      MemberRegisterId: null,
       member_avatar: null,
       member_name: null,
       member_phone: null,
@@ -287,14 +289,13 @@ page{
           // 是否含有勾选项
           console.log('hasCheckedItem-------------')
           console.log(hasCheckedItem)
-          if (hasCheckedItem) { 
+          if (hasCheckedItem) {
             this.homeInfo.roomList[RoomIdx].ifCheck = true
-          } else{
+          } else {
             this.homeInfo.roomList[RoomIdx].ifCheck = false
           }
           // this.homeInfo.roomList[RoomIdx].ifCheck === hasCheckedItem
           this.$apply()
-          
           // this.homeInfo.roomList[RoomIdx].ifCheck = (hasCheckedItem ? true : false)
         }
         // 单选状态切换
@@ -302,26 +303,69 @@ page{
         this.$apply()
       },
       saveSet () {
-        console.log(this.homeInfo)
+        console.log('tap saveSet---------')
+        this.setInfoAsync()
+        // console.log(this.homeInfo)
+        // let tempSetInfo = []
+        // this.homeInfo.roomList.map((House,idx) => {
+        //   if (House.ifCheck) {
+        //     let homeObj = {
+        //       'home_id': this.homeId,
+        //       'house_id': '',
+        //       'register_id': this.$parent.globalData.register_id,
+        //       'device_member': []
+        //     }
+        //     House.deviceList.map((Device, idx) => {
+        //       if (Device.ifCheck) {
+        //         let deviceObj = {
+        //           'second_control_id': Device.second_control_id,
+        //           'main_control_code': Device.main_control_code,
+        //           'register_id': this.$parent.globalData.register_id,
+        //           'second_control_device_id': Device.id,
+        //           'home_id': this.homeId,
+        //           'house_id': ''
+        //         }
+        //         homeObj.device_member.push(deviceObj)
+        //       }
+        //     })
+        //     tempSetInfo.push(homeObj)
+        //   }
+        // })
+        // console.log(tempSetInfo)
       }
 
     }
 
     // self fn
-    getHomeWholeInfo (HomeId) {
+    getHomeWholeInfo (HomeId, OldHouseList) {
       return new Promise((resolve, reject) => {
         wepy.request({
           url: this.urlPre + '/authorization?home_id=' + HomeId + '&register_id=' + this.$parent.globalData.register_id,
           method: 'GET'
         }).then((res) => {
           let temp = res.data.houseList.slice(0)
-          temp.map((Room, idx) => {
-            Room.ifOpen = false
-            Room.ifCheck = true
-            Room.deviceList.map((EQ, idx) => {
-              EQ.ifCheck = true
+          temp.map((RoomW, IdxW) => {
+            RoomW.ifOpen = false
+            if (OldHouseList[IdxW].ifCheck === 1) {
+              RoomW.ifCheck = true
+            } else {
+              RoomW.ifCheck = false
+            }
+            RoomW.deviceList.map((EQ, idx) => {
+              if (OldHouseList[IdxW].deviceList[idx].ifCheck === 1) {
+                EQ.ifCheck = true
+              } else {
+                EQ.ifCheck = false
+              }
             })
           })
+          // temp.map((Room, idx) => {
+          //   Room.ifOpen = false
+          //   Room.ifCheck = true
+          //   Room.deviceList.map((EQ, idx) => {
+          //     EQ.ifCheck = true
+          //   })
+          // })
           console.log(temp)
           this.homeInfo.roomList = temp
           this.$apply()
@@ -336,16 +380,129 @@ page{
         })
       })
     }
+    getIfAuthorized (HomeId) {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/authorizationEdit?home_id=' + HomeId + '&register_id=' + this.homeRegisterId + '&member_id=' + this.MemberRegisterId,
+          method: 'GET'
+        }).then((res) => {
+          this.getHomeWholeInfo(HomeId, res.data.houseList)
+          // if (res.data.houseList.length === 0) {
+          //   // 没有授权信息则获取全部
+          //   this.getHomeWholeInfo(HomeId)
+          // } else {
+          //   // 授权过了则授权的显示打勾
+          //   this.homeInfo.roomList = res.data.houseList
+          //   this.$apply()
+          // }
+          resolve(res.data.houseList)
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    // 授权信息
+    async setInfoAsync () {
+      const SetInfoData = await this.composeSetInfo()
+      console.log('in setInfoAsync-------------')
+      console.log(SetInfoData)
+      this.sureSaveSet(SetInfoData)
+    }
+    composeSetInfo () {
+      // console.log(this.homeInfo)
+      return new Promise((resolve, reject) => {
+        let tempSetInfo = []
+        this.homeInfo.roomList.map((House, idx) => {
+          if (House.ifCheck) {
+            let homeObj = {
+              'home_id': this.homeId,
+              'house_id': House.house_id,
+              'register_id': this.$parent.globalData.register_id,
+              'device_member': []
+            }
+            House.deviceList.map((Device, idx) => {
+              if (Device.ifCheck) {
+                let deviceObj = {
+                  'second_control_id': Device.second_control_id,
+                  'main_control_code': Device.main_control_code,
+                  'register_id': this.$parent.globalData.register_id,
+                  'second_control_device_id': Device.id,
+                  'home_id': this.homeId,
+                  'house_id': House.house_id
+                }
+                homeObj.device_member.push(deviceObj)
+              }
+            })
+            tempSetInfo.push(homeObj)
+          }
+        })
+        resolve(tempSetInfo)
+      })
+    }
+    sureSaveSet (Info) {
+      console.log('sureSaveSet---------------')
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/authorization?home_id_member=' + this.homeId + '&register_id_member=' + this.MemberRegisterId,
+          data: {
+            home: Info
+          },
+          method: 'POST'
+          // header: {
+          //   'Content-Type': 'application/x-www-form-urlencoded'
+          // }
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '授权成功!',
+                icon: 'success'
+              })
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
 
     events = {
     }
     onLoad (options) {
       this.homeId = options.HomeId
+      this.homeRegisterId = options.homeRegisterId
+      this.MemberRegisterId = options.MemberRegisterId
       this.member_avatar = options.avatar
       this.member_name = options.name
       this.member_phone = options.phone
       this.$apply()
-      this.getHomeWholeInfo(options.HomeId)
+      this.getIfAuthorized(options.HomeId)
+      // this.getHomeWholeInfo(options.HomeId, null)
     }
   }
 </script>

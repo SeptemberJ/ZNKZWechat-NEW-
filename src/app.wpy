@@ -154,7 +154,8 @@ export default class extends wepy.app {
     userInfo: null,
     test: 'nihao',
     mainUrl: 'http://192.168.10.139:8082',
-    register_id: null
+    register_id: null,
+    newRoomName: null
   }
 
   constructor () {

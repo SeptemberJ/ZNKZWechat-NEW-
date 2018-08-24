@@ -160,6 +160,7 @@ page{
       // 选择切换
       Choose (e) {
         this.curHomeAllEQList[e.currentTarget.dataset.idx].choosed = !this.curHomeAllEQList[e.currentTarget.dataset.idx].choosed
+        this.$apply()
       },
       // 临时保存
       Submit () {
@@ -177,6 +178,13 @@ page{
             Item.status = 0
             Item.when = 0
             ChoosedList.push(Item)
+          } else {
+            // 如果之前选过现在改成没选
+            ChoosedList.map((OldItem, OldIdx) => {
+              if (OldItem.id === Item.id) {
+                ChoosedList.splice(OldIdx, 1)
+              }
+            })
           }
         })
         console.log('去重前-------------------')
@@ -215,6 +223,12 @@ page{
               let Temp = res.data.deviceHomeList
               Temp.map((Item, Idx) => {
                 Item.choosed = false
+                // 如果设置过显示打勾
+                this.SceneInfo.Scene_EQList.map((NowItem, Idx) => {
+                  if (NowItem.id === Item.id) {
+                    Item.choosed = true
+                  }
+                })
               })
               this.curHomeAllEQList = Temp
               this.$apply()
@@ -246,7 +260,7 @@ page{
 
     events = {
     }
-    onLoad (options) {
+    onShow (options) {
       this.GetCurEQList(this.curHome.home_id)
     }
   }

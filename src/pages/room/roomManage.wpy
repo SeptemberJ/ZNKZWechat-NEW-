@@ -59,10 +59,11 @@ page{
     <view class="roomList">
       <view class='itemBar' wx:for-items="{{roomList}}" wx:for-item="roomItem" wx:key="roomIdx" wx:for-index="roomIdx">
         <text>{{roomItem.house_name}}</text>
-        <image src="../../images/icons/edit.png"></image>
-        <image src="../../images/icons/delete.png"></image>
+        <image @tap="editRoom({{roomItem.id}})" src="../../images/icons/edit.png"></image>
+        <image @tap="deleteRoom({{roomItem.id}}, {{roomItem.register_id}})" src="../../images/icons/delete.png"></image>
       </view>
     </view>
+    <ModifyModal :modifyType.sync="modifyType" :ifShow.sync="ifModify" :newModifyContent.sync="newModifyContent"  wx:if="{{ifModify}}" :modifyTit.sync="modifyTit" :houseId.sync="houseId"></ModifyModal>
   <toast/>
   </view>
 </template>
@@ -72,6 +73,8 @@ page{
   import { connect } from 'wepy-redux'
   import Toast from 'wepy-com-toast'
   import testMixin from '../../mixins/test'
+  import ModifyModal from '../../components/Modify'
+  import { updateCurRoomList, updateCurRoom } from '../../store/actions'
 
   @connect({
     homeList (state) {
@@ -87,6 +90,8 @@ page{
       return state.counter.urlPre
     }
   }, {
+    updateCurRoomList,
+    updateCurRoom
   })
 
   export default class My extends wepy.page {
@@ -94,12 +99,18 @@ page{
       navigationBarTitleText: '房间管理'
     }
     components = {
-      toast: Toast
+      toast: Toast,
+      ModifyModal: ModifyModal
     }
 
     mixins = [testMixin]
 
     data = {
+      modifyTit: '房间名称',
+      modifyType: 2,
+      ifModify: false,
+      newModifyContent: '',
+      houseId: null
     }
 
     computed = {
@@ -107,21 +118,86 @@ page{
 
     methods = {
       toRoom () {
-
+        wepy.navigateTo({
+          url: '../addRoom?type=1'
+        })
+      },
+      deleteRoom (RoomID, RegisterId) {
+        return new Promise((resolve, reject) => {
+          wepy.showModal({
+            title: '提示',
+            content: '确定删除改房间?'
+          }).then((res) => {
+            if (res.confirm) {
+              console.log('用户点击确定')
+              this.sureDelete(RoomID, RegisterId)
+            } else if (res.cancel) {
+              console.log('用户点击取消')
+            }
+            resolve(res)
+          }).catch((res) => {
+            console.log(res)
+          })
+        })
+      },
+      editRoom (RoomID) {
+        this.houseId = RoomID
+        this.ifModify = true
+        this.$apply()
       }
     }
 
     // self fn
-    // 当前家下房间列表
-    getRoomList (HOMEID) {
+    sureDelete(RoomID, RegisterId) {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/house?home_id=' + HOMEID,
+          url: this.urlPre + '/house?house_id=' + RoomID + '&register_id=' + RegisterId,
+          method: 'DELETE'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.showToast({
+                title: '删除成功!',
+                icon: 'success'
+              })
+              this.getRoomList()
+              wepy.hideLoading()
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '删除失败！',
+                img: '../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    // 当前家下房间列表
+    getRoomList () {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/house?home_id=' + this.curHome.home_id,
           method: 'GET'
         }).then((res) => {
           this.methods.updateCurRoomList(res.data.houseList)
           this.methods.updateCurRoom(res.data.houseList[0])
-          this.getRoomEQ(res.data.houseList[0].id)
+          // this.getRoomEQ(res.data.houseList[0].id)
           resolve(res)
         }).catch((res) => {
           console.log(res)
@@ -135,6 +211,10 @@ page{
     }
 
     events = {
+      'refreshHouseInfo-emit': (...args) => {
+        console.log('refreshHouseInfo-emit---------------------')
+        this.getRoomList()
+      }
     }
 
     onLoad() {

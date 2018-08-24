@@ -86,10 +86,10 @@ page{
 
     <view class='blankBar'  style="width: 100%;height: 20rpx;"></view>
 
-    <view class='itemBar'>
+    <!-- <view class='itemBar'>
       <text>扫一扫</text>
       <image src="../../images/icons/arrow-right.png"></image>
-    </view>
+    </view> -->
     <view class='itemBar'>
       <text>常见问题</text>
       <image src="../../images/icons/arrow-right.png"></image>
@@ -101,10 +101,10 @@ page{
       <text>意见反馈</text>
       <image src="../../images/icons/arrow-right.png"></image>
     </view>
-    <view class='itemBar'>
+    <!-- <view class='itemBar'>
       <text>设置</text>
       <image src="../../images/icons/arrow-right.png"></image>
-    </view>
+    </view> -->
 
   <toast/>
   </view>

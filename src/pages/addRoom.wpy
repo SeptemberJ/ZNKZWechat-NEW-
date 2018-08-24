@@ -96,6 +96,9 @@ page{
   import testMixin from '../mixins/test'
 
   @connect({
+    urlPre (state) {
+      return state.counter.urlPre
+    }
   }, {
     changeAddRoomList
   })
@@ -112,7 +115,7 @@ page{
 
     data = {
       roomName: null,
-      recommendList: ['玄关', '阳台', '花室', '过道', '卫生间', '杂物间', '儿童房', '衣帽间']
+      recommendList: []
     }
 
     computed = {
@@ -130,8 +133,16 @@ page{
       },
       saveRoomName () {
         if (this.roomName) {
-          this.methods.changeAddRoomList(this.roomName)
-          wepy.navigateBack()
+          if (this.type === '1') {
+            console.log('1-------------------')
+            // 后来添加房间 直接保存添加
+            this.addNewRoom()
+          } else {
+            console.log('2-------------------')
+            // 创建你家事添加额外房间 回退更新
+            this.methods.changeAddRoomList(this.roomName)
+            wepy.navigateBack()
+          }
         } else {
           console.log('else------')
           this.$invoke('toast', 'show', {
@@ -142,10 +153,93 @@ page{
         }
       }
     }
+
+    // self fn
+    addNewRoom () {
+      wepy.showLoading({
+        title: '加载中...'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/',
+          method: 'POST'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '添加成功!',
+                icon: 'success'
+              })
+              wepy.navigateBack()
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '添加失败！',
+                img: '../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+
+    getOtherRoomName () {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/list_others',
+          data: {
+          },
+          method: 'GET'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+            let TempName = []
+              res.data.houseListAll.map((item, idx) => {
+                TempName.push(item.dhouse_name)
+              })
+              this.recommendList = TempName
+              this.$apply()
+              resolve(res)
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '获取默认房间失败！',
+                img: '../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../images/icons/attention.png'
+          })
+        })
+      })
+    }
     events = {
     }
 
-    onLoad() {
+    onLoad (options) {
+      this.type = options.type
+      this.getOtherRoomName()
     }
   }
 </script>

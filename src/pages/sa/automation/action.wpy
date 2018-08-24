@@ -238,6 +238,13 @@ page{
             Item.when = 0
             Item.kind = 'equipment'
             ActionList.push(Item)
+          } else {
+            // 如果之前选过现在改成没选
+            ActionList.map((OldItem, OldIdx) => {
+              if (OldItem.id === Item.id) {
+                ActionList.splice(OldIdx, 1)
+              }
+            })
           }
         })
         this.SceneList.map((Item, Idx) => {
@@ -246,8 +253,25 @@ page{
             Item.when = 0
             Item.kind = 'scene'
             ActionList.push(Item)
+          } else {
+            // 如果之前选过现在改成没选
+            ActionList.map((OldItem, OldIdx) => {
+              if (OldItem.id === Item.id) {
+                ActionList.splice(OldIdx, 1)
+              }
+            })
           }
         })
+        console.log('去重前-------------------')
+        console.log(ActionList)
+        // 去重
+        let tempObj = {}
+        ActionList = ActionList.reduce((item, next) => {
+          tempObj[next.id] ? '' : tempObj[next.id] = true && item.push(next)
+          return item
+        }, [])
+        console.log('去重后-------------------')
+        console.log(ActionList)
         let NewActionInfo = {
           type: 'automation_update_ActionList',
           newInfo: ActionList
@@ -266,7 +290,7 @@ page{
       })
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/selecteqlist?homeid=' + ID,
+          url: this.urlPre + '/selecteqlist?home_id=' + ID,
           method: 'GET',
           header: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -278,6 +302,12 @@ page{
               let Temp = res.data.deviceHomeList
               Temp.map((Item, Idx) => {
                 Item.choosed = false
+                // 如果设置过显示打勾
+                this.AutomationInfo.ActionList.map((NowItem, Idx) => {
+                  if (NowItem.id === Item.id) {
+                    Item.choosed = true
+                  }
+                })
               })
               this.EQList = Temp
               this.$apply()
@@ -322,9 +352,19 @@ page{
           }
         }).then((res) => {
           console.log(res.data.scenario)
-          switch (res.data.code) {
+          switch (res.data.result) {
             case 1:
-              this.SceneList = res.data.scenariolist
+              let Temp = res.data.scenariolist
+              Temp.map((Item, Idx) => {
+                Item.choosed = false
+                // 如果设置过显示打勾
+                this.AutomationInfo.ActionList.map((NowItem, Idx) => {
+                  if (NowItem.id === Item.id) {
+                    Item.choosed = true
+                  }
+                })
+              })
+              this.SceneList = Temp
               this.$apply()
               wepy.hideLoading()
               resolve(res)
@@ -354,11 +394,13 @@ page{
       })
     }
 
-    onLoad(options) {
+    // onLoad(options) {
+    //   this.GetCurEQlist(this.curHome.home_id)
+    //   this.GetCurSceneList(this.curHome.home_id)
+    // }
+    onShow () {
       this.GetCurEQlist(this.curHome.home_id)
       this.GetCurSceneList(this.curHome.home_id)
-    }
-    onShow() {
     }
   }
 </script>

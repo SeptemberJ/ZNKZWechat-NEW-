@@ -153,7 +153,7 @@ page{
     mixins = [testMixin]
 
     data = {
-      cur_index: 0,
+      cur_index: '0',
       tipTitle_automation: '暂无场景，请添加',
       tipTitle_scene: '暂无自动化，请添加',
       automationList: [
@@ -170,22 +170,7 @@ page{
           registerappuserid: 'ede157a2-f6a1-409c-8f4e-3d549cb12add'
         }
       ],
-      sceneList: [
-        {
-          fname: '场景1',
-          id: '3278e90c-b068-45c1-ae7d-2e74af593dc9',
-          on_off_status: '1',
-          registerappuserid: 'ede157a2-f6a1-409c-8f4e-3d549cb12add',
-          scenario_img: 'http://118.25.47.123:8080/upload/回家模式.png'
-        },
-        {
-          fname: '场景2',
-          id: '3278e90c-b068-45c1-ae7d-2e74af593dc9',
-          on_off_status: '1',
-          registerappuserid: 'ede157a2-f6a1-409c-8f4e-3d549cb12add',
-          scenario_img: 'http://118.25.47.123:8080/upload/回家模式.png'
-        }
-      ],
+      sceneList: [],
       initSceneInfo: {
         Scene_name: '',
         Scene_Room_Icon: '', // 场景图片
@@ -213,10 +198,15 @@ page{
       toggleTab (IDX) {
         this.cur_index = IDX
         this.$apply()
+        if (IDX === 0) {
+          this.GetSceneIconList()
+        } else {
+          this.GetCurAutomaticList()
+        }
       },
       // 新增
       addSA () {
-        if (this.cur_index === 0) {
+        if (this.cur_index === '0') {
           // 清空之前的场景信息
           let NewSceneInfo = {
             type: 'init',
@@ -250,7 +240,7 @@ page{
     GetSceneIconList () {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/selectallscenario?id=' + this.curHome.home_id,
+          url: this.urlPre + '/selectallscenario?id=' + this.curHome.home_id
           method: 'GET',
           header: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -334,7 +324,7 @@ page{
     events = {
     }
 
-    onLoad() {
+    onShow() {
       this.GetSceneIconList()
       this.GetCurAutomaticList()
     }

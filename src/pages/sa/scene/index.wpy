@@ -55,7 +55,7 @@ page{
           </view>
         </picker-view-column>
       </picker-view>
-      <input placeholder='场景名称' bindinput='ChangeSceneName' value='{{SceneInfo.Scene_name}}' ></input>
+      <input placeholder='场景名称' @input='ChangeSceneName' value='{{SceneInfo.Scene_name}}' ></input>
     </view>
 
     <view class='SceneItem' bindtap='ToTiming'>
@@ -221,6 +221,7 @@ page{
       // },
       // 获取创建信息
       GetSceneInfo (_this, ID) {
+        console.log('GetSceneInfo--------------------------')
         wepy.showLoading({
           title: '加载中...'
         })
@@ -262,48 +263,7 @@ page{
           })
         })
       },
-      // 获取场景图标
-      GetSceneIconList (_this) {
-        return new Promise((resolve, reject) => {
-          wepy.request({
-            url: _this.urlPre + '/selectscenarioimg',
-            method: 'POST',
-            header: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            }
-          }).then((res) => {
-            switch (res.data.result) {
-              case 1:
-                // this.SceneIconList = res.data.scenariolist
-                // this.$apply()
-                wepy.hideLoading()
-                resolve(res)
-                break
-              case 0:
-                wepy.hideLoading()
-                wepy.hideLoading()
-                this.$invoke('toast', 'show', {
-                  title: '获取图标失败！',
-                  img: '../../../images/icons/attention.png'
-                })
-                break
-              default:
-                wepy.hideLoading()
-                this.$invoke('toast', 'show', {
-                  title: '服务器繁忙！',
-                  img: '../../../images/icons/attention.png'
-                })
-            }
-          }).catch((res) => {
-            console.log(res)
-            wepy.hideLoading()
-            this.$invoke('toast', 'show', {
-              title: '服务器繁忙！',
-              img: '../../../images/icons/attention.png'
-            })
-          })
-        })
-      },
+      
       // 新增 判断权限
       Submit () {
         if (this.CurHomeRole !== 1) {
@@ -393,6 +353,49 @@ page{
     }
 
     // self FN
+    // 获取场景图标
+    GetSceneIconList () {
+      console.log('获取场景图标----------------')
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/selectscenarioimg',
+          method: 'POST',
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }).then((res) => {
+          switch (res.data.result) {
+            case 1:
+              // this.SceneIconList = res.data.scenariolist
+              // this.$apply()
+              wepy.hideLoading()
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '获取图标失败！',
+                img: '../../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
+    }
     // 新增
     SubmitAdd () {
       console.log(this.SceneInfo)
@@ -562,14 +565,15 @@ page{
     }
 
     async getInfoAsync (options, _this) {
-      const ResGetSceneIconList = await this.methods.GetSceneIconList(_this)
+      console.log('getInfoAsync---------------------------')
+      const ResGetSceneIconList = await this.GetSceneIconList(_this)
       this.SceneIconList = ResGetSceneIconList.data.scenariolist
       this.Type = options.type ? options.type : 0 // 0 新增  1-修改
       this.RoomId = options.roomid ? options.roomid : ''
       this.$apply()
       if (options.sceneid) {
         console.log('options.sceneid--------------')
-        const ResGetSceneInfo = await this.methods.GetSceneInfo(_this, '3278e90c-b068-45c1-ae7d-2e74af593dc9')
+        const ResGetSceneInfo = await this.methods.GetSceneInfo(_this, options.sceneid)
         let NewTimeInfo = {
           type: 'init',
           newInfo: ResGetSceneInfo.data.scenario.scenarios

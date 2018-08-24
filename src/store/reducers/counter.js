@@ -93,9 +93,17 @@ export default handleActions({
   },
   // 创建家时房间list
   [CHANGEADDROOMLIST] (state, action) {
-    return {
-      ...state,
-      addRoomList: [...state.addRoomList,{'house_name':action.payload,'choosed': true}]
+    console.log(typeof action.payload)
+    if (typeof action.payload === 'object') {
+      return {
+        ...state,
+        addRoomList: action.payload
+      }
+    } else { // 单独房间添加
+      return {
+        ...state,
+        addRoomList: [...state.addRoomList,{'house_name':action.payload,'choosed': true}]
+      }
     }
   },
   // 更新家列表

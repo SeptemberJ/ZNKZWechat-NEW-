@@ -236,9 +236,9 @@ page{
           }
         }).then((res) => {
           console.log(res.data.scenario)
-          switch (res.data.result) {
+          switch (res.data.code) {
             case 1:
-              let Temp = res.data.controllist
+              let Temp = res.data.secondControlList
               Temp.map((Item, Idx) => {
                 Item.choosed = false
               })
