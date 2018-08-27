@@ -97,7 +97,7 @@ page{
 
     <view class='blankBar' style="width: 100%;height: 20rpx;"></view>
 
-    <view class='itemBar'>
+    <view class='itemBar' @tap="ToFeedBack">
       <text>意见反馈</text>
       <image src="../../images/icons/arrow-right.png"></image>
     </view>
@@ -147,7 +147,14 @@ page{
       //   this.$navigate('./center')
       // },
       toHomeList () {
-        this.$navigate('./homeList')
+        wepy.navigateTo({
+          url: './homeList'
+        })
+      },
+      ToFeedBack () {
+        wepy.navigateTo({
+          url: './feedback'
+        })
       }
     }
 

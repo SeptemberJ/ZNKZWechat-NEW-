@@ -268,12 +268,16 @@ page{
       })
     }
     modifyRoomName () {
+      console.log('修改房间名称--------------------')
       return new Promise((resolve, reject) => {
         wepy.request({
           url: this.urlPre + '/house?id=' + this.houseId + '&house_name=' + this.$parent.newModifyContent + '&home_id=' + this.curHome.home_id,
           data: {
           },
-          method: 'PUT'
+          method: 'PUT',
+          header: {
+            'content-type': 'application/json' // 默认值
+          }
         }).then((res) => {
           switch (res.data.code) {
             case 1:

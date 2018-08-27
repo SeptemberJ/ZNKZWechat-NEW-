@@ -24,7 +24,8 @@ page{
         padding: 0 20rpx;
         border-bottom: 1px solid #efefef;
         text{
-          width: 100%;
+          display: flex;
+          flex-grow: 1;
           padding: 0 10rpx;
         }
         image{
@@ -47,7 +48,7 @@ page{
     <view class='SecondControlTypeList'>
       <Empty :tipTitle.sync="tipTitle" wx:if="{{SecondControlTypeList.length == 0}}"></Empty>
       <view class="SecondControlType" wx:for-items="{{SecondControlTypeList}}" wx:for-item="SecondControlType" wx:key="Idx" wx:for-index="Idx" @tap="ToSecondControl({{SecondControlType.defalut_second_control_type}})">
-        <image src="../../images/icons/arrow-right.png"></image>
+        <image src="{{SecondControlType.defalut_second_control_pic}}"></image>
         <text>{{SecondControlType.defalut_second_control_type}}</text>
         <image src="../../images/icons/arrow-right.png"></image>
       </view>

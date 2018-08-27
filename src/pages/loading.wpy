@@ -182,11 +182,12 @@
                 this.methods.updateHomeList(res.data.homeList)
                 res.data.homeList.map((item, idx) => {
                   if (item.isdefault === '1') {
+                    console.log('isdefault==1---------------')
                     console.log(item)
                     this.methods.updateCurHome(item)
+                    this.$switch('./index')
                   }
                 })
-                this.$switch('./index')
               } else {
                 this.$redirect('./readyToCreate')
               }
@@ -213,7 +214,7 @@
     getBindingStatus (Openid) {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/userInfo?open_id=' + Openid,
+          url: this.urlPre + '/userInfo?open_id=' + Openid, // 'oGm3u0FHjaAt6vFemoB3XF39RHbE',
           method: 'GET'
         }).then((res) => {
           console.log(res)

@@ -170,12 +170,13 @@ export default handleActions({
     {house_name: '厨房', choosed: true},
     {house_name: '书房', choosed: true}
   ],
-  curHome: {
+  curHome2: {
     faddress: "江苏省南通市海门市北京中路600号",
     home_id: "a12188809f254e989be3cde374a0f076",
     home_name: "11",
     isdefault: "1"
   },
+  curHome: {},
   curRoom: {id:0, name: '客厅'},
   homeList: [],
   roomList: [],

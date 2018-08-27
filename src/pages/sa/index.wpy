@@ -196,6 +196,7 @@ page{
 
     methods = {
       toggleTab (IDX) {
+        console.log(IDX)
         this.cur_index = IDX
         this.$apply()
         if (IDX === 0) {
@@ -240,7 +241,7 @@ page{
     GetSceneIconList () {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/selectallscenario?id=' + this.curHome.home_id
+          url: this.urlPre + '/selectallscenario?id=' + this.curHome.home_id,
           method: 'GET',
           header: {
             'Content-Type': 'application/x-www-form-urlencoded'

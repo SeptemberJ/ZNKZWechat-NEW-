@@ -114,7 +114,7 @@ page{
       </view>
       <!-- equpiment -->
       <view class='addItem' wx:if="{{addType == 2}}">
-        <text>设备类型{{MasterCode}}</text>
+        <text>设备类型</text>
         <picker bindchange="bindPickerChangeType" value="{{euqipment_Type_index}}" range-key="device_type_name" range="{{TypeList}}">
           <text>{{TypeList[euqipment_Type_index].device_type_name}}</text>
         </picker>
@@ -186,7 +186,7 @@ page{
       masterControl_Name: '',
       masterControl_Code: '',
       secondControl_Name: '',
-      secondControl_Code: 'CK-KLKK',
+      secondControl_Code: 'CK-KLKK111',
       euqipment_Type_index: 0,
       euqipment_Name: 'sheibei',
       euqipment_Code: '12345678901234567890'

@@ -402,7 +402,7 @@ page{
   import Toast from 'wepy-com-toast'
   import testMixin from '../mixins/test'
   import Empty from '../components/empty'
-  import { updateHomeList, updateCurRoomList, updateCurRoom, updateCurHome } from '../store/actions'
+  import { updateCurRoomList, updateCurRoom, updateCurHome } from '../store/actions'
 
   @connect({
     homeList (state) {
@@ -429,13 +429,10 @@ page{
     }
     watch = {
       curHome (curVal, oldVal) {
-        console.log('curHome--------------')
+        console.log('curHome新值--------------')
         console.log(curVal)
+        this.getRoomList(curVal.home_id)
       }
-      // roomList (curVal, oldVal) {
-      //   console.log(oldVal)
-      //   console.log(curVal)
-      // }
     }
     components = {
       toast: Toast,
@@ -468,7 +465,7 @@ page{
       },
       Changeroom (e) {
         this.CurRoomIndex = e.currentTarget.dataset.idx
-        this.getRoomEQ (this.roomList[e.currentTarget.dataset.idx].id) 
+        this.getRoomEQ(this.roomList[e.currentTarget.dataset.idx].id)
         this.methods.updateCurRoom(this.roomList[e.currentTarget.dataset.idx])
         this.$apply()
       },
@@ -487,12 +484,29 @@ page{
 
     // self fun
     modifyHomeInfo (HomeId, HomeName, HomeAddress, HomeIsDefault) {
+      // wepy.request({
+      //   url: this.urlPre + '/home?id=123&home_name=123&faddress=123&isdefault=1&register_id=123',
+      //   url: this.urlPre + '/home?id=' + HomeId + '&home_name=' + HomeName + '&faddress=' + HomeAddress + '&isdefault=' + HomeIsDefault + '&register_id=' + this.$parent.globalData.register_id,
+      //   method: 'PUT',
+      //   header: {
+      //     'content-type': 'application/json' // 默认值
+      //   },
+      //   success: function(res) {
+      //     console.log(res)
+      //     wepy.showToast({
+      //       title: '修改成功!',
+      //       icon: 'success'
+      //     })
+      //     this.$emit('refreshHomeInfo-emit')
+      //   }
+      // })
       return new Promise((resolve, reject) => {
         wepy.request({
           url: this.urlPre + '/home?id=' + HomeId + '&home_name=' + HomeName + '&faddress=' + HomeAddress + '&isdefault=' + HomeIsDefault + '&register_id=' + this.$parent.globalData.register_id,
-          data: {
-          },
-          method: 'PUT'
+          method: 'PUT',
+          header: {
+            'content-type': 'application/json' // 默认值
+          }
         }).then((res) => {
           switch (res.data.code) {
             case 1:
@@ -604,7 +618,6 @@ page{
     }
 
     onShow() {
-      console.log(this.curHome)
       this.CurRoomIndex = 0
       this.$apply()
       this.GetAirQuality()

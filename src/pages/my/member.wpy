@@ -258,6 +258,8 @@ page{
       },
       // 房间展开与否
       toggleOpenClose (IDX) {
+        console.log('IDX-------------------')
+        console.log(IDX)
         // 只有一个是展开的
         this.homeInfo.roomList.map((Room, Idx) => {
           if (Idx === IDX) {

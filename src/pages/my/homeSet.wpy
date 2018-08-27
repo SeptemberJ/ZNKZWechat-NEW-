@@ -109,7 +109,7 @@ page{
     <view class='itemBar'>
       <text>房间个数</text>
       <text class='incidentalText'>{{roomNumber}}</text>
-      <image src="../../images/icons/arrow-right.png"></image>
+      <image style="opacity: 0" src="../../images/icons/arrow-right.png"></image>
     </view>
 
     <view class='itemBar'>
@@ -240,7 +240,7 @@ page{
         return new Promise((resolve, reject) => {
           wepy.showModal({
             title: '提示',
-            content: '确定删除改家?'
+            content: '确定删除该家?'
           }).then((res) => {
             if (res.confirm) {
               console.log('用户点击确定')
@@ -339,7 +339,7 @@ page{
       this.homeName = ResHomeInfo.home.home_name
       this.roomNumber = ResHomeInfo.houseCount
       this.homeAddress = ResHomeInfo.home.faddress
-      this.homeRegisterId= ResHomeInfo.home.register_id
+      this.homeRegisterId = ResHomeInfo.home.register_id
       this.memberList = ResMemberList
       this.$apply()
     }
