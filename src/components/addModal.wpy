@@ -48,14 +48,20 @@ page{
           }
           input[disabled]{color:#999;opacity:1;border-bottom: 0px;};
           input{
-            width: e("calc(100% - 0rpx)");
+            display: flex;
+            flex-grow: 1;
             padding: 0 10rpx;
             border-bottom: 1px solid #efefef;
           }
           image{
             width: 50rpx;
             height: 50rpx;
-            display: block;
+            display: inline-block;
+          }
+          picker{
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
           }
         }
       }
@@ -117,8 +123,8 @@ page{
         <text>设备类型</text>
         <picker bindchange="bindPickerChangeType" value="{{euqipment_Type_index}}" range-key="device_type_name" range="{{TypeList}}">
           <text>{{TypeList[euqipment_Type_index].device_type_name}}</text>
+          <image style="width: 30rpx;height: 30rpx;" src="../images/icons/arrow-down.png"></image>
         </picker>
-        <image src="../images/icons/arrow-down.png"></image>
       </view>
       <view class='addItem' wx:if="{{addType == 2}}">
         <text>设备名称</text>
@@ -170,6 +176,9 @@ page{
       MasterCode: {
         type: String
       },
+      MasterId: {
+        type: String
+      },
       SecondControlType: {
         type: String
       },
@@ -183,10 +192,10 @@ page{
 
     data = {
       TypeList: [],
-      masterControl_Name: '',
-      masterControl_Code: '',
+      masterControl_Name: '123',
+      masterControl_Code: '111',
       secondControl_Name: '',
-      secondControl_Code: 'CK-KLKK111',
+      secondControl_Code: 'CK-KLKK1222',
       euqipment_Type_index: 0,
       euqipment_Name: 'sheibei',
       euqipment_Code: '12345678901234567890'
@@ -302,7 +311,7 @@ page{
     addMasterControl () {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/mainControl?home_id=' + this.curHome.home_id + '&main_control_name=' + this.masterControl_Name + '&main_control_code=' + this.masterControl_Code,
+          url: encodeURI(this.urlPre + '/mainControl?home_id=' + this.curHome.home_id + '&main_control_name=' + this.masterControl_Name + '&main_control_code=' + this.masterControl_Code),
           method: 'POST'
         }).then((res) => {
           switch (res.data.code) {
@@ -337,7 +346,7 @@ page{
     addSecondControl () {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/secondControl?home_id=' + this.curHome.home_id + '&second_control_name=' + this.secondControl_Name + '&main_control_code=' + this.MasterCode + '&second_contrl_code=' + this.secondControl_Code + '&second_control_category=' + this.SecondControlType,
+          url: encodeURI(this.urlPre + '/secondControl?home_id=' + this.curHome.home_id + '&second_control_name=' + this.secondControl_Name + '&main_control_code=' + this.MasterCode + '&second_contrl_code=' + this.secondControl_Code + '&second_control_category=' + this.SecondControlType + '&main_control_id=' + this.MasterId),
           method: 'POST'
         }).then((res) => {
           switch (res.data.code) {
@@ -378,6 +387,7 @@ page{
             home_id: this.curHome.home_id,
             house_id: this.curRoom.id,
             main_control_code: this.MasterCode,
+            main_control_id: this.MasterId,
             second_control_id: this.secondControlId,
             device_name: this.euqipment_Name,
             device_code: this.euqipment_Code,

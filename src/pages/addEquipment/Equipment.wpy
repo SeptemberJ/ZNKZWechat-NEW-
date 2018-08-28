@@ -53,7 +53,7 @@ page{
       <toast/>
     </view>
     <button class='addBt' @tap="addEquipment">添加</button>
-    <AddModal :addType.sync="addType" :MasterCode.sync="MasterCode" :secondControlId.sync="secondControlId" :ifShow.sync="ifAdd" wx:if="{{ifAdd}}"></AddModal>
+    <AddModal :addType.sync="addType" :MasterCode.sync="MasterCode" :MasterId.sync="masterControlId" :secondControlId.sync="secondControlId" :ifShow.sync="ifAdd" wx:if="{{ifAdd}}"></AddModal>
   </view>
 </template>
 
@@ -92,6 +92,7 @@ page{
 
     data = {
       MasterCode: null,
+      masterControlId: null,
       secondControlId: null,
       addType: 2,
       ifAdd: false,
@@ -159,7 +160,7 @@ page{
       })
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/device?id=' + EQID +'&register_id=' + this.$parent.globalData.register_id + '&home_id=' + this.curHome.home_id,
+          url: this.urlPre + '/device?id=' + EQID + '&register_id=' + this.$parent.globalData.register_id + '&home_id=' + this.curHome.home_id,
           data: {
           },
           method: 'DELETE'
@@ -201,6 +202,7 @@ page{
 
     onLoad(options) {
       this.MasterCode = options.MasterCode
+      this.masterControlId = options.MasterId
       this.secondControlId = options.secondControlId
       this.$apply()
       this.getEQList(options.secondControlId)

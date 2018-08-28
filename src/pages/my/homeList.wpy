@@ -200,7 +200,7 @@ page{
     setDefaultHome (HomeId, HomeName, HomeAddress, HomeIsDefault) {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/home?id=' + HomeId + '&home_name=' + HomeName + '&faddress=' + HomeAddress + '&isdefault=' + HomeIsDefault + '&register_id=' + this.$parent.globalData.register_id,
+          url: encodeURI(this.urlPre + '/home?id=' + HomeId + '&home_name=' + HomeName + '&faddress=' + HomeAddress + '&isdefault=' + HomeIsDefault + '&register_id=' + this.$parent.globalData.register_id),
           data: {
           },
           method: 'PUT'
@@ -212,7 +212,7 @@ page{
                 title: '修改成功!',
                 icon: 'success'
               })
-              this.$emit('refreshHomeInfo-emit')
+              // this.$emit('refreshHomeInfo-emit')
               resolve(res)
               break
             default:

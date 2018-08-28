@@ -345,6 +345,10 @@ page{
     }
 
     events = {
+      refreshHomeInfo () {
+        console.log('refreshHomeInfo---------------------')
+        this.homeInfoAsync(this.homeId)
+      },
       'refreshHomeInfo-emit': (...args) => {
         console.log('refreshHomeInfo-emit---------------------')
         this.homeInfoAsync(this.homeId)
@@ -355,6 +359,11 @@ page{
       this.homeId = options.HomeId
       this.$apply()
       this.homeInfoAsync(options.HomeId)
+    }
+    onShow () {
+      if (this.homeId) {
+        this.homeInfoAsync(this.homeId)
+      }
     }
   }
 </script>

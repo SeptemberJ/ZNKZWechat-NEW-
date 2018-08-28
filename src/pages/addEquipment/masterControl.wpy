@@ -48,7 +48,7 @@ page{
     <view class='masterControlList'>
       <view class="masterControl" wx:for-items="{{masterControlList}}" wx:for-item="masterControl" wx:key="Idx" wx:for-index="Idx">
         <text @longtap="deleteMasterControl({{masterControl.id}})">{{masterControl.main_control_name}}</text>
-        <image @tap="ToSecondControlType({{masterControl.main_control_code}})" src="../../images/icons/arrow-right.png"></image>
+        <image @tap="ToSecondControlType({{masterControl.main_control_code}}, {{masterControl.id}})" src="../../images/icons/arrow-right.png"></image>
       </view>
       <toast/>
     </view>
@@ -108,8 +108,8 @@ page{
         this.ifAdd = true
         this.$apply()
       },
-      ToSecondControlType (MasterCode) {
-        this.$navigate('./SecondControlType?MasterCode=' + MasterCode)
+      ToSecondControlType (MasterCode, MasterId) {
+        this.$navigate('./SecondControlType?MasterCode=' + MasterCode +'&MasterId=' + MasterId)
       },
       getMasterControlList () {
         console.log('in getMasterControlList----------------')

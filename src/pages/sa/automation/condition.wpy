@@ -105,7 +105,7 @@ page{
       <view class='Condition_Item' wx:for-items="{{SensorList}}" wx:for-index="SensorIdx" wx:for-item="Sensor" wx:key="SensorIdx" bindtap='Choose' data-idx='{{SensorIdx}}'>
         <image src="{{Sensor.kind_img}}"></image>
         <view class='Condition_list_item_text'>
-          <text class='Condition_list_item_text_name'>{{Sensor.kind_name}}</text>
+          <text class='Condition_list_item_text_name'>{{Sensor.second_control_name}}</text>
           <text class='Condition_list_item_text_room'></text>
         </view>
         <view class="ControlBt">

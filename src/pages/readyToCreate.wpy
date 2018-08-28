@@ -74,7 +74,7 @@
 
     methods = {
       ToCreateFirstHome () {
-        this.$navigate('./createHome?createFrom=1')
+        this.$navigate('./createHome?createFrom=0')
       }
     }
 

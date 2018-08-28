@@ -56,7 +56,7 @@ page{
       <toast/>
     </view>
     <button class='addBt' @tap="addSecondControl">添加</button>
-    <AddModal :addType.sync="addType" :MasterCode.sync="MasterCode" :SecondControlType.sync="SecondControlType" :ifShow.sync="ifAdd" wx:if="{{ifAdd}}"></AddModal>
+    <AddModal :addType.sync="addType" :MasterCode.sync="MasterCode" :MasterId.sync="masterControlId" :SecondControlType.sync="SecondControlType" :ifShow.sync="ifAdd" wx:if="{{ifAdd}}"></AddModal>
   </view>
 </template>
 
@@ -97,6 +97,7 @@ page{
       addType: 1,
       ifAdd: false,
       MasterCode: null,
+      masterControlId: null,
       SecondControlType: null,
       tipTitle: '暂无从控，请添加',
       secondControlList: [{id: 0, name: '从控一'}, {id: 0, name: '从控一'}]
@@ -117,7 +118,7 @@ page{
         this.$apply()
       },
       ToEquipment (ID) {
-        this.$navigate('./Equipment?secondControlId=' + ID + '&MasterCode=' + this.MasterCode)
+        this.$navigate('./Equipment?secondControlId=' + ID + '&MasterCode=' + this.MasterCode +'&MasterId=' + this.masterControlId)
       },
       deleteSecondControl (SecondID) {
         return new Promise((resolve, reject) => {
@@ -211,6 +212,7 @@ page{
     onLoad(options) {
       console.log(options.typeId)
       this.MasterCode = options.MasterCode
+      this.masterControlId = options.MasterId
       this.SecondControlType = options.Type
       this.$apply()
       this.getSecondControlList(options.MasterCode, options.Type)

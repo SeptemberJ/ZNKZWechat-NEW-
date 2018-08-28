@@ -47,7 +47,7 @@ page{
   <view class='Wrap'>
     <view class='SecondControlTypeList'>
       <Empty :tipTitle.sync="tipTitle" wx:if="{{SecondControlTypeList.length == 0}}"></Empty>
-      <view class="SecondControlType" wx:for-items="{{SecondControlTypeList}}" wx:for-item="SecondControlType" wx:key="Idx" wx:for-index="Idx" @tap="ToSecondControl({{SecondControlType.defalut_second_control_type}})">
+      <view class="SecondControlType" wx:for-items="{{SecondControlTypeList}}" wx:for-item="SecondControlType" wx:key="Idx" wx:for-index="Idx" @tap="ToSecondControl({{SecondControlType.id}})">
         <image src="{{SecondControlType.defalut_second_control_pic}}"></image>
         <text>{{SecondControlType.defalut_second_control_type}}</text>
         <image src="../../images/icons/arrow-right.png"></image>
@@ -91,7 +91,8 @@ page{
     data = {
       tipTitle: '暂无从控，敬请期待',
       masterControlCode: null,
-      SecondControlTypeList: []
+      SecondControlTypeList: [],
+      masterControlId: null
     }
 
     computed = {
@@ -102,7 +103,7 @@ page{
 
     methods = {
       ToSecondControl (Type) {
-        this.$navigate('./SecondControl?Type=' + Type + '&MasterCode=' + this.masterControlCode)
+        this.$navigate('./SecondControl?Type=' + Type + '&MasterCode=' + this.masterControlCode + '&MasterId=' + this.masterControlId)
       }
     }
 
@@ -133,6 +134,7 @@ page{
 
     onLoad(options) {
       this.masterControlCode = options.MasterCode
+      this.masterControlId = options.MasterId
       this.$apply()
       this.getMasterControlType()
     }

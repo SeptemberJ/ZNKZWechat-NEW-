@@ -134,6 +134,11 @@
               code: RES.code,
               userInfo: res.userInfo
             }
+            let NewNickNameInfo = {
+              type: 'nickName',
+              newInfo: res.userInfo.nickName
+            }
+            this.methods.wxUserInfo(NewNickNameInfo)
             console.log('getuserinfo success')
             console.log(RES)
             console.log(res)
@@ -214,7 +219,7 @@
     getBindingStatus (Openid) {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/userInfo?open_id=' + Openid, // 'oGm3u0FHjaAt6vFemoB3XF39RHbE',
+          url: this.urlPre + '/userInfo?open_id=' + Openid, // 'oGm3u0FHjaAt6vFemoB3XF39RHbE'
           method: 'GET'
         }).then((res) => {
           console.log(res)
@@ -222,10 +227,10 @@
           switch (res.data.code) {
             case 1:
               wepy.hideLoading()
-              let NewNickNameInfo = {
-                type: 'nickName',
-                newInfo: res.data.userInfo.wx_name
-              }
+              // let NewNickNameInfo = {
+              //   type: 'nickName',
+              //   newInfo: res.data.userInfo.wx_name
+              // }
               let NewPhoneInfo = {
                 type: 'phone',
                 newInfo: res.data.userInfo.ftelephone
@@ -234,7 +239,7 @@
                 type: 'avatarUrl',
                 newInfo: res.data.userInfo.wx_pic
               }
-              this.methods.wxUserInfo(NewNickNameInfo)
+              // this.methods.wxUserInfo(NewNickNameInfo)
               this.methods.wxUserInfo(NewPhoneInfo)
               this.methods.wxUserInfo(NewAvatarInfo)
               this.$parent.globalData.register_id = res.data.userInfo.id

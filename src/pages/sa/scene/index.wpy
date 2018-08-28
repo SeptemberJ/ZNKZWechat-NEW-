@@ -219,50 +219,7 @@ page{
       //   this.SceneAutomaticCount = AutomaticList.length
       //   this.$apply()
       // },
-      // 获取创建信息
-      GetSceneInfo (_this, ID) {
-        console.log('GetSceneInfo--------------------------')
-        wepy.showLoading({
-          title: '加载中...'
-        })
-        return new Promise((resolve, reject) => {
-          wepy.request({
-            url: _this.urlPre + '/selectnoscenario?id=' + ID,
-            method: 'GET',
-            header: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            }
-          }).then((res) => {
-            console.log(res.data.scenario)
-            switch (res.data.result) {
-              case 1:
-                wepy.hideLoading()
-                resolve(res)
-                break
-              case 0:
-                wepy.hideLoading()
-                _this.$invoke('toast', 'show', {
-                  title: '服务器繁忙！',
-                  img: '../../../images/icons/attention.png'
-                })
-                break
-              default:
-                wepy.hideLoading()
-                _this.$invoke('toast', 'show', {
-                  title: '服务器繁忙！',
-                  img: '../../../images/icons/attention.png'
-                })
-            }
-          }).catch((res) => {
-            console.log(res)
-            wepy.hideLoading()
-            this.$invoke('toast', 'show', {
-              title: '服务器繁忙！',
-              img: '../../../images/icons/attention.png'
-            })
-          })
-        })
-      },
+      
       
       // 新增 判断权限
       Submit () {
@@ -353,6 +310,50 @@ page{
     }
 
     // self FN
+    // 获取创建信息
+    GetSceneInfo (ID) {
+      console.log('GetSceneInfo--------------------------')
+      wepy.showLoading({
+        title: '加载中...'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/selectnoscenario?id=' + ID,
+          method: 'GET',
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }).then((res) => {
+          console.log(res.data.scenario)
+          switch (res.data.result) {
+            case 1:
+              wepy.hideLoading()
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
+    }
     // 获取场景图标
     GetSceneIconList () {
       console.log('获取场景图标----------------')
@@ -573,7 +574,7 @@ page{
       this.$apply()
       if (options.sceneid) {
         console.log('options.sceneid--------------')
-        const ResGetSceneInfo = await this.methods.GetSceneInfo(_this, options.sceneid)
+        const ResGetSceneInfo = await this.GetSceneInfo(options.sceneid)
         let NewTimeInfo = {
           type: 'init',
           newInfo: ResGetSceneInfo.data.scenario.scenarios

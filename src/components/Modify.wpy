@@ -235,7 +235,7 @@ page{
     modifyHomeInfo (HomeName, HomeAddress, HomeIsDefault) {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/home?id=' + this.$parent.homeId + '&home_name=' + HomeName + '&faddress=' + HomeAddress + '&isdefault=0' + '&register_id=' + this.$parent.registerId,
+          url: encodeURI(this.urlPre + '/home?id=' + this.$parent.homeId + '&home_name=' + HomeName + '&faddress=' + HomeAddress + '&isdefault=0' + '&register_id=' + this.$parent.registerId),
           data: {
           },
           method: 'PUT'
@@ -271,7 +271,7 @@ page{
       console.log('修改房间名称--------------------')
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/house?id=' + this.houseId + '&house_name=' + this.$parent.newModifyContent + '&home_id=' + this.curHome.home_id,
+          url: encodeURI(this.urlPre + '/house?id=' + this.houseId + '&house_name=' + this.$parent.newModifyContent + '&home_id=' + this.curHome.home_id),
           data: {
           },
           method: 'PUT',
