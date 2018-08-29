@@ -107,7 +107,7 @@ page{
           <view class='EQList_list_Item' wx:for-items="{{SceneList}}" wx:for-index="EQIdx" wx:for-item="Equipment" wx:key="EQIdx" bindtap='ChooseScene' data-idx='{{EQIdx}}'>
             <image src="{{Equipment.scenario_img}}"></image>
             <view class='EQList_list_text'>
-              <text class='EQList_list_text_name'>{{Equipment.fname}}</text>
+              <text class='EQList_list_text_name'>{{Equipment.device_name}}</text>
               <text class='EQList_list_text_room'></text>
             </view>
             <view class="ControlBt">
@@ -125,9 +125,9 @@ page{
         <!--list  -->
         <view class='EQList_list' wx:if="{{Toggle_EQ}}">
           <view class='EQList_list_Item' wx:for-items="{{EQList}}" wx:for-index="EQIdx" wx:for-item="Equipment" wx:key="EQIdx" bindtap='ChooseEQ' data-idx='{{EQIdx}}'>
-            <image src="{{Equipment.machine_img}}"></image>
+            <image src="{{Equipment.device_img}}"></image>
             <view class='EQList_list_text'>
-              <text class='EQList_list_text_name'>{{Equipment.second_name}}</text>
+              <text class='EQList_list_text_name'>{{Equipment.device_name}}</text>
               <text class='EQList_list_text_room'>{{Equipment.room_name}}</text>
             </view>
             <view class="ControlBt">

@@ -155,7 +155,7 @@ export default handleActions({
 }, {
   num: 0,
   asyncNum: 0,
-  urlPre: 'http://205.168.1.100:8083',// https://jingshangs.com/zk_hky',
+  urlPre: 'http://192.168.10.173:8083',// 'http://205.168.1.100:8083',
   userInfo:{
     nickName: '留白', // '留白'
     phone: '18234567890',

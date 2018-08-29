@@ -83,9 +83,9 @@ page{
 
     <view class="Scene_EQList">
       <view class='Scene_EQList_item' wx:for-index="EQIdx" wx:for-items="{{SceneInfo.Scene_EQList}}"  wx:for-item="Equipment" wx:key="EQIdx" @longtap='Delete' data-idx='{{EQIdx}}'>
-        <image src="{{Equipment.machine_img}}"></image>
+        <image src="{{Equipment.device_img}}"></image>
         <view class='Scene_EQList_item_info'>
-          <text>{{Equipment.second_name}}</text>
+          <text>{{Equipment.device_name}}</text>
           <text>{{Equipment.room_name}}</text>
         </view>
         <view class='Scene_EQList_item_status'>

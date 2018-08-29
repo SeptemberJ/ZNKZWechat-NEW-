@@ -103,8 +103,8 @@ page{
 
     <view class='itemBar'>
       <text>家庭名称</text>
-      <text @tap="modifyHomeName" class='incidentalText'>{{homeName}}</text>
-      <image @tap="modifyHomeName" src="../../images/icons/arrow-right.png"></image>
+      <text class='incidentalText'>{{homeName}}</text>
+      <image wx:if="{{curHome.isCreater}}"  @tap="modifyHomeName" src="../../images/icons/arrow-right.png"></image>
     </view>
     <view class='itemBar'>
       <text>房间个数</text>
@@ -114,13 +114,13 @@ page{
 
     <view class='itemBar'>
       <text>家庭位置</text>
-      <text @tap="modifyHomeAddress" class='incidentalText'>{{homeAddress}}</text>
-      <image @tap="modifyHomeAddress" src="../../images/icons/arrow-right.png"></image>
+      <text  class='incidentalText'>{{homeAddress}}</text>
+      <image wx:if="{{curHome.isCreater}}" @tap="modifyHomeAddress" src="../../images/icons/arrow-right.png"></image>
     </view>
 
     <view class='homeList_columnTit'>
       <view class='columnItem'><text>家庭成员：</text></view>
-      <view class='columnItem' @tap="addMember"><image src='../../images/icons/add.png'></image><text style='color:#3498db;'>添加</text></view>
+      <view wx:if="{{curHome.isCreater}}" class='columnItem' @tap="addMember"><image src='../../images/icons/add.png'></image><text style='color:#3498db;'>添加</text></view>
     </view>
 
     <!-- memberList -->
@@ -131,10 +131,10 @@ page{
         <text class='memberPhone'>{{member.ftelephone}}</text>
       </view>
       <text wx:if="{{member.ismanager == 1}}" class='memberRole'>管理员</text>
-      <image wx:if="{{member.ismanager == 0}}" @tap="setMember" data-avatar="{{member.wx_pic}}" data-name="{{member.wx_name}}" data-phone="{{member.ftelephone}}" data-registeridm="{{member.id}}" src="../../images/icons/arrow-right.png"></image>
+      <image wx:if="{{member.ismanager == 0 && curHome.isCreater}}" @tap="setMember" data-avatar="{{member.wx_pic}}" data-name="{{member.wx_name}}" data-phone="{{member.ftelephone}}" data-registeridm="{{member.id}}" src="../../images/icons/arrow-right.png"></image>
     </view>
 
-    <view class='homeList_bt' @tap="deleteHome">移除家庭</view>
+    <view wx:if="{{curHome.isCreater}}" class='homeList_bt' @tap="deleteHome">移除家庭</view>
 
     <ModifyModal :modifyType.sync="modifyType" :ifShow.sync="ifModify" :newModifyContent.sync="newModifyContent"  wx:if="{{ifModify}}" :modifyTit.sync="modifyTit"></ModifyModal>
 

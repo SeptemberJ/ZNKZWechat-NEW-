@@ -173,19 +173,21 @@
     }
 
     // 获取用户家庭列表
-    getUserHomeList (ID) {
+    getUserHomeList (UserID) {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/home?register_id=' + ID,
+          url: this.urlPre + '/home?register_id=' + UserID,
           method: 'GET'
         }).then((res) => {
           console.log(res)
+          let Temp = res.data.homeList.slice(0)
           switch (res.data.code) {
             case 1:
               wepy.hideLoading()
-              if (res.data.homeList.length > 0) { // 已创建家的进入首页，否则先创建家
-                this.methods.updateHomeList(res.data.homeList)
-                res.data.homeList.map((item, idx) => {
+              if (Temp.length > 0) { // 已创建家的进入首页，否则先创建家
+                // 是否时创建者
+                Temp.map((item, idx) => {
+                  item.isCreater = item.register_id === UserID ? true: false
                   if (item.isdefault === '1') {
                     console.log('isdefault==1---------------')
                     console.log(item)
@@ -193,6 +195,17 @@
                     this.$switch('./index')
                   }
                 })
+                console.log(Temp)
+                this.methods.updateHomeList(Temp)
+                // this.methods.updateHomeList(res.data.homeList)
+                // res.data.homeList.map((item, idx) => {
+                //   if (item.isdefault === '1') {
+                //     console.log('isdefault==1---------------')
+                //     console.log(item)
+                //     this.methods.updateCurHome(item)
+                //     this.$switch('./index')
+                //   }
+                // })
               } else {
                 this.$redirect('./readyToCreate')
               }

@@ -250,11 +250,19 @@ page{
       // 房间下全选切换
       toggleWhole (IDX) {
         let IfCheck = this.homeInfo.roomList[IDX].ifCheck
-        this.homeInfo.roomList[IDX].ifCheck = !IfCheck
-        this.homeInfo.roomList[IDX].deviceList.map((Eq, Idx) => {
-          Eq.ifCheck = !IfCheck
-        })
-        this.$apply()
+        if (this.homeInfo.roomList[IDX].deviceList.length>0) {
+          this.homeInfo.roomList[IDX].ifCheck = !IfCheck
+          this.homeInfo.roomList[IDX].deviceList.map((Eq, Idx) => {
+            Eq.ifCheck = !IfCheck
+          })
+          this.$apply()
+        } else {
+          this.$invoke('toast', 'show', {
+            title: '该房间下暂无设备无法勾选！',
+            img: '../../images/icons/attention.png'
+          })
+        }
+        
       },
       // 房间展开与否
       toggleOpenClose (IDX) {
@@ -337,48 +345,64 @@ page{
       },
       deleteMember () {
         return new Promise((resolve, reject) => {
-          wepy.request({
-            url: this.urlPre + '/',
-            data: {},
-            method: 'POST'
+          wepy.showModal({
+            title: '提示',
+            content: '确定移除该成员?'
           }).then((res) => {
-            switch (res.data.code) {
-              case 1:
-                wepy.hideLoading()
-                wepy.showToast({
-                  title: '授权成功!',
-                  icon: 'success'
-                })
-                resolve(res)
-                break
-              case 0:
-                wepy.hideLoading()
-                this.$invoke('toast', 'show', {
-                  title: '服务器繁忙！',
-                  img: '../../images/icons/attention.png'
-                })
-                break
-              default:
-                wepy.hideLoading()
-                this.$invoke('toast', 'show', {
-                  title: '服务器繁忙！',
-                  img: '../../images/icons/attention.png'
-                })
+            if (res.confirm) {
+              console.log('用户点击确定')
+              this.sureDelete()
+            } else if (res.cancel) {
+              console.log('用户点击取消')
             }
+            resolve(res)
           }).catch((res) => {
             console.log(res)
-            wepy.hideLoading()
-            this.$invoke('toast', 'show', {
-              title: '服务器繁忙！',
-              img: '../../images/icons/attention.png'
-            })
           })
         })
       }
-
     }
 
     // self fn
+    sureDelete () {
+      wepy.showLoading({
+        title: '加载中...'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/home?register_id=' + this.MemberRegisterId + '&home_id=' + this.homeId,
+          data: {
+          },
+          method: 'DELETE'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '移除成员成功!',
+                icon: 'success'
+              })
+              wepy.navigateBack()
+              // this.$navigate('./homeList?ifRefresh=true')
+              resolve(res)
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '删除失败！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
     getHomeWholeInfo (HomeId, OldHouseList) {
       return new Promise((resolve, reject) => {
         wepy.request({

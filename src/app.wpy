@@ -84,6 +84,7 @@ export default class extends wepy.app {
   config = {
     pages: [
       'pages/loading',
+      'pages/control/index',
       'pages/my/feedback',
       'pages/my/feedbackDetail',
       'pages/createHome',
@@ -157,7 +158,8 @@ export default class extends wepy.app {
     test: 'nihao',
     mainUrl: 'http://192.168.10.139:8082',
     register_id: null,
-    newRoomName: null
+    newRoomName: null,
+    width: null
   }
 
   constructor () {
@@ -168,6 +170,11 @@ export default class extends wepy.app {
 
   onLaunch() {
     console.log('onLaunch-------------')
+    wepy.getSystemInfo({
+      success: (res) => {
+        this.globalData.width = res.windowWidth
+      }
+    })
     // this.userInfoAsync()
   }
 }

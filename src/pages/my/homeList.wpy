@@ -162,13 +162,15 @@ page{
           method: 'GET'
         }).then((res) => {
           console.log(res)
+          let Temp = res.data.homeList.slice(0)
           switch (res.data.code) {
             case 1:
               wepy.hideLoading()
               let ifHasDefaultHome = false
-              if (res.data.homeList.length > 0) { // 已创建家的进入首页，否则先创建家
+              if (Temp.length > 0) { // 已创建家的进入首页，否则先创建家
                 this.methods.updateHomeList(res.data.homeList)
-                res.data.homeList.map((item, idx) => {
+                Temp.map((item, idx) => {
+                  item.isCreater = item.register_id === this.$parent.globalData.register_id ? true: false
                   if (item.isdefault === '1') {
                     ifHasDefaultHome = true
                     this.methods.updateCurHome(item)

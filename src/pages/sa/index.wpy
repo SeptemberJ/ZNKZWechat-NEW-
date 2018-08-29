@@ -108,12 +108,12 @@ page{
       <!-- automation -->
       <Empty :tipTitle.sync="tipTitle_automation" wx:if="{{automationList.length == 0 && cur_index == 1}}"></Empty>
       <view class='listItem equipment' wx:if="{{automationList.length > 0}}" wx:for-items="{{automationList}}" wx:for-item="automation" wx:key="automationIdx" wx:for-index="automationIdx" wx:if="{{automationList.length > 0 && cur_index == 1}}" >
-        <image src="../../images/icons/box-empty.png" @tap="toEdit_automation" data-automaticid='{{automation.id}}'></image>
+        <!-- <image src="../../images/icons/box-empty.png" @tap="toEdit_automation" data-automaticid='{{automation.id}}'></image> -->
         <text class='listItem_name' @tap="toEdit_automation" data-automaticid='{{automation.id}}'>{{automation.fname}}</text>
         <text class="{{automation.on_off_status==0?'listItem_status':'listItem_status active'}}">{{automation.on_off_status==0?'offline':'online'}}</text>
       </view>
     </view>
-    <button class='addBt' @tap="addSA">添加</button>
+    <button wx:if="{{curHome.isCreater}}" class='addBt' @tap="addSA">添加</button>
   <toast/>
   </view>
 </template>
