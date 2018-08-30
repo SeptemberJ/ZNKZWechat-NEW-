@@ -1,0 +1,191 @@
+<style lang="less">
+page{
+  .controlWrap{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .TabBox{
+    width: 600rpx;
+    height: 50rpx;
+    margin: 0 auto 10px auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #3498db;
+    border-top-left-radius: 20rpx;
+    border-bottom-left-radius: 20rpx;
+    border-top-right-radius: 20rpx;
+    border-bottom-right-radius: 20rpx;
+    overflow: hidden;
+  }
+  .TabItem{
+    width: 200rpx;
+    text-align: center;
+    padding: 0 10px;
+    height: 100%;
+    line-height: 50rpx;
+    font-size: 30rpx;
+  }
+  .Active{
+    background: #3498db;
+    color: #fff;
+  }
+  ec-canvas {
+    width: 100%;
+    height: 750rpx;
+  }
+  .ArrowDown{
+      width: 100%;
+      height: 100rpx;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      image{
+        width: 80rpx;
+        height: 80rpx;
+        transform: rotate(180deg);
+        display: block;
+      }
+    }
+    .ArrowUp{
+      width: 100%;
+      height: 100rpx;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      image{
+        width: 80rpx;
+        height: 80rpx;
+        display: block;
+      }
+    }
+}
+</style>
+<template>
+  <view style="width:750rpx;height:700rpx;" hidden="{{!ifShow}}">
+    <ec-canvas id="mychart-dom-bar" canvas-id="mychart-bar" ec="{{ ec }}"></ec-canvas>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import * as echarts from '../../ec-canvasyl/echarts'
+
+  function setOption (chart, IDX) {
+    console.log('chart-------------')
+    // console.log(chart)
+    var datas = [[820, 932, 901, 934, 1290, 1330, 1320], [120, 1132, 91, 934, 290, 1330, 320], [20, 93, 91, 34, 120, 30, 20], [1820, 111, 222, 934, 1290, 1330, 1320]]
+    var option = {
+      grid: {
+        left: '15%'
+      },
+      xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [{
+        data: datas[IDX],
+        type: 'line'
+      }]
+    }
+    chart.setOption(option)
+  }
+
+  export default class chart extends wepy.component {
+    config = {
+      usingComponents: {
+        'ec-canvas': '../../ec-canvasyl/ec-canvas'
+      }
+    }
+    props = {
+      ifShow: {
+        twoWay: true
+      },
+      tabIdx: {
+        twoWay: true
+      }
+    }
+
+    data = {
+      ec: {
+        // onInit: this.init
+        lazyLoad: true
+      },
+      ecComponent: null,
+      chart: null
+
+    }
+
+    components = {
+    }
+
+    data = {
+      TabMenu: ['日', '周', '月', '年']
+    }
+
+    events = {
+      'broadcastInit': (...args) => {
+        console.log('broadcastInit-emit---------------------')
+        // this.ecComponent = this.$wxpage.selectComponent('#mychart-dom-bar')
+        var EcComponent = this.$wxpage.selectComponent('#mychart-dom-bar')
+        this.$apply()
+        //console.log(this.$wxpage.selectComponent('#mychart-dom-bar'))
+        EcComponent.init((canvas) => {
+          // 获取组件的 canvas、width、height 后的回调函数
+          // 在这里初始化图表
+          const chart = echarts.init(canvas, '320', {
+            width: '320',
+            height: '324'
+            // width: width ? width : app.globalData.width,
+            // height: height ? height : app.globalData.width,
+          })
+          setOption(chart, this.tabIdx)
+          // 将图表实例绑定到 this 上，可以在其他成员函数（如 dispose）中访问
+          this.chart = chart
+          this.$apply()
+          return chart
+        })
+        // this.init(0)
+      }
+    }
+
+    methods = {
+    }
+    // init (IDX) {
+    //   this.ecComponent.init((canvas) => {
+    //     // 获取组件的 canvas、width、height 后的回调函数
+    //     // 在这里初始化图表
+    //     const chart = echarts.init(canvas, '320', {
+    //       width: '320',
+    //       height: '324'
+    //       // width: width ? width : app.globalData.width,
+    //       // height: height ? height : app.globalData.width,
+    //     })
+    //     setOption(chart, IDX)
+    //     // 将图表实例绑定到 this 上，可以在其他成员函数（如 dispose）中访问
+    //     this.chart = chart
+    //     this.$apply()
+    //     return chart
+    //   })
+    // }
+    // onReady() {
+    //   // 获取组件
+    //   this.ecComponent = this.$wxpage.selectComponent('#mychart-dom-bar')
+    //   this.$apply()
+    //   console.log(this.$wxpage.selectComponent('#mychart-dom-bar'))
+    // }
+  }
+</script>

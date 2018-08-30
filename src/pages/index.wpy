@@ -602,7 +602,9 @@ page{
         }).then((res) => {
           this.methods.updateCurRoomList(res.data.houseList)
           this.methods.updateCurRoom(res.data.houseList[0])
-          this.getRoomEQ(res.data.houseList[0].id)
+          if (res.data.houseList.length>0) {
+            this.getRoomEQ(res.data.houseList[0].id)
+          }
           resolve(res)
         }).catch((res) => {
           console.log(res)

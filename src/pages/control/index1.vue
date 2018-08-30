@@ -31,13 +31,7 @@ page{
     line-height: 50rpx;
     font-size: 30rpx;
   }
-  .TabItemActive{
-    width: 200rpx;
-    text-align: center;
-    padding: 0 10px;
-    height: 100%;
-    line-height: 50rpx;
-    font-size: 30rpx;
+  .Active{
     background: #3498db;
     color: #fff;
   }
@@ -82,8 +76,20 @@ page{
     <view class='controlWrap'>
     <text>{{CurTab}}</text>
     <controlPanelLight wx:if="{{!ifShowChart}}"></controlPanelLight>
-    <tab :ifShow.sync="ifShowChart" :tabIdx.sync="CurTab"></tab>
-    <chart :ifShow.sync="ifShowChart" :tabIdx.sync="CurTab"></chart>
+    <view class='TabBox'>
+      <view class="{{CurTab == TabIdx?'TabItem Active':'TabItem'}}" @tap='changeChart({{TabIdx}})' wx:for-items="{{TabMenu}}" wx:for-index="TabIdx" wx:for-item="Tab" wx:key="TabIdx">{{Tab}}</view>
+    </view>
+    <view style="width:750rpx;height:700rpx;" hidden="{{!ifShowChart}}">
+      <ec-canvas id="mychart-dom-bar" canvas-id="mychart-bar" ec="{{ ec }}"></ec-canvas>
+    </view>
+     <!--  <button @tap="changeChart(0)">切换1</button>
+      <button @tap="changeChart(1)">切换2</button>
+      <button @tap="dispose">释放图表</button>
+      <view wx:if="{{ifShowChart}}">
+        <view style="width:750rpx;height:700rpx;background:#fff;" hidden="{{isDisposed}}">
+          <ec-canvas id="mychart-dom-bar" canvas-id="mychart-bar" ec="{{ ec }}"></ec-canvas>
+        </view>
+      </view> -->
       <!--ArrowDown  -->
       <view wx:if="{{!ifShowChart}}" class='ArrowDown'>
         <image bindtap='ToggleShowChart' src='../../images/icons/double-arrow-down.png'></image>
@@ -102,8 +108,6 @@ page{
   import testMixin from '../../mixins/test'
   import * as echarts from '../../ec-canvasyl/echarts'
   import controlPanelLight from '../../components/controlPanel/controlPanel_light'
-  import tab from '../../components/controlPanel/tab'
-  import chart from '../../components/controlPanel/chart'
 
   function setOption (chart, IDX) {
     console.log('chart-------------')
@@ -148,29 +152,21 @@ page{
         'ec-canvas': '../../ec-canvasyl/ec-canvas'
       }
     }
-    watch = {
-      CurTab (curVal, oldVal) {
-        console.log(`CurTab旧值：${oldVal}，CurTab新值：${curVal}`)
-        this.$broadcast('broadcastInit')
-      }
-    }
     components = {
       toast: Toast,
-      controlPanelLight: controlPanelLight,
-      tab: tab,
-      chart: chart
+      controlPanelLight: controlPanelLight
       // ecCanvas: EcCanvas
     }
 
     mixins = [testMixin]
 
     data = {
-      // canvasId: 'mychart-pie',
-      // ec: {
-      //   // onInit: this.init
-      //   lazyLoad: true
-      // },
-      ifShowChart: true,
+      canvasId: 'mychart-pie',
+      ec: {
+        // onInit: this.init
+        lazyLoad: true
+      },
+      ifShowChart: false,
       datas: [[820, 932, 901, 934, 1290, 1330, 1320], [120, 1132, 91, 934, 290, 1330, 320]],
       ecComponent: null,
       chart: null,
@@ -183,11 +179,26 @@ page{
     }
 
     methods = {
+      changeChart (IDX) {
+        console.log('click')
+        this.CurTab = IDX
+        this.$apply()
+        // this.initTab(IDX)
+        // this.tabChange(IDX)
+        setTimeout(() => {
+          this.init(IDX)
+        },300)
+        
+      },
+      dispose () {
+        this.isDisposed = true
+        this.$apply()
+      },
       // 切换视图
       ToggleShowChart() {
         this.ifShowChart = !this.ifShowChart
         this.$apply()
-        this.$broadcast('broadcastInit')
+        this.initTab(0)
         // this.init(this.data.CurTab)
       },
       // 仅开关类设备
@@ -243,8 +254,13 @@ page{
     }
 
     onLoad() {
-      this.$broadcast('broadcastInit')
 
     }
+    onReady() {
+      // 获取组件
+      this.ecComponent = this.$wxpage.selectComponent('#mychart-dom-bar')
+      this.$apply()
+      console.log(this.$wxpage.selectComponent('#mychart-dom-bar'))
+    }
   }
-</script> 
+</script>

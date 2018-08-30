@@ -202,7 +202,7 @@ page{
     GetCurAutomaticList (ID) {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/selectallautomation?id=' + ID,
+          url: this.urlPre + '/selectallautomation?id=' + this.curHome.home_id,
           method: 'GET',
           header: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -213,6 +213,12 @@ page{
               let Temp = res.data.automationlist
               Temp.map((Item, Idx) => {
                 Item.choosed = false
+                // 如果设置过显示打勾
+                this.SceneInfo.Scene_AutomaticList.map((NowItem, Idx) => {
+                  if (NowItem.id === Item.id) {
+                    Item.choosed = true
+                  }
+                })
               })
               this.AutomaticList = Temp
               this.$apply()

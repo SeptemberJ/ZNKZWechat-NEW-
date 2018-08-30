@@ -1,0 +1,75 @@
+<style lang="less">
+.TabBox{
+    width: 600rpx;
+    height: 50rpx;
+    margin: 0 auto 10px auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #3498db;
+    border-top-left-radius: 20rpx;
+    border-bottom-left-radius: 20rpx;
+    border-top-right-radius: 20rpx;
+    border-bottom-right-radius: 20rpx;
+    overflow: hidden;
+  }
+  .TabItemNormal{
+    width: 200rpx;
+    text-align: center;
+    padding: 0 10px;
+    height: 100%;
+    line-height: 50rpx;
+    font-size: 30rpx;
+  }
+  .TabItemActive{
+    width: 200rpx;
+    text-align: center;
+    padding: 0 10px;
+    height: 100%;
+    line-height: 50rpx;
+    font-size: 30rpx;
+    background: #3498db;
+    color: #fff;
+  }
+</style>
+<template>
+  <view class='TabBox' wx:if="{{ifShow}}">
+    <view class="{{tabIdx == TabIdx?'TabItemActive':'TabItemNormal'}}" wx:for-items="{{TabMenu}}" wx:for-index="TabIdx" wx:for-item="Tab" wx:key="TabIdx"  @tap='CancelAdd({{TabIdx}})'>{{Tab}}{{tabIdx == TabIdx}}</view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class tab extends wepy.component {
+    props = {
+      ifShow: {
+        twoWay: true
+      },
+      tabIdx: {
+        twoWay: true
+      }
+    }
+
+    data = {
+
+    }
+
+    components = {
+    }
+
+    data = {
+      TabMenu: ['日', '周', '月', '年']
+    }
+
+    methods = {
+      CancelAdd (IDX) {
+        console.log(IDX)
+        this.$parent.CurTab = IDX
+        this.$parent.$apply()
+      }
+    }
+    // self fn
+  }
+</script>

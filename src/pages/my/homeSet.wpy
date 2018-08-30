@@ -154,6 +154,9 @@ page{
     urlPre (state) {
       return state.counter.urlPre
     },
+    curHome (state) {
+      return state.counter.curHome
+    },
     homeList (state) {
       return state.counter.homeList
     },
