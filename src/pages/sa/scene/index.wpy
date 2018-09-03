@@ -197,30 +197,6 @@ page{
         }
         this.methods.changeSceneInfo(NewTimeInfo)
       },
-      // 更新定时
-      // UpdateTiming (TimingInfo) {
-      //   console.log('TimingInfo------------------')
-      //   console.log(TimingInfo)
-      //   // this.Scene_EQList.Scene_timing = TimingInfo
-      //   this.SceneInfo.Scene_timing = TimingInfo
-      //   this.$apply()
-      // },
-      // // 更新设备组合
-      // UpdateChoosedEQList (ChoosedEQList) {
-      //   // this.Scene_EQList.Scene_EQList = ChoosedEQList
-      //   this.SceneInfo.Scene_EQList = ChoosedEQList
-      //   this.SceneInfo.SceneEQCount = ChoosedEQList.length
-      //   this.$apply()
-      // },
-      // // 更新联动组合
-      // UpdateChoosedAutomaticList (AutomaticList) {
-      //   // this.Scene_EQList.Scene_AutomaticList = AutomaticList
-      //   this.SceneInfo.Scene_AutomaticList = AutomaticList
-      //   this.SceneAutomaticCount = AutomaticList.length
-      //   this.$apply()
-      // },
-      
-      
       // 新增 判断权限
       Submit () {
         if (this.CurHomeRole !== 1) {
@@ -256,6 +232,9 @@ page{
                 })
                 return false
               }
+              wepy.showLoading({
+                title: '加载中'
+              })
               wepy.request({
                 url: this.urlPre + '/deletescenario?id=' + this.CurSceneId,
                 data: {
@@ -266,6 +245,7 @@ page{
                 }
               }).then((res) => {
                 console.log(res)
+                wepy.hideLoading()
                 switch (res.data.result) {
                   case 1:
                     wepy.showToast({
@@ -276,14 +256,12 @@ page{
                     wepy.navigateBack()
                     break
                   case 0:
-                    wepy.hideLoading()
                     this.$invoke('toast', 'show', {
                       title: '已添加过！',
                       img: '../../../images/icons/attention.png'
                     })
                     break
                   default:
-                    wepy.hideLoading()
                     this.$invoke('toast', 'show', {
                       title: '已添加过！',
                       img: '../../../images/icons/attention.png'
@@ -325,20 +303,18 @@ page{
           }
         }).then((res) => {
           console.log(res.data.scenario)
+          wepy.hideLoading()
           switch (res.data.result) {
             case 1:
-              wepy.hideLoading()
               resolve(res)
               break
             case 0:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../../images/icons/attention.png'
               })
               break
             default:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../../images/icons/attention.png'
@@ -356,7 +332,9 @@ page{
     }
     // 获取场景图标
     GetSceneIconList () {
-      console.log('获取场景图标----------------')
+      wepy.showLoading({
+        title: '加载中'
+      })
       return new Promise((resolve, reject) => {
         wepy.request({
           url: this.urlPre + '/selectscenarioimg',
@@ -365,23 +343,18 @@ page{
             'Content-Type': 'application/x-www-form-urlencoded'
           }
         }).then((res) => {
+          wepy.hideLoading()
           switch (res.data.result) {
             case 1:
-              // this.SceneIconList = res.data.scenariolist
-              // this.$apply()
-              wepy.hideLoading()
               resolve(res)
               break
             case 0:
-              wepy.hideLoading()
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '获取图标失败！',
                 img: '../../../images/icons/attention.png'
               })
               break
             default:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../../images/icons/attention.png'
@@ -427,6 +400,9 @@ page{
       })
 
       let DATA = this.SceneInfo
+      wepy.showLoading({
+        title: '加载中'
+      })
       return new Promise((resolve, reject) => {
         wepy.request({
           url: this.urlPre + '/insertscenario',
@@ -438,6 +414,7 @@ page{
           method: 'POST'
         }).then((res) => {
           console.log(res)
+          wepy.hideLoading()
           switch (res.data.result) {
             case 1:
               wepy.showToast({
@@ -446,24 +423,20 @@ page{
                 duration: 1500
               })
               wepy.navigateBack()
-              wepy.hideLoading()
               break
             case 2:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '已添加过！',
                 img: '../../../images/icons/attention.png'
               })
               break
             case 0:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../../images/icons/attention.png'
               })
               break
             default:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../../images/icons/attention.png'
@@ -508,6 +481,9 @@ page{
         title: '加载中...'
       })
       let DATA = this.SceneInfo
+      wepy.showLoading({
+        title: '加载中'
+      })
       return new Promise((resolve, reject) => {
         wepy.request({
           url: this.urlPre + '/updatenoscenario',
@@ -520,6 +496,7 @@ page{
           method: 'POST'
         }).then((res) => {
           console.log(res)
+          wepy.hideLoading()
           switch (res.data.result) {
             case 1:
               wepy.showToast({
@@ -528,24 +505,20 @@ page{
                 duration: 1500
               })
               wepy.navigateBack()
-              wepy.hideLoading()
               break
             case 2:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '已添加过！',
                 img: '../../../images/icons/attention.png'
               })
               break
             case 0:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../../images/icons/attention.png'
               })
               break
             default:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../../images/icons/attention.png'

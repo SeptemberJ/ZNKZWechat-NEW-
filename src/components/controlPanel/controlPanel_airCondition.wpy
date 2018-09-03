@@ -1,0 +1,261 @@
+<style lang="less">
+.controlPanel{
+  width: 650rpx;
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  font-size: 30rpx;
+  .ControlItem{
+    width: 650rpx;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    .Temperature{
+      width: 100%;
+      height: 204rpx;
+      display: flex;
+      justify-content: space-between;
+      overflow: hidden;
+      .Temperature_number{
+        width: 350rpx;
+        height: calc(100% - 4px);
+        padding: 0 20rpx;
+        display: flex;
+        justify-content: space-around;
+        align-items: space-between;
+        border: 2px solid #fff;
+        border-radius: 10rpx;
+      }
+      .Temperature_number_item{
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: space-between;
+        color: #fff;
+        text{
+          flex: 1;
+          height: 100rpx;
+          font-size: 38rpx;
+          line-height: 100rpx;
+          text-align: center;
+        }
+      }
+      .Temperature_add_min{
+        width: 130rpx;
+        height: calc(100% - 4px);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        border: 2px solid #fff;
+        border-radius: 10rpx;
+        image{
+          width: 55rpx;
+          height: 55rpx;
+          display: block;
+        }
+      }
+    }
+    .Wind{
+      width: 100%;
+      height: 100rpx;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      margin: 20px auto;
+      border: 2px solid #fff; 
+      border-radius: 10rpx;
+      .WindItem{
+        flex: 1;
+        text-align: center;
+        image{
+          width: 50rpx;
+          height: 50rpx;
+          display: block;
+          margin: 0 auto;
+        }
+      }
+    }
+    .Operations{
+      width: 100%;
+      height: 180rpx;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      margin: 20px auto; 
+      border-radius: 10rpx;
+      .OperationItem{
+        height: 100%; 
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 50%;
+        &:nth-of-type(1){
+          align-items: flex-start;
+        }
+      }
+      .OperationItemIcon{
+        width:100rpx;
+        height: 100rpx;
+        padding: 10rpx;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        image{
+          width: 50rpx;
+          height: 50rpx;
+        }
+        text{
+          width: 100%;
+          text-align: center;
+        }
+      }
+    }
+  }
+}
+.focus{
+  background: #3498db;
+  border: 0px solid #fff;
+}
+.blur{
+    border: 2px solid #fff;
+}
+</style>
+<template>
+  <view class='controlPanel'>
+    <view class='ControlItem AirConditioner'>
+      <!--Temperature  -->
+      <view class='Temperature'>
+        <view class='Temperature_number'>
+          <view class='Temperature_number_item'>
+            <text>当前温度</text>
+            <text>15 ℃</text>
+          </view>
+          <view class='Temperature_number_item'>
+            <text>设定温度</text>
+            <text>25 ℃</text>
+          </view>
+        </view>
+        <view class='Temperature_add_min'>
+          <image bindtap="template" src='../../images/icons/control_add.png'></image>
+          <image bindtap="template" src='../../images/icons/control_min.png'></image>
+        </view>
+      </view>
+      <!--Wind  -->
+      <view class='Wind' bindtap="template">
+        <view class='WindItem'>
+          <image src='../../images/icons/wind.png'></image>
+        </view>
+        <view class='WindItem'>
+          <text>风速 - 高</text>
+        </view>
+      </view>
+      <!--operations  -->
+      <view class='Operations'>
+        <view class='OperationItem' bindtap="template">
+          <view class='OperationItemIcon'>
+            <image src='../../images/icons/hot.png'></image>
+          </view>
+          <text>制热模式</text>
+        </view>
+        <view class='OperationItem' bindtap="template">
+          <view class='OperationItemIcon'>
+            <image src='../../images/icons/saofeng.png'></image>
+          </view>
+          <text>扫风</text>
+        </view>
+        <view class='OperationItem' bindtap="template">
+          <view class='OperationItemIcon'>
+            <image src='../../images/icons/power.png'></image>
+          </view>
+          <text>开关</text>
+        </view>
+      </view>
+    </view> 
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+
+  @connect({
+    urlPre (state) {
+      return state.counter.urlPre
+    },
+    curHome (state) {
+      return state.counter.curHome
+    }
+  }, {
+  })
+
+  export default class ModifyModal extends wepy.component {
+    // props = {
+    //   modifyType: {
+    //     type: Number,
+    //     default: 0   // 0-家名称 1-家地址 2-房间名称
+    //   },
+    //   modifyTit: {
+    //     type: String
+    //   },
+    //   newModifyContent: {
+    //     twoWay: true
+    //   },
+    //   houseId: {
+    //     twoWay: true
+    //   },
+    //   ifShow: {
+    //     twoWay: true
+    //   }
+    // }
+
+    data = {
+      isFocus: false
+
+    }
+
+    components = {
+    }
+
+    methods = {
+      // 无权限操作
+      template(){
+        const innerAudioContext = wepy.createInnerAudioContext()
+        innerAudioContext.autoplay = true
+        innerAudioContext.src = 'https://jingshangs.com/upload/ON.mp3'
+        innerAudioContext.onPlay(() => {
+          console.log('播放')
+        })
+        innerAudioContext.onError((res) => {
+          console.log(res)
+        })
+        wepy.showModal({
+          title: '提示',
+          content: '设备不在线！',
+          showCancel: false,
+          success: (res) => {
+          }
+        })
+      }
+    }
+
+    // self fn
+    ToggleBg () {
+      this.isFocus = true
+      this.$apply()
+      setTimeout(() => {
+        this.isFocus = false
+        this.$apply()
+      },300)
+    }
+  }
+</script>

@@ -106,7 +106,7 @@ page{
       <view class='addItem' wx:if="{{addType == 0}}">
         <text>主控码</text>
         <input type="text" name="主控码" disabled value="{{masterControl_Code}}" />
-        <image src="../../images/icons/scan.png" @tap="ScanCode(0)"></image>
+        <image alt="扫码" src="../images/icons/scan.png" @tap="ScanCode(0)"></image>
       </view>
       <!-- secondControl -->
       <view class='addItem' wx:if="{{addType == 1}}">
@@ -116,7 +116,7 @@ page{
       <view class='addItem' wx:if="{{addType == 1}}">
         <text>从控码</text>
         <input type="text" name="从控码" disabled value="{{secondControl_Code}}" />
-        <image src="../../images/icons/scan.png" @tap="ScanCode(1)"></image>
+        <image src="../images/icons/scan.png" @tap="ScanCode(1)"></image>
       </view>
       <!-- equpiment -->
       <view class='addItem' wx:if="{{addType == 2}}">
@@ -143,7 +143,7 @@ page{
       <view class='addItem' wx:if="{{addType == 2}}">
         <text>设备码</text>
         <input type="text" name="设备码" disabled value="{{euqipment_Code}}" />
-        <image src="../../images/icons/scan.png" @tap="ScanCode(2)"></image>
+        <image src="../images/icons/scan.png" @tap="ScanCode(2)"></image>
       </view>
     </view>
     <view class='BtBlock'>
@@ -202,14 +202,14 @@ page{
 
     data = {
       TypeList: [],
-      masterControl_Name: '123',
-      masterControl_Code: '11133',
+      masterControl_Name: '',
+      masterControl_Code: '',
       secondControl_Name: '',
-      secondControl_Code: 'CK-KLKK1333',
+      secondControl_Code: '',
       euqipment_Type_index: 0,
       Equipment_Icon: 0,
-      euqipment_Name: 'sheibei',
-      euqipment_Code: '12345678901234567890',
+      euqipment_Name: '',
+      euqipment_Code: '',
       IconList: []
     }
 
@@ -298,11 +298,15 @@ page{
     // self fun
     // 设备类别
     getEQType () {
+      wepy.showLoading({
+        title: '加载中'
+      })
       return new Promise((resolve, reject) => {
         wepy.request({
           url: this.urlPre + '/deviceType',
           method: 'GET'
         }).then((res) => {
+          wepy.hideLoading()
           switch (res.data.code) {
             case 1:
               this.TypeList = res.data.deviceTypeList
@@ -310,15 +314,16 @@ page{
               resolve(res)
               break
             default:
-              this.$invoke('toast', 'show', {
+              this.$parent.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../images/icons/attention.png'
               })
           }
           resolve(res.data.openid)
         }).catch((res) => {
+          wepy.hideLoading()
           console.log(res)
-          this.$invoke('toast', 'show', {
+          this.$parent.$invoke('toast', 'show', {
             title: '服务器繁忙！',
             img: '../../images/icons/attention.png'
           })
@@ -326,11 +331,22 @@ page{
       })
     }
     addMasterControl () {
+      if (this.masterControl_Name === '' || this.masterControl_Code === '') {
+        this.$parent.$invoke('toast', 'show', {
+          title: '请输入主控名称或主控码！',
+          img: '../../images/icons/attention.png'
+        })
+        return false
+      }
+      wepy.showLoading({
+        title: '加载中'
+      })
       return new Promise((resolve, reject) => {
         wepy.request({
           url: encodeURI(this.urlPre + '/mainControl?home_id=' + this.curHome.home_id + '&main_control_name=' + this.masterControl_Name + '&main_control_code=' + this.masterControl_Code),
           method: 'POST'
         }).then((res) => {
+          wepy.hideLoading()
           switch (res.data.code) {
             case 1:
               wepy.hideLoading()
@@ -341,9 +357,16 @@ page{
               this.$emit('refreshMasterControl-emit', 1, 2, 3)
               resolve(res)
               break
+            case 0:
+              wepy.hideLoading()
+              this.$parent.$invoke('toast', 'show', {
+                title: '该名称不可用！',
+                img: '../../images/icons/attention.png'
+              })
+              break
             default:
               wepy.hideLoading()
-              this.$invoke('toast', 'show', {
+              this.$parent.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../images/icons/attention.png'
               })
@@ -352,7 +375,7 @@ page{
         }).catch((res) => {
           console.log(res)
           wepy.hideLoading()
-          this.$invoke('toast', 'show', {
+          this.$parent.$invoke('toast', 'show', {
             title: '服务器繁忙！',
             img: '../../images/icons/attention.png'
           })
@@ -361,11 +384,22 @@ page{
     }
 
     addSecondControl () {
+      if (this.secondControl_Name === '' || this.secondControl_Code === '') {
+        this.$parent.$invoke('toast', 'show', {
+          title: '请输入从控名称或从控码！',
+          img: '../../images/icons/attention.png'
+        })
+        return false
+      }
+      wepy.showLoading({
+        title: '加载中'
+      })
       return new Promise((resolve, reject) => {
         wepy.request({
           url: encodeURI(this.urlPre + '/secondControl?home_id=' + this.curHome.home_id + '&second_control_name=' + this.secondControl_Name + '&main_control_code=' + this.MasterCode + '&second_contrl_code=' + this.secondControl_Code + '&second_control_category=' + this.SecondControlType + '&main_control_id=' + this.MasterId),
           method: 'POST'
         }).then((res) => {
+          wepy.hideLoading()
           switch (res.data.code) {
             case 1:
               wepy.hideLoading()
@@ -376,9 +410,16 @@ page{
               this.$emit('refreshSecondControl-emit')
               resolve(res)
               break
+            case 0:
+              wepy.hideLoading()
+              this.$parent.$invoke('toast', 'show', {
+                title: '该名称不可用！',
+                img: '../../images/icons/attention.png'
+              })
+              break
             default:
               wepy.hideLoading()
-              this.$invoke('toast', 'show', {
+              this.$parent.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../images/icons/attention.png'
               })
@@ -387,7 +428,7 @@ page{
         }).catch((res) => {
           console.log(res)
           wepy.hideLoading()
-          this.$invoke('toast', 'show', {
+          this.$parent.$invoke('toast', 'show', {
             title: '服务器繁忙！',
             img: '../../images/icons/attention.png'
           })
@@ -396,6 +437,16 @@ page{
     }
 
     addEQ () {
+      if (this.euqipment_Name === '' || this.euqipment_Code === '') {
+        this.$parent.$invoke('toast', 'show', {
+          title: '请输入设备名称或设备码！',
+          img: '../../images/icons/attention.png'
+        })
+        return false
+      }
+      wepy.showLoading({
+        title: '加载中'
+      })
       return new Promise((resolve, reject) => {
         wepy.request({
           url: this.urlPre + '/device',
@@ -414,9 +465,9 @@ page{
           },
           method: 'POST'
         }).then((res) => {
+          wepy.hideLoading()
           switch (res.data.code) {
             case 1:
-              wepy.hideLoading()
               wepy.showToast({
                 title: '添加成功!',
                 icon: 'success'
@@ -424,9 +475,14 @@ page{
               this.$emit('refreshEquipment-emit')
               resolve(res)
               break
+            case 0:
+              this.$parent.$invoke('toast', 'show', {
+                title: '该名称不可用！',
+                img: '../../images/icons/attention.png'
+              })
+              break
             default:
-              wepy.hideLoading()
-              this.$invoke('toast', 'show', {
+              this.$parent.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../images/icons/attention.png'
               })
@@ -435,7 +491,7 @@ page{
         }).catch((res) => {
           console.log(res)
           wepy.hideLoading()
-          this.$invoke('toast', 'show', {
+          this.$parent.$invoke('toast', 'show', {
             title: '服务器繁忙！',
             img: '../../images/icons/attention.png'
           })
@@ -444,7 +500,9 @@ page{
     }
     // 获取场景图标
     GetIconList () {
-      console.log('获取场景图标----------------')
+      wepy.showLoading({
+        title: '加载中'
+      })
       return new Promise((resolve, reject) => {
         wepy.request({
           url: this.urlPre + '/selectmachineimg',
@@ -453,25 +511,22 @@ page{
             'Content-Type': 'application/x-www-form-urlencoded'
           }
         }).then((res) => {
+          wepy.hideLoading()
           switch (res.data.result) {
             case 1:
               this.IconList = res.data.scenariolist
               this.Equipment_Icon = res.data.scenariolist[0].img
               this.$apply()
-              wepy.hideLoading()
               resolve(res)
               break
             case 0:
-              wepy.hideLoading()
-              wepy.hideLoading()
-              this.$invoke('toast', 'show', {
+              this.$parent.$invoke('toast', 'show', {
                 title: '获取图标失败！',
                 img: '../../../images/icons/attention.png'
               })
               break
             default:
-              wepy.hideLoading()
-              this.$invoke('toast', 'show', {
+              this.$parent.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../../images/icons/attention.png'
               })
@@ -479,7 +534,7 @@ page{
         }).catch((res) => {
           console.log(res)
           wepy.hideLoading()
-          this.$invoke('toast', 'show', {
+          this.$parent.$invoke('toast', 'show', {
             title: '服务器繁忙！',
             img: '../../../images/icons/attention.png'
           })

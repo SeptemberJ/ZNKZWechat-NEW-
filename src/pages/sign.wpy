@@ -127,7 +127,7 @@ page{
     data = {
       haGetCode: false,
       code_R: null,
-      CountDown: 5,
+      CountDown: 60,
       ifShowPsd: false,
       user_phone: null,
       user_psd: null,
@@ -251,6 +251,9 @@ page{
           return false
         }
         // 绑定
+        wepy.showLoading({
+          title: '加载中'
+        })
         return new Promise((resolve, reject) => {
           wepy.request({
             url: this.urlPre + '/userInsert?nickname=' + this.$parent.globalData.userInfo.nickName + '&head_img=' + this.$parent.globalData.userInfo.avatarUrl + '&open_id=' + this.$parent.globalData.openid + '&mobile=' + this.user_phone,
@@ -297,7 +300,7 @@ page{
       let num = _this.CountDown
       if (num === 0) {
         clearTimeout(Timer)
-        _this.CountDown = 5
+        _this.CountDown = 60
         _this.haGetCode = false
         _this.$apply()
         return false
@@ -315,7 +318,7 @@ page{
       let num = this.CountDown
       if (num === 0) {
         clearTimeout(Timer)
-        this.CountDown = 5
+        this.CountDown = 60
         this.haGetCode = false
         this.$apply()
         return false
@@ -326,6 +329,9 @@ page{
       }
     }
     getCode () {
+      wepy.showLoading({
+        title: '加载中'
+      })
       return new Promise((resolve, reject) => {
         wepy.request({
           url: this.urlPre + '/checkMessage?mobile=' + this.user_phone,

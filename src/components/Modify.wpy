@@ -252,17 +252,17 @@ page{
               break
             default:
               wepy.hideLoading()
-              this.$invoke('toast', 'show', {
+              this.$parent.$invoke('toast', 'show', {
                 title: '修改失败！',
-                img: '../images/icons/attention.png'
+                img: '../../images/icons/attention.png'
               })
           }
         }).catch((res) => {
           console.log(res)
           wepy.hideLoading()
-          this.$invoke('toast', 'show', {
+          this.$parent.$invoke('toast', 'show', {
             title: '服务器繁忙！',
-            img: '../images/icons/attention.png'
+            img: '../../images/icons/attention.png'
           })
         })
       })
@@ -291,17 +291,17 @@ page{
               break
             default:
               wepy.hideLoading()
-              this.$invoke('toast', 'show', {
+              this.$parent.$invoke('toast', 'show', {
                 title: '修改失败！',
-                img: '../images/icons/attention.png'
+                img: '../../images/icons/attention.png'
               })
           }
         }).catch((res) => {
           console.log(res)
           wepy.hideLoading()
-          this.$invoke('toast', 'show', {
+          this.$parent.$invoke('toast', 'show', {
             title: '服务器繁忙！',
-            img: '../images/icons/attention.png'
+            img: '../../images/icons/attention.png'
           })
         })
       })

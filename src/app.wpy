@@ -83,8 +83,8 @@ setStore(store)
 export default class extends wepy.app {
   config = {
     pages: [
-      'pages/control/index',
       'pages/loading',
+      'pages/control/index',
       'pages/my/feedback',
       'pages/my/feedbackDetail',
       'pages/createHome',

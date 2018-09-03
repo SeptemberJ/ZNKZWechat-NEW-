@@ -138,7 +138,7 @@ page{
     getEQList (ID) {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/deviceSecondControl?second_control_id=' + ID,
+          url: this.urlPre + '/deviceSecondControl?second_control_id=' + ID + '&home_id=' + this.curHome.home_id,
           method: 'GET'
         }).then((res) => {
           this.EquipmentList = res.data.deviceHouseList

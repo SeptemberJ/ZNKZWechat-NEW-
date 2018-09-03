@@ -156,20 +156,7 @@ page{
       cur_index: '0',
       tipTitle_automation: '暂无场景，请添加',
       tipTitle_scene: '暂无自动化，请添加',
-      automationList: [
-        {
-          fname: '123',
-          id: '4384d530-dd08-410d-b5f7-9622d790aa63',
-          on_off_status: '1',
-          registerappuserid: 'ede157a2-f6a1-409c-8f4e-3d549cb12add'
-        },
-        {
-          fname: '自动2',
-          id: '771d85f9-90d3-4dc2-8c29-56efd834d250',
-          on_off_status: '1',
-          registerappuserid: 'ede157a2-f6a1-409c-8f4e-3d549cb12add'
-        }
-      ],
+      automationList: [],
       sceneList: [],
       initSceneInfo: {
         Scene_name: '',
@@ -239,6 +226,9 @@ page{
 
     // 获取当前家下所有场景
     GetSceneIconList () {
+      wepy.showLoading({
+        title: '加载中'
+      })
       return new Promise((resolve, reject) => {
         wepy.request({
           url: this.urlPre + '/selectallscenario?id=' + this.curHome.home_id,
@@ -247,23 +237,20 @@ page{
             'Content-Type': 'application/x-www-form-urlencoded'
           }
         }).then((res) => {
+          wepy.hideLoading()
           switch (res.data.result) {
             case 1:
               this.sceneList = res.data.scenariolist
               this.$apply()
-              wepy.hideLoading()
               resolve(res)
               break
             case 0:
-              wepy.hideLoading()
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '获取图标失败！',
                 img: '../../../images/icons/attention.png'
               })
               break
             default:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../../images/icons/attention.png'
@@ -281,6 +268,9 @@ page{
     }
     // GetCurAutomaticList
     GetCurAutomaticList () {
+      wepy.showLoading({
+        title: '加载中'
+      })
       return new Promise((resolve, reject) => {
         wepy.request({
           url: this.urlPre + '/selectallautomation?id=' + this.curHome.home_id,
@@ -289,23 +279,20 @@ page{
             'Content-Type': 'application/x-www-form-urlencoded'
           }
         }).then((res) => {
+          wepy.hideLoading()
           switch (res.data.result) {
             case 1:
               this.automationList = res.data.automationlist
               this.$apply()
-              wepy.hideLoading()
               resolve(res)
               break
             case 0:
-              wepy.hideLoading()
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '获取图标失败！',
                 img: '../../../images/icons/attention.png'
               })
               break
             default:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../../images/icons/attention.png'

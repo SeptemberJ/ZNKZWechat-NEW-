@@ -72,9 +72,10 @@ page{
 }
 </style>
 <template>
-  <view style="width:750rpx;height:700rpx;" hidden="{{!ifShow}}">
+<ec-canvas id="mychart-dom-bar" canvas-id="mychart-bar" ec="{{ ec }}"></ec-canvas>
+  <!-- <view style="width:750rpx;height:700rpx;"  hidden="{{!ifShow}}">
     <ec-canvas id="mychart-dom-bar" canvas-id="mychart-bar" ec="{{ ec }}"></ec-canvas>
-  </view>
+  </view> -->
 </template>
 
 <script>
@@ -120,12 +121,12 @@ page{
     }
 
     data = {
-      ec: {
-        // onInit: this.init
-        lazyLoad: true
-      },
-      ecComponent: null,
-      chart: null
+      // ec: {
+      //   onInit: this.init
+      //   // lazyLoad: true
+      // },
+      // ecComponent: null,
+      // chart: null
 
     }
 
@@ -141,7 +142,6 @@ page{
         console.log('broadcastInit-emit---------------------')
         // this.ecComponent = this.$wxpage.selectComponent('#mychart-dom-bar')
         var EcComponent = this.$wxpage.selectComponent('#mychart-dom-bar')
-        this.$apply()
         //console.log(this.$wxpage.selectComponent('#mychart-dom-bar'))
         EcComponent.init((canvas) => {
           // 获取组件的 canvas、width、height 后的回调函数
@@ -154,8 +154,8 @@ page{
           })
           setOption(chart, this.tabIdx)
           // 将图表实例绑定到 this 上，可以在其他成员函数（如 dispose）中访问
-          this.chart = chart
-          this.$apply()
+          // this.chart = chart
+          // this.$apply()
           return chart
         })
         // this.init(0)
@@ -164,28 +164,5 @@ page{
 
     methods = {
     }
-    // init (IDX) {
-    //   this.ecComponent.init((canvas) => {
-    //     // 获取组件的 canvas、width、height 后的回调函数
-    //     // 在这里初始化图表
-    //     const chart = echarts.init(canvas, '320', {
-    //       width: '320',
-    //       height: '324'
-    //       // width: width ? width : app.globalData.width,
-    //       // height: height ? height : app.globalData.width,
-    //     })
-    //     setOption(chart, IDX)
-    //     // 将图表实例绑定到 this 上，可以在其他成员函数（如 dispose）中访问
-    //     this.chart = chart
-    //     this.$apply()
-    //     return chart
-    //   })
-    // }
-    // onReady() {
-    //   // 获取组件
-    //   this.ecComponent = this.$wxpage.selectComponent('#mychart-dom-bar')
-    //   this.$apply()
-    //   console.log(this.$wxpage.selectComponent('#mychart-dom-bar'))
-    // }
   }
 </script>

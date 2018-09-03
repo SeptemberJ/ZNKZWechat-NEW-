@@ -81,7 +81,7 @@ page{
 
     data = {
       homeId: null,
-      memberPhone: '13962862067'
+      memberPhone: ''
     }
 
     computed = {
@@ -93,6 +93,13 @@ page{
         this.$apply()
       },
       toAdd () {
+        if (this.memberPhone === '') {
+          this.$invoke('toast', 'show', {
+            title: '请输入手机号！',
+            img: '../../images/icons/attention.png'
+          })
+          return false
+        }
         if (this.memberPhone === this.userInfo.phone) {
           this.$invoke('toast', 'show', {
             title: '请输入除了管理员以外的用户手机号！',

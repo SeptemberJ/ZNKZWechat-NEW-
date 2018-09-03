@@ -296,7 +296,7 @@ page{
             'Content-Type': 'application/x-www-form-urlencoded'
           }
         }).then((res) => {
-          console.log(res.data.scenario)
+          wepy.hideLoading()
           switch (res.data.code) {
             case 1:
               let Temp = res.data.deviceHomeList
@@ -311,18 +311,15 @@ page{
               })
               this.EQList = Temp
               this.$apply()
-              wepy.hideLoading()
               resolve(res)
               break
             case 0:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../../images/icons/attention.png'
               })
               break
             default:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../../images/icons/attention.png'
@@ -351,7 +348,7 @@ page{
             'Content-Type': 'application/x-www-form-urlencoded'
           }
         }).then((res) => {
-          console.log(res.data.scenario)
+          wepy.hideLoading()
           switch (res.data.result) {
             case 1:
               let Temp = res.data.scenariolist
@@ -366,18 +363,15 @@ page{
               })
               this.SceneList = Temp
               this.$apply()
-              wepy.hideLoading()
               resolve(res)
               break
             case 0:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../../images/icons/attention.png'
               })
               break
             default:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
                 img: '../../../images/icons/attention.png'

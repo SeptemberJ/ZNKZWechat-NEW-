@@ -34,7 +34,7 @@
   }
 </style>
 <template>
-  <view class='TabBox' wx:if="{{ifShow}}">
+  <view class='TabBox'>
     <view class="{{tabIdx == TabIdx?'TabItemActive':'TabItemNormal'}}" wx:for-items="{{TabMenu}}" wx:for-index="TabIdx" wx:for-item="Tab" wx:key="TabIdx"  @tap='CancelAdd({{TabIdx}})'>{{Tab}}{{tabIdx == TabIdx}}</view>
   </view>
 </template>

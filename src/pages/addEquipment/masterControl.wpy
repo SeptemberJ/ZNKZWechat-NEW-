@@ -54,6 +54,7 @@ page{
     </view>
     <button class='addBt' @tap="addMasterControl">添加</button>
     <AddModal :addType.sync="addType" :ifShow.sync="ifAdd" wx:if="{{ifAdd}}"></AddModal>
+    <toast/>
   </view>
 </template>
 
@@ -136,14 +137,18 @@ page{
 
     // 当前家主控列表
     getMasterControlList () {
+      wepy.showLoading({
+        title: '加载中'
+      })
       return new Promise((resolve, reject) => {
         wepy.request({
           url: this.urlPre + '/mainControl?home_id=' + this.curHome.home_id + '&register_id=' + this.$parent.globalData.register_id,
           method: 'GET'
         }).then((res) => {
+          wepy.hideLoading()
           this.masterControlList = res.data.homeList
           this.$apply()
-          resolve(res.data.openid)
+          resolve(res)
         }).catch((res) => {
           console.log(res)
           wepy.hideLoading()
@@ -165,9 +170,9 @@ page{
           },
           method: 'DELETE'
         }).then((res) => {
+          wepy.hideLoading()
           switch (res.data.code) {
             case 1:
-              wepy.hideLoading()
               wepy.showToast({
                 title: '删除成功!',
                 icon: 'success'
@@ -176,7 +181,6 @@ page{
               resolve(res)
               break
             default:
-              wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '删除失败！',
                 img: '../../images/icons/attention.png'
@@ -184,7 +188,6 @@ page{
           }
         }).catch((res) => {
           console.log(res)
-          wepy.hideLoading()
           this.$invoke('toast', 'show', {
             title: '服务器繁忙！',
             img: '../../images/icons/attention.png'

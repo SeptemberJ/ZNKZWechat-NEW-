@@ -2,7 +2,8 @@
 page{
   background-image: linear-gradient(to right, #e4afcb 0%, #b8cbb8 0%, #b8cbb8 0%, #e2c58b 30%, #c2ce9c 64%, #7edbdc 100%);
   .controlWrap{
-    width: 100%;
+    width: 600rpx;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -11,7 +12,7 @@ page{
   .TabBox{
     width: 600rpx;
     height: 50rpx;
-    margin: 0 auto 10px auto;
+    margin: 40rpx auto 20rpx auto;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -31,13 +32,7 @@ page{
     line-height: 50rpx;
     font-size: 30rpx;
   }
-  .TabItemActive{
-    width: 200rpx;
-    text-align: center;
-    padding: 0 10px;
-    height: 100%;
-    line-height: 50rpx;
-    font-size: 30rpx;
+  .Active{
     background: #3498db;
     color: #fff;
   }
@@ -80,17 +75,30 @@ page{
 </style>
 <template>
     <view class='controlWrap'>
-    <text>{{CurTab}}</text>
-    <controlPanelLight wx:if="{{!ifShowChart}}"></controlPanelLight>
-    <tab :ifShow.sync="ifShowChart" :tabIdx.sync="CurTab"></tab>
-    <chart :ifShow.sync="ifShowChart" :tabIdx.sync="CurTab"></chart>
+      <!-- <button @tap="changeChart(0)">切换1</button>
+      <button @tap="changeChart(1)">切换2</button>
+      <button @tap="dispose">释放图表</button> -->
+
+      <!-- 单独开关 -->
+      <controlPanelLight wx:if="{{ifShowChart && eqType != 'air'}}"></controlPanelLight>
+      <!-- 空调 -->
+      <controlPanelAirCondition  wx:if="{{ifShowChart && eqType == 'air'}}"></controlPanelAirCondition>
+
+      <view class='TabBox' wx:if="{{!ifShowChart}}">
+        <view class="{{CurTab == TabIdx?'TabItem Active':'TabItem'}}" @tap='changeTab({{TabIdx}})' wx:for-items="{{TabMenu}}" wx:for-index="TabIdx" wx:for-item="Tab" wx:key="TabIdx">{{Tab}}</view>
+      </view>
+      <view style="width:100%;height:700rpx;">
+        <view style="width:100%;height:700rpx;" hidden="{{ifShowChart}}">
+          <ec-canvas id="mychart-dom-bar" canvas-id="mychart-bar" ec="{{ ec }}"></ec-canvas>
+        </view>
+      </view>
       <!--ArrowDown  -->
-      <view wx:if="{{!ifShowChart}}" class='ArrowDown'>
-        <image bindtap='ToggleShowChart' src='../../images/icons/double-arrow-down.png'></image>
+      <view wx:if="{{ifShowChart}}" class='ArrowDown'>
+        <image @tap='showChart' src='../../images/icons/double-arrow-down.png'></image>
       </view>
         <!--ArrowUp  -->
-      <view wx:if="{{ifShowChart}}" class='ArrowUp'>
-        <image bindtap='ToggleShowChart'  src='../../images/icons/double-arrow-down.png'></image>
+      <view wx:if="{{!ifShowChart}}" class='ArrowUp'>
+        <image @tap='hideChart'  src='../../images/icons/double-arrow-down.png'></image>
       </view>
     </view>
 </template>
@@ -102,28 +110,98 @@ page{
   import testMixin from '../../mixins/test'
   import * as echarts from '../../ec-canvasyl/echarts'
   import controlPanelLight from '../../components/controlPanel/controlPanel_light'
-  import tab from '../../components/controlPanel/tab'
-  import chart from '../../components/controlPanel/chart'
+  import controlPanelAirCondition from '../../components/controlPanel/controlPanel_airCondition'
+
+  var Chart = null
+  var ecComponent = null
 
   function setOption (chart, IDX) {
-    console.log('chart-------------')
-    console.log(chart)
-    var datas = [[820, 932, 901, 934, 1290, 1330, 1320], [120, 1132, 91, 934, 290, 1330, 320], [20, 93, 91, 34, 120, 30, 20], [1820, 111, 222, 934, 1290, 1330, 1320]]
+    var DataInfo = {
+      '0': [['0', 0], ['6', 2], ['12', 8], ['18', 12]],
+      '1': [['一', 0], ['二', 2], ['三', 8], ['四', 12], ['五', 12], ['六', 30], ['日', 33]],
+      '2': [['4', '0'], ['11', '2'], ['18', '8'], ['25', '12']],
+      '3': [['1', '32'], ['2', '2'], ['3', '8'], ['4', '12'], ['5', '12'], ['6', '30'], ['7', '120'], ['8', '145'], ['9', '12'], ['10', '12'], ['11', '55'], ['12', '60']]
+    }
     var option = {
+      title: {
+        text: '', // 耗电量统计 (单位：kw·h)
+        left: 'center',
+        textStyle: {
+          color: '#000',
+          fontStyle: 'normal',
+          fontWeight: 'bold',
+          fontFamily: 'sans-serif',
+          fontSize: 12
+        }
+      },
       grid: {
-        left: '15%'
+        left: '10%'
+      },
+      tooltip: {
+        trigger: 'axis'
       },
       xAxis: {
-        type: 'category',
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        // show : false,
+        axisLabel: {
+          formatter: function () {
+            return ''
+          }
+        },
+        splitLine: {
+          show: true
+        },
+        data: DataInfo[IDX].map(function (item) {
+          return item[0]
+        })
       },
       yAxis: {
-        type: 'value'
+        splitLine: {
+          show: true
+        }
       },
-      series: [{
-        data: datas[IDX],
-        type: 'line'
-      }]
+      visualMap: {
+        show: false,
+        top: 10,
+        right: 10,
+        pieces: [{
+          gt: 0,
+          lte: 50,
+          color: '#096'
+        }, {
+          gt: 50,
+          lte: 100,
+          color: '#ffde33'
+        }, {
+          gt: 100,
+          lte: 150,
+          color: '#ff9933'
+        }, {
+          gt: 150,
+          lte: 200,
+          color: '#cc0033'
+        }, {
+          gt: 200,
+          lte: 300,
+          color: '#660099'
+        }, {
+          gt: 300,
+          color: '#7e0023'
+        }],
+        outOfRange: {
+          color: '#999'
+        }
+      },
+      series: {
+        name: '',
+        type: 'line',
+        data: DataInfo[IDX].map(function (item) {
+          return item[1]
+        }),
+        markLine: {
+          silent: true,
+          data: []
+        }
+      }
     }
     chart.setOption(option)
   }
@@ -148,32 +226,25 @@ page{
         'ec-canvas': '../../ec-canvasyl/ec-canvas'
       }
     }
-    watch = {
-      CurTab (curVal, oldVal) {
-        console.log(`CurTab旧值：${oldVal}，CurTab新值：${curVal}`)
-        this.$broadcast('broadcastInit')
-      }
-    }
     components = {
       toast: Toast,
       controlPanelLight: controlPanelLight,
-      tab: tab,
-      chart: chart
-      // ecCanvas: EcCanvas
+      controlPanelAirCondition: controlPanelAirCondition
     }
 
     mixins = [testMixin]
 
     data = {
       // canvasId: 'mychart-pie',
-      // ec: {
-      //   // onInit: this.init
-      //   lazyLoad: true
-      // },
+      ec: {
+        onInit: this.init
+        // lazyLoad: true
+      },
+      eqType: null,
       ifShowChart: true,
       datas: [[820, 932, 901, 934, 1290, 1330, 1320], [120, 1132, 91, 934, 290, 1330, 320]],
-      ecComponent: null,
-      chart: null,
+      // ecComponent: null,
+      // chart: null,
       isLoaded: false,
       CurTab: 0,
       TabMenu: ['日', '周', '月', '年']
@@ -183,40 +254,37 @@ page{
     }
 
     methods = {
-      // 切换视图
-      ToggleShowChart() {
-        this.ifShowChart = !this.ifShowChart
+      changeTab (IDX) {
+        console.log('click')
+        this.CurTab = IDX
         this.$apply()
-        this.$broadcast('broadcastInit')
-        // this.init(this.data.CurTab)
+        this.tabChange(IDX)
       },
-      // 仅开关类设备
-      OnlySwitch() {
-        const innerAudioContext = wepy.createInnerAudioContext()
-        innerAudioContext.autoplay = true
-        innerAudioContext.src = 'https://jingshangs.com/upload/ON.mp3'
-        innerAudioContext.onPlay(() => {
-          console.log('播放')
-        })
-        innerAudioContext.onError((res) => {
-          console.log(res)
-        })
-        wepy.showModal({
-          title: '提示',
-          content: '控制器不在线！',
-          showCancel: false,
-          success: (res) => {
-          }
-        })
+      changeChart (IDX) {
+        console.log('click')
+        this.CurTab = IDX
+        this.$apply()
+        this.tabChange(IDX)
+      },
+      dispose () {
+        console.log('dispose')
+        this.ifShowChart = true
+        this.$apply()
+      },
+      showChart () {
+        this.ifShowChart = false
+        this.$apply()
+        this.tabChange(this.CurTab)
+      },
+      hideChart () {
+        this.ifShowChart = true
+        this.$apply()
       }
     }
 
     // self fn
-    initTab (IDX) {
-      this.init(IDX)
-    }
     init (IDX) {
-      this.ecComponent.init((canvas) => {
+      ecComponent.init((canvas) => {
         // 获取组件的 canvas、width、height 后的回调函数
         // 在这里初始化图表
         const chart = echarts.init(canvas, '320', {
@@ -225,26 +293,32 @@ page{
           // width: width ? width : app.globalData.width,
           // height: height ? height : app.globalData.width,
         })
-        setOption(chart, IDX)
+        setOption(chart, IDX || 0)
         // 将图表实例绑定到 this 上，可以在其他成员函数（如 dispose）中访问
-        this.chart = chart
+        Chart = chart
+        // this.chart = chart
+        this.ifShowChart = false
         this.$apply()
         return chart
       })
     }
     tabChange (IDX) {
-      this.CurTab = IDX
-      this.$apply()
-      console.log('this.CurTab--------------')
-      console.log(this.CurTab)
+      this.init(IDX)
     }
 
     events = {
     }
 
-    onLoad() {
-      this.$broadcast('broadcastInit')
+    onLoad(options) {
+      this.eqType = options.eqType
+      this.$apply()
 
     }
+    onReady() {
+      // 获取组件
+      ecComponent = this.$wxpage.selectComponent('#mychart-dom-bar')
+      this.$apply()
+      console.log(this.$wxpage.selectComponent('#mychart-dom-bar'))
+    }
   }
-</script> 
+</script>
