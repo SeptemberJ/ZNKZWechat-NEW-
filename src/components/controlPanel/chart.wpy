@@ -142,7 +142,7 @@ page{
         console.log('broadcastInit-emit---------------------')
         // this.ecComponent = this.$wxpage.selectComponent('#mychart-dom-bar')
         var EcComponent = this.$wxpage.selectComponent('#mychart-dom-bar')
-        //console.log(this.$wxpage.selectComponent('#mychart-dom-bar'))
+        // console.log(this.$wxpage.selectComponent('#mychart-dom-bar'))
         EcComponent.init((canvas) => {
           // 获取组件的 canvas、width、height 后的回调函数
           // 在这里初始化图表

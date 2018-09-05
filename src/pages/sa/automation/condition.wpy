@@ -222,7 +222,7 @@ page{
 
     // self FN
 
-    // 获取传感器
+    // 获取从控传感器
     GetCurSensor(ID) {
       wepy.showLoading({
         title: '加载中...'

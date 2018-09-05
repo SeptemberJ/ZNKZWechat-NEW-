@@ -1,0 +1,239 @@
+<style lang="less">
+page{
+  background: #efefef;
+  font-size: 30rpx;
+  .Wrap{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    .EquipmentList{
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      background: #fff;
+      .Equipment{
+        width: e("calc(100% - 40rpx)");
+        height:100rpx;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 0 20rpx;
+        border-bottom: 1px solid #efefef;
+        text{
+          width: 100%;
+          padding: 0 10rpx;
+        }
+        image{
+          width: 50rpx;
+          height: 50rpx;
+        }
+      }
+    }
+    .addBt{
+      width: 200rpx;
+      height: 80rpx;
+      line-height: 80rpx;
+      margin-top:40rpx;
+    }
+  }
+}
+</style>
+<template>
+  <view class='Wrap'>
+    <Empty :tipTitle.sync="tipTitle" wx:if="{{EquipmentList.length == 0}}"></Empty>
+    <view class='EquipmentList'>
+      <view class="Equipment" @longtap="deleteEQ({{Equipment.id}})" wx:for-items="{{EquipmentList}}" wx:for-item="Equipment" wx:key="Idx" wx:for-index="Idx">
+        <!-- <image src="../../images/icons/arrow-right.png"></image> -->
+        <text>{{Equipment.device_name}}</text>
+      </view>
+      <toast/>
+    </view>
+    <button class='addBt' @tap="addEquipment">添加</button>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../../mixins/test'
+  import Empty from '../../components/empty'
+
+  @connect({
+    urlPre (state) {
+      return state.counter.urlPre
+    },
+    curHome (state) {
+      return state.counter.curHome
+    },
+    curRoom (state) {
+      return state.counter.curRoom
+    }
+  }, {
+  })
+
+  export default class Equipment extends wepy.page {
+    config = {
+      navigationBarTitleText: '设备列表'
+    }
+    components = {
+      toast: Toast,
+      Empty: Empty
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      MasterCode: null,
+      masterControlId: null,
+      secondControlId: null,
+      addType: 2,
+      ifAdd: false,
+      tipTitle: '暂无设备，请添加',
+      EquipmentList: []
+    }
+
+    computed = {
+    }
+
+    watch = {
+      ifAdd (curVal, oldVal) {
+        console.log(`旧值：${oldVal}，新值：${curVal}`)
+      }
+    }
+
+    methods = {
+      addEquipment () {
+        this.$navigate('./add?addType=3')
+      },
+      deleteEQ (EQID) {
+        return new Promise((resolve, reject) => {
+          wepy.showModal({
+            title: '提示',
+            content: '确定删除该设备?'
+          }).then((res) => {
+            if (res.confirm) {
+              console.log('用户点击确定')
+              this.sureDelete(EQID)
+            } else if (res.cancel) {
+              console.log('用户点击取消')
+            }
+            resolve(res)
+          }).catch((res) => {
+            console.log(res)
+          })
+        })
+      }
+    }
+
+    // 当前从控下设备列表
+    getAllEQList () {
+      wepy.showLoading({
+        title: '加载中'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/selecteqlist?home_id=' + this.curHome.home_id,
+          method: 'GET',
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }).then((res) => {
+          wepy.hideLoading()
+          switch (res.data.code) {
+            case 1:
+              this.EquipmentList = res.data.deviceHomeList
+              this.$apply()
+              break
+            case 0:
+              this.$invoke('toast', 'show', {
+                title: '设备获取失败!',
+                img: '../../../images/icons/attention.png'
+              })
+              break
+            default:
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    getEQList (ID) {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/deviceSecondControl?second_control_id=' + ID + '&home_id=' + this.curHome.home_id,
+          method: 'GET'
+        }).then((res) => {
+          this.EquipmentList = res.data.deviceHouseList
+          this.$apply()
+          resolve(res.data.openid)
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    sureDelete (EQID) {
+      wepy.showLoading({
+        title: '加载中...'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/device?id=' + EQID + '&register_id=' + this.$parent.globalData.register_id + '&home_id=' + this.curHome.home_id,
+          data: {
+          },
+          method: 'DELETE'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '删除成功!',
+                icon: 'success'
+              })
+              this.getAllEQList()
+              resolve(res)
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '删除失败！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+
+    events = {
+    }
+
+    onShow() {
+      this.getAllEQList()
+    }
+  }
+</script>

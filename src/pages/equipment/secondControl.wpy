@@ -1,0 +1,257 @@
+<style lang="less">
+page{
+  background: #efefef;
+  font-size: 30rpx;
+  .Wrap{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    .secondControlList{
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      background: #fff;
+      .secondControl{
+        width: e("calc(100% - 40rpx)");
+        height:100rpx;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 0 20rpx;
+        border-bottom: 1px solid #efefef;
+        text{
+          width: 100%;
+          padding: 0 10rpx;
+          display: flex;
+          flex-grow: 1;
+        }
+        image{
+          width: 50rpx;
+          height: 50rpx;
+        }
+      }
+    }
+    .addBt{
+      width: 200rpx;
+      height: 80rpx;
+      line-height: 80rpx;
+      margin-top:40rpx;
+    }
+  }
+}
+</style>
+<template>
+  <view class='Wrap'>
+    <Empty :tipTitle.sync="tipTitle" wx:if="{{secondControlList.length == 0}}"></Empty>
+    <view class='secondControlList'>
+      <view class="secondControl" wx:for-items="{{secondControlList}}" wx:for-item="secondControl" wx:key="Idx" wx:for-index="Idx">
+        <!-- <image src="../../images/icons/arrow-right.png"></image> -->
+        <text @longtap="deleteSecondControl({{secondControl.id}})">{{secondControl.second_control_name}}</text>
+      </view>
+      <toast/>
+    </view>
+    <button class='addBt' @tap="addSecondControl">添加</button>
+    <!-- <AddModal :addType.sync="addType" :MasterCode.sync="MasterCode" :MasterId.sync="masterControlId" :SecondControlType.sync="SecondControlType" :ifShow.sync="ifAdd" wx:if="{{ifAdd}}"></AddModal> -->
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../../mixins/test'
+  import Empty from '../../components/empty'
+  import AddModal from '../../components/addModal'
+
+  @connect({
+    urlPre (state) {
+      return state.counter.urlPre
+    },
+    curHome (state) {
+      return state.counter.curHome
+    },
+    curRoom (state) {
+      return state.counter.curRoom
+    }
+  }, {
+  })
+
+  export default class MasterControl extends wepy.page {
+    config = {
+      navigationBarTitleText: '从控列表'
+    }
+    components = {
+      toast: Toast,
+      Empty: Empty,
+      AddModal: AddModal
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      addType: 1,
+      ifAdd: false,
+      MasterCode: null,
+      masterControlId: null,
+      SecondControlType: null,
+      tipTitle: '暂无从控，请添加',
+      secondControlList: [{id: 0, name: '从控一'}, {id: 0, name: '从控一'}]
+    }
+
+    computed = {
+    }
+
+    watch = {
+      ifAdd (curVal, oldVal) {
+        console.log(`旧值：${oldVal}，新值：${curVal}`)
+      }
+    }
+
+    methods = {
+      addSecondControl () {
+        this.$navigate('./add?addType=1')
+      },
+      deleteSecondControl (SecondID) {
+        return new Promise((resolve, reject) => {
+          wepy.showModal({
+            title: '提示',
+            content: '确定删除该从控?'
+          }).then((res) => {
+            if (res.confirm) {
+              console.log('用户点击确定')
+              this.sureDelete(SecondID)
+            } else if (res.cancel) {
+              console.log('用户点击取消')
+            }
+            resolve(res)
+          }).catch((res) => {
+            console.log(res)
+          })
+        })
+      }
+    }
+
+    // self fn
+    // 当前家从控列表  this.curHome.home_id this.$parent.globalData.register_id,
+    getSecondControlList (MasterCode, Type) {
+      wepy.showLoading({
+        title: '加载中'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/secondControl?main_control_code=' + MasterCode + '&second_control_category=' + Type + '&home_id=' + this.curHome.home_id,
+          method: 'GET'
+        }).then((res) => {
+          wepy.hideLoading()
+          this.secondControlList = res.data.secondControlList
+          this.$apply()
+          resolve(res.data.openid)
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    sureDelete (SecondID) {
+      wepy.showLoading({
+        title: '加载中...'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/secondControl?id=' + SecondID +'&register_id=' + this.$parent.globalData.register_id + '&home_id=' + this.curHome.home_id,
+          data: {
+          },
+          method: 'DELETE'
+        }).then((res) => {
+          wepy.hideLoading()
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '删除成功!',
+                icon: 'success'
+              })
+              this.GetSecondControlList()
+              resolve(res)
+              break
+            default:
+              this.$invoke('toast', 'show', {
+                title: '删除失败！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    // 获取从控列表
+    GetSecondControlList() {
+      wepy.showLoading({
+        title: '加载中...'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/selectmastercontrol?home_id=' + this.curHome.home_id,
+          method: 'GET',
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }).then((res) => {
+          wepy.hideLoading()
+          switch (res.data.code) {
+            case 1:
+              this.secondControlList = res.data.secondControlList
+              this.$apply()
+              resolve(res)
+              break
+            case 0:
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+              break
+            default:
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+
+    events = {
+      'refreshSecondControl-emit': (...args) => {
+        console.log('emit---------------------')
+        let $event = args[args.length - 1]
+        console.log(`${this.$name} receive ${$event.name} from ${$event.source.$name}`)
+        this.getSecondControlList(this.MasterCode, this.SecondControlType)
+      }
+    }
+
+    onShow() {
+      this.GetSecondControlList()
+    }
+  }
+</script>

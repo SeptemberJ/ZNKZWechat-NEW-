@@ -228,7 +228,7 @@
 
     methods = {
       // 无权限操作
-      template(){
+      template () {
         const innerAudioContext = wepy.createInnerAudioContext()
         innerAudioContext.autoplay = true
         innerAudioContext.src = 'https://jingshangs.com/upload/ON.mp3'
@@ -255,7 +255,7 @@
       setTimeout(() => {
         this.isFocus = false
         this.$apply()
-      },300)
+      }, 300)
     }
   }
 </script>

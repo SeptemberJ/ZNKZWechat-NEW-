@@ -471,9 +471,11 @@ page{
       },
       addEquipment () {
         wepy.navigateTo({
-          url: './addEquipment/masterControl'
+          url: './equipment/index'
         })
-        // this.$navigate('./addEquipment/masterControl')
+        // wepy.navigateTo({
+        //   url: './addEquipment/masterControl'
+        // })
       },
       setRoomManage () {
         wepy.navigateTo({

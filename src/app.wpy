@@ -84,6 +84,11 @@ export default class extends wepy.app {
   config = {
     pages: [
       'pages/loading',
+      'pages/equipment/index',
+      'pages/equipment/add',
+      'pages/equipment/equipment',
+      'pages/equipment/masterControl',
+      'pages/equipment/secondControl',
       'pages/control/index',
       'pages/my/feedback',
       'pages/my/feedbackDetail',
