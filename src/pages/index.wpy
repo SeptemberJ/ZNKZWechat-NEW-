@@ -388,6 +388,7 @@ page{
       <view class='equipment' wx:if="{{equipmentList.length > 0}}" wx:for-items="{{equipmentList}}" wx:for-item="eqItem" wx:key="roomIdx" wx:for-index="roomIdx" >
         <image src="{{eqItem.device_img}}"></image>
         <text class='equipment_name' @tap="toControlPanel({{eqItem.default_device_type}})">{{eqItem.device_name}}</text>
+        <image @tap="moveHouse({{eqItem.device_name}}, {{eqItem.id}})" style="margin-right: 10rpx;" src="../images/icons/move-up.png"></image>
         <text @tap="OperationToggle({{eqItem}})" class="{{eqItem.device_status==='0'?'equipment_status':'equipment_status active'}}">{{eqItem.device_status==='0'?'offline':'online'}}</text>
       </view>
     </view>
@@ -529,6 +530,15 @@ page{
             })
           })
         })
+      },
+      // 设备搬家
+      moveHouse (Name, Id) {
+        wepy.navigateTo({
+          url: './eqMoveHouse?eqName=' + Name + '&eqId=' + Id
+        })
+        // wepy.navigateTo({
+        //   url: './eqMoveHouse?eqName=' + Name + '&eqId=' = Id
+        // })
       }
     }
 

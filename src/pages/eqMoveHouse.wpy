@@ -1,0 +1,151 @@
+<style lang="less">
+page{
+  font-size: 30rpx;
+  background:#efefef;
+  .eqMoveHouse{
+    width: 100%;
+    flex-direction: column;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    .nameBar{
+      width: 100%;
+      height: 100rpx;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      background: #fff;
+      text{
+        padding-left: 20rpx;
+      }
+    }
+    text{
+      height: 80rpx;
+      padding-left: 20rpx;
+      line-height: 80rpx;
+    }
+    .roomList{
+      width: 100%;
+      flex-direction: column;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      margin-bottom: 120rpx;
+      .roomItem{
+        width: 100%;
+        height: 100rpx;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        background: #fff;
+        image{
+          width: 50rpx;
+          height: 50rpx;
+          margin-left: 20rpx;
+        }
+        text{
+          padding-left: 20rpx;
+        }
+      }
+    }
+    .addBt{
+      width: 100%;
+      height: 100rpx;
+      text-align: center;
+      font-size: 32rpx;
+      font-weight: bold;
+      background: red;
+      color: #fff;
+      line-height: 100rpx;
+      position: fixed;
+      left: 0;
+      bottom: 0px;
+    }
+  }
+}
+</style>
+<template>
+  <view class='eqMoveHouse'>
+    <view class='nameBar'><text>设备名称： {{eqName}}</text></view>
+    <view class='nameBar'><text>当前房间： {{curRoom.house_name}}</text></view>
+    <text>移动至</text>
+    <view class='roomList'>
+      <view class='roomItem' @tap="toggleCheckedRoom({{Idx}})" wx:for-items="{{roomList}}" wx:for-item="room" wx:key="Idx" wx:for-index="Idx">
+        <image src="{{checkedIndex == Idx?'../../images/icons/radioChecked.png':'../../images/icons/radiobox.png'}}"></image>
+        <text>{{room.house_name}}</text>
+        <text></text>
+      </view>
+    </view>
+    <view class='addBt' @tap="saveModify">保存修改</view>
+    <toast />
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../mixins/test'
+
+  @connect({
+    urlPre (state) {
+      return state.counter.urlPre
+    },
+    curRoom (state) {
+      return state.counter.curRoom
+    },
+    roomList (state) {
+      return state.counter.roomList
+    }
+  }, {
+  })
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '设备移动'
+    }
+    components = {
+      toast: Toast
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      eqName: null,
+      eqId: null,
+      checkedIndex: null
+
+    }
+
+    computed = {
+    }
+
+    methods = {
+      toggleCheckedRoom (Idx) {
+        this.checkedIndex = Idx
+        this.$apply()
+      },
+      saveModify () {
+
+      }
+    }
+
+    events = {
+    }
+
+    onLoad(options) {
+      this.eqName = options.eqName
+      this.eqId = options.Id
+      this.$apply()
+      console.log(this.curRoom)
+    }
+    onShow () {
+      this.roomList.map((item, idx) => {
+        if (item.id === this.curRoom.id) {
+          this.checkedIndex = idx
+          this.$apply()
+        }
+      })
+    }
+  }
+</script>

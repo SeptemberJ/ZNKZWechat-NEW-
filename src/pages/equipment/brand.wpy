@@ -1,0 +1,52 @@
+<style lang="less">
+page{
+}
+</style>
+<template>
+  <view class='login'>
+  <toast/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../../mixins/test'
+  import Empty from '../../components/empty'
+
+  @connect({
+    homeList (state) {
+      return state.counter.homeList
+    }
+  }, {
+  })
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '品牌列表'
+    }
+    components = {
+      toast: Toast,
+      Empty: Empty
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      brandList: []
+    }
+
+    computed = {
+    }
+
+    methods = {
+    }
+
+    events = {
+    }
+
+    onLoad() {
+    }
+  }
+</script>

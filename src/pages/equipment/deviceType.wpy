@@ -1,0 +1,113 @@
+<style lang="less">
+page{
+  background: #efefef;
+  font-size: 30rpx;
+  .Wrap{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    .deviceTypeList{
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      background: #fff;
+      margin-bottom: 120rpx;
+      .DeviceType{
+        width: e("calc(100% - 40rpx)");
+        height:100rpx;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20rpx;
+        border-bottom: 1px solid #efefef;
+        image{
+          width: 50rpx;
+          height: 50rpx;
+        }
+        text{
+          display: flex;
+          flex-grow: 1;
+          padding-left: 10rpx;
+        }
+      }
+    }
+    .addBt{
+      width: 100%;
+      height: 100rpx;
+      text-align: center;
+      font-size: 32rpx;
+      font-weight: bold;
+      background: red;
+      color: #fff;
+      line-height: 100rpx;
+      position: fixed;
+      left: 0;
+      bottom: 0px;
+    }
+  }
+}
+</style>
+<template>
+  <view class='Wrap'>
+    <Empty :tipTitle.sync="tipTitle" wx:if="{{deviceTypeList.length == 0}}"></Empty>
+    <view class='deviceTypeList'>
+      <view class="DeviceType" wx:for-items="{{deviceTypeList}}" wx:for-item="DeviceType" wx:key="Idx" wx:for-index="Idx">
+        <image src="{{DeviceType.img}}"></image>
+        <text>{{DeviceType.typeName}}</text>
+        <image src="../../images/icons/arrow-right.png"></image>
+      </view>
+      <toast/>
+    </view>
+    <view class='addBt' @tap="addEquipment">添加</view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../../mixins/test'
+  import Empty from '../../components/empty'
+
+  @connect({
+    homeList (state) {
+      return state.counter.homeList
+    }
+  }, {
+  })
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '设备类型'
+    }
+    components = {
+      toast: Toast,
+      Empty: Empty
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      deviceTypeList: [
+        {'id':0, 'typeName': '插座', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'},
+        {'id':1, 'typeName': '开关', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'}
+      ]
+    }
+
+    computed = {
+    }
+
+    methods = {
+    }
+
+    events = {
+    }
+
+    onLoad () {
+    }
+  }
+</script>

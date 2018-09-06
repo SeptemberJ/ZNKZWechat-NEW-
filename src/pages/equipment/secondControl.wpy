@@ -15,6 +15,7 @@ page{
       justify-content: flex-start;
       align-items: flex-start;
       background: #fff;
+      margin-bottom: 120rpx;
       .secondControl{
         width: e("calc(100% - 40rpx)");
         height:100rpx;
@@ -41,6 +42,19 @@ page{
       line-height: 80rpx;
       margin-top:40rpx;
     }
+    .addBt{
+      width: 100%;
+      height: 100rpx;
+      text-align: center;
+      font-size: 32rpx;
+      font-weight: bold;
+      background: red;
+      color: #fff;
+      line-height: 100rpx;
+      position: fixed;
+      left: 0;
+      bottom: 0px;
+    }
   }
 }
 </style>
@@ -49,13 +63,13 @@ page{
     <Empty :tipTitle.sync="tipTitle" wx:if="{{secondControlList.length == 0}}"></Empty>
     <view class='secondControlList'>
       <view class="secondControl" wx:for-items="{{secondControlList}}" wx:for-item="secondControl" wx:key="Idx" wx:for-index="Idx">
-        <!-- <image src="../../images/icons/arrow-right.png"></image> -->
-        <text @longtap="deleteSecondControl({{secondControl.id}})">{{secondControl.second_control_name}}</text>
+        <text>{{secondControl.second_control_name}}</text>
+        <image style="margin-right: 10rpx;" src="../../images/icons/editor-line.png" @tap="editSecond({{secondControl.id}})"></image>
+        <image src="../../images/icons/Delete.png" @tap="deleteSecondControl({{secondControl.id}})"></image>
       </view>
       <toast/>
     </view>
-    <button class='addBt' @tap="addSecondControl">添加</button>
-    <!-- <AddModal :addType.sync="addType" :MasterCode.sync="MasterCode" :MasterId.sync="masterControlId" :SecondControlType.sync="SecondControlType" :ifShow.sync="ifAdd" wx:if="{{ifAdd}}"></AddModal> -->
+    <!-- <view class='addBt' @tap="addSecondControl">添加</view> -->
   </view>
 </template>
 
@@ -115,6 +129,9 @@ page{
       addSecondControl () {
         this.$navigate('./add?addType=1')
       },
+      editSecond (SecondID) {
+        this.$navigate('./edit?addType=1&id=' + SecondID)
+      },
       deleteSecondControl (SecondID) {
         return new Promise((resolve, reject) => {
           wepy.showModal({
@@ -137,29 +154,29 @@ page{
 
     // self fn
     // 当前家从控列表  this.curHome.home_id this.$parent.globalData.register_id,
-    getSecondControlList (MasterCode, Type) {
-      wepy.showLoading({
-        title: '加载中'
-      })
-      return new Promise((resolve, reject) => {
-        wepy.request({
-          url: this.urlPre + '/secondControl?main_control_code=' + MasterCode + '&second_control_category=' + Type + '&home_id=' + this.curHome.home_id,
-          method: 'GET'
-        }).then((res) => {
-          wepy.hideLoading()
-          this.secondControlList = res.data.secondControlList
-          this.$apply()
-          resolve(res.data.openid)
-        }).catch((res) => {
-          console.log(res)
-          wepy.hideLoading()
-          this.$invoke('toast', 'show', {
-            title: '服务器繁忙！',
-            img: '../../../images/icons/attention.png'
-          })
-        })
-      })
-    }
+    // getSecondControlList (MasterCode, Type) {
+    //   wepy.showLoading({
+    //     title: '加载中'
+    //   })
+    //   return new Promise((resolve, reject) => {
+    //     wepy.request({
+    //       url: this.urlPre + '/secondControl?main_control_code=' + MasterCode + '&second_control_category=' + Type + '&home_id=' + this.curHome.home_id,
+    //       method: 'GET'
+    //     }).then((res) => {
+    //       wepy.hideLoading()
+    //       this.secondControlList = res.data.secondControlList
+    //       this.$apply()
+    //       resolve(res.data.openid)
+    //     }).catch((res) => {
+    //       console.log(res)
+    //       wepy.hideLoading()
+    //       this.$invoke('toast', 'show', {
+    //         title: '服务器繁忙！',
+    //         img: '../../../images/icons/attention.png'
+    //       })
+    //     })
+    //   })
+    // }
     sureDelete (SecondID) {
       wepy.showLoading({
         title: '加载中...'
@@ -205,7 +222,7 @@ page{
       })
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/selectmastercontrol?home_id=' + this.curHome.home_id,
+          url: this.urlPre + '/secondControl?home_id=' + this.curHome.home_id,
           method: 'GET',
           header: {
             'Content-Type': 'application/x-www-form-urlencoded'

@@ -15,6 +15,7 @@ page{
       justify-content: flex-start;
       align-items: flex-start;
       background: #fff;
+      margin-bottom: 120rpx;
       .masterControl{
         width: e("calc(100% - 40rpx)");
         height:100rpx;
@@ -34,10 +35,17 @@ page{
       }
     }
     .addBt{
-      width: 200rpx;
-      height: 80rpx;
-      line-height: 80rpx;
-      margin-top:40rpx;
+      width: 100%;
+      height: 100rpx;
+      text-align: center;
+      font-size: 32rpx;
+      font-weight: bold;
+      background: red;
+      color: #fff;
+      line-height: 100rpx;
+      position: fixed;
+      left: 0;
+      bottom: 0px;
     }
   }
 }
@@ -47,11 +55,13 @@ page{
     <Empty :tipTitle.sync="tipTitle" wx:if="{{masterControlList.length == 0}}"></Empty>
     <view class='masterControlList'>
       <view class="masterControl" wx:for-items="{{masterControlList}}" wx:for-item="masterControl" wx:key="Idx" wx:for-index="Idx">
-        <text @longtap="deleteMasterControl({{masterControl.id}})">{{masterControl.main_control_name}}</text>
+        <text>{{masterControl.main_control_name}}</text>
+        <image style="margin-right: 10rpx;" src="../../images/icons/editor-line.png" @tap="editMaster({{masterControl.id}})"></image>
+        <image src="../../images/icons/Delete.png" @tap="deleteMasterControl({{masterControl.id}})"></image>
       </view>
       <toast/>
     </view>
-    <button class='addBt' @tap="addMasterControl">添加</button>
+   <!--  <view class='addBt' @tap="addMasterControl">添加</view> -->
     <toast/>
   </view>
 </template>
@@ -105,6 +115,9 @@ page{
     methods = {
       addMasterControl () {
         this.$navigate('./add?addType=0')
+      },
+      editMaster (MasterID) {
+        this.$navigate('./edit?addType=0&id=' + MasterID)
       },
       deleteMasterControl (MasterID) {
         return new Promise((resolve, reject) => {

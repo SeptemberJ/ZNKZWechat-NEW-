@@ -83,20 +83,24 @@ page{
         <image src="../../images/icons/secondControl.png"></image>
         <text>从控</text>
       </view>
+      <!-- <view class='typeItem' @tap="singleProduction">
+        <image src="../../images/icons/singleProduction.png"></image>
+        <text>单品</text>
+      </view> -->
       <view class='typeItem' @tap="toEquipment">
         <image src="../../images/icons/eq.png"></image>
         <text>设备</text>
       </view>
     </view>
     <view class='columnTit'>
-      <view class='columnItem'><text>经常添加：</text></view>
+      <view class='columnItem'><text>添加列表：</text></view>
     </view>
     
     <view class="listBlock">
       <view class="listItem" wx:for-items="{{list}}" wx:for-item="addItem" wx:key="Idx" wx:for-index="Idx">
         <image src="{{addItem.devcieTypePic}}"></image>
         <text>{{addItem.deviceDescibe}}</text>
-        <image src="../../images/icons/arrow-right.png" @tap="toAdd({{addItem.devcieType}}, {{addItem.deviceTypeName}})"></image>
+        <image src="../../images/icons/arrow-right.png" @tap="toAdd({{addItem.deviceDescibe}}, {{addItem.devcieType}},{{addItem.deviceTypeName}}, {{addItem.devcieTypePic}})"></image>
       </view>
     </view>
     <toast/>
@@ -161,8 +165,8 @@ page{
       getMasterControlList () {
         console.log('in getMasterControlList----------------')
       },
-      toAdd (addType, type) {
-        this.$navigate('./add?addType=' + addType + '&type=' + type)
+      toAdd (defaultName, addType, type, img) {
+        this.$navigate('./add?addType=' + addType + '&type=' + type + '&defaultName=' + defaultName + '&img=' + img)
       },
       toMasterControl () {
         this.$navigate('./masterControl')
