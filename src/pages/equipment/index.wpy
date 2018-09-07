@@ -97,10 +97,10 @@ page{
     </view>
     
     <view class="listBlock">
-      <view class="listItem" wx:for-items="{{list}}" wx:for-item="addItem" wx:key="Idx" wx:for-index="Idx">
+      <view class="listItem" @tap="toAdd({{addItem.deviceDescibe}}, {{addItem.devcieType}},{{addItem.deviceTypeName}}, {{addItem.devcieTypePic}})" wx:for-items="{{list}}" wx:for-item="addItem" wx:key="Idx" wx:for-index="Idx">
         <image src="{{addItem.devcieTypePic}}"></image>
         <text>{{addItem.deviceDescibe}}</text>
-        <image src="../../images/icons/arrow-right.png" @tap="toAdd({{addItem.deviceDescibe}}, {{addItem.devcieType}},{{addItem.deviceTypeName}}, {{addItem.devcieTypePic}})"></image>
+        <image src="../../images/icons/arrow-right.png"></image>
       </view>
     </view>
     <toast/>
@@ -189,9 +189,9 @@ page{
           url: this.urlPre + '/deviceType',
           method: 'GET'
         }).then((res) => {
-          wepy.hideLoading()
           this.list = res.data.deviceTypeList.data
           this.$apply()
+          wepy.hideLoading()
           resolve(res)
         }).catch((res) => {
           console.log(res)

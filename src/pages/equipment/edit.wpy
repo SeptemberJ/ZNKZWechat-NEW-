@@ -55,6 +55,7 @@ page{
   .addBt{
     width: 250rpx;
     height: 80rpx;
+    font-size: 30rpx;
     line-height: 80rpx;
     margin-top:40rpx;
   }
@@ -174,7 +175,7 @@ page{
       secondControl_Name: '',
       // secondControl_Code: 'S122',
       euqipment_Type_index: 0,
-      singleProduct_Name: '',
+      // singleProduct_Name: '',
       Equipment_Icon: 0,
       euqipment_Name: '',
       // euqipment_Code: '',
@@ -231,7 +232,7 @@ page{
             console.log('1---------------')
             this.modifySecondControl()
             break
-           case '2':
+          case '2':
             console.log('2---------------')
             this.modifySingleProduction()
             break
@@ -271,7 +272,9 @@ page{
                 title: '修改成功!',
                 icon: 'success'
               })
-              wepy.navigateBack()
+              setTimeout(() => {
+                wepy.navigateBack()
+              }, 1500)
               resolve(res)
               break
             case 0:
@@ -323,7 +326,9 @@ page{
                 title: '修改成功!',
                 icon: 'success'
               })
-              wepy.navigateBack()
+              setTimeout(() => {
+                wepy.navigateBack()
+              }, 1500)
               resolve(res)
               break
             case 0:
@@ -375,7 +380,9 @@ page{
                 title: '修改成功!',
                 icon: 'success'
               })
-              wepy.navigateBack()
+              setTimeout(() => {
+                wepy.navigateBack()
+              }, 1500)
               resolve(res)
               break
             case 0:
@@ -427,7 +434,9 @@ page{
                 title: '修改成功!',
                 icon: 'success'
               })
-              wepy.navigateBack()
+              setTimeout(() => {
+                wepy.navigateBack()
+              }, 1500)
               resolve(res)
               break
             case 0:
@@ -537,6 +546,21 @@ page{
       this.addType = options.addType
       this.modifyId = options.id
       this.houseId = options.houseId
+      this.$apply()
+      switch (options.addType) {
+        case '0':
+          this.masterControl_Name = options.oldName
+          this.$apply()
+          break
+        case '1':
+          this.secondControl_Name = options.oldName
+          this.$apply()
+          break
+        case '3':
+          this.euqipment_Name = options.oldName
+          this.$apply()
+          break
+      }
       this.getEQType()
       this.GetIconList()
     }

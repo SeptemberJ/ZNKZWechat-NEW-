@@ -71,7 +71,7 @@ page{
     <text>移动至</text>
     <view class='roomList'>
       <view class='roomItem' @tap="toggleCheckedRoom({{Idx}})" wx:for-items="{{roomList}}" wx:for-item="room" wx:key="Idx" wx:for-index="Idx">
-        <image src="{{checkedIndex == Idx?'../../images/icons/radioChecked.png':'../../images/icons/radiobox.png'}}"></image>
+        <image src="{{checkedIndex == Idx?'../images/icons/radioChecked.png':'../images/icons/radiobox.png'}}"></image>
         <text>{{room.house_name}}</text>
         <text></text>
       </view>
@@ -126,8 +126,46 @@ page{
         this.$apply()
       },
       saveModify () {
-
+        this.moveEq()
       }
+    }
+    // self fn
+    moveEq () {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: encodeURI(this.urlPre + '/deviceHouse?id=' + this.eqId + '&house_id=' + this.roomList[this.checkedIndex].id),
+          data: {
+          },
+          method: 'PUT'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '移动成功!',
+                icon: 'success'
+              })
+              setTimeout(() => {
+                wepy.navigateBack()
+              }, 1500)
+              resolve(res)
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '移动失败！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
     }
 
     events = {
@@ -135,7 +173,7 @@ page{
 
     onLoad(options) {
       this.eqName = options.eqName
-      this.eqId = options.Id
+      this.eqId = options.eqId
       this.$apply()
       console.log(this.curRoom)
     }

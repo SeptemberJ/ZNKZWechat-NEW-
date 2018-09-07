@@ -58,7 +58,7 @@ page{
         <image src="{{Equipment.device_img}}"></image>
         <text>{{Equipment.device_name}}</text>
         <image style="margin-right: 10rpx;" src="../../images/icons/editor-line.png" @tap="editEQ({{Equipment.id}}, {{Equipment.roomid}})"></image>
-        <image src="../../images/icons/Delete.png" @tap="deleteEQ({{Equipment.id}})"></image>
+        <image src="../../images/icons/delete.png" @tap="deleteEQ({{Equipment.id}})"></image>
       </view>
       <toast/>
     </view>
@@ -118,10 +118,11 @@ page{
 
     methods = {
       addEquipment () {
-        this.$navigate('./add?addType=3')
+        this.$navigate('./brand')
+        // this.$navigate('./add?addType=3')
       },
-      editEQ (EQID, RoomId) {
-        this.$navigate('./edit?addType=3&id=' + EQID + '&houseId=' + roomid)
+      editEQ (EQID, RoomId, EQName) {
+        this.$navigate('./edit?addType=3&id=' + EQID + '&houseId=' + roomid + '&oldName=' + EQName)
       },
       deleteEQ (EQID) {
         return new Promise((resolve, reject) => {

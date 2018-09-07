@@ -31,7 +31,7 @@ page{
         text{
           display: flex;
           flex-grow: 1;
-          padding-left: 10rpx;
+          padding-left: 20rpx;
         }
       }
     }
@@ -55,14 +55,13 @@ page{
   <view class='Wrap'>
     <Empty :tipTitle.sync="tipTitle" wx:if="{{deviceTypeList.length == 0}}"></Empty>
     <view class='deviceTypeList'>
-      <view class="DeviceType" wx:for-items="{{deviceTypeList}}" wx:for-item="DeviceType" wx:key="Idx" wx:for-index="Idx">
+      <view class="DeviceType" @tap="toDebugging({{DeviceType.type}}, {{DeviceType.code}})" wx:for-items="{{deviceTypeList}}" wx:for-item="DeviceType" wx:key="Idx" wx:for-index="Idx">
         <image src="{{DeviceType.img}}"></image>
         <text>{{DeviceType.typeName}}</text>
         <image src="../../images/icons/arrow-right.png"></image>
       </view>
       <toast/>
     </view>
-    <view class='addBt' @tap="addEquipment">添加</view>
   </view>
 </template>
 
@@ -92,9 +91,12 @@ page{
     mixins = [testMixin]
 
     data = {
+      brandId: null,
       deviceTypeList: [
-        {'id':0, 'typeName': '插座', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'},
-        {'id':1, 'typeName': '开关', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'}
+        {'id':0, 'code': 'C101', 'typeName': '插座', 'type': 'socket', 'img': 'http://118.25.47.123:8080/upload/阀门.png'},
+        {'id':1, 'code': 'C102', 'typeName': '开关', 'type': 'switch', 'img': 'http://118.25.47.123:8080/upload/电源.png'},
+        {'id':2, 'code': 'C103', 'typeName': '照明', 'type': 'light', 'img': 'http://118.25.47.123:8080/upload/灯.png'},
+        {'id':3, 'code': 'C104', 'typeName': '空调', 'type': 'aircondition','img': 'http://118.25.47.123:8080/upload/空调.png'}
       ]
     }
 
@@ -102,12 +104,18 @@ page{
     }
 
     methods = {
+      toDebugging (ControlType, ControlCode) {
+        wepy.navigateTo({
+          url: '../control/index?eqType=' + ControlType + '&sourceFrom=debugging' + '&ControlCode=' + ControlCode
+        })
+      }
     }
 
     events = {
     }
 
-    onLoad () {
+    onLoad (options) {
+      this.brandId = options.brandId
     }
   }
 </script>

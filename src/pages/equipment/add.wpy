@@ -1,4 +1,4 @@
-<style lang="less">
+<style lang='less'>
 page{
   font-size: 30rpx;
   background: #efefef;
@@ -20,7 +20,7 @@ page{
       height: 100rpx;
       margin-bottom: 20rpx;
       .addItem{
-        width: e("calc(100% - 40rpx)");
+        width: e('calc(100% - 40rpx)');
         padding: 0 20rpx;
         height: 100%;
         display: flex;
@@ -55,6 +55,7 @@ page{
   .addBt{
     width: 250rpx;
     height: 80rpx;
+    font-size: 30rpx;
     line-height: 80rpx;
     margin-top:40rpx;
   }
@@ -64,110 +65,110 @@ page{
   <view class='addWrap'>
     <!-- <text class='addTit'>{{addType == 0?'添加主控':(addType == 1?'添加从控':'添加设备')}}</text> -->
     <!-- masterControl -->
-    <view class='addItemWrap'  wx:if="{{addType == 0}}">
+    <view class='addItemWrap'  wx:if='{{addType == 0}}'>
       <view class='addItem'>
         <text>主控名称</text>
-        <input @input="changeMasterControlName" type="text" name="主控名称" value="{{masterControl_Name}}" />
+        <input @input='changeMasterControlName' type='text' name='主控名称' value='{{masterControl_Name}}' />
       </view>
     </view>
-    <view class='addItemWrap'  wx:if="{{addType == 0}}">
+    <view class='addItemWrap'  wx:if='{{addType == 0}}'>
       <view class='addItem'>
         <text>主控码</text>
-        <input type="text" name="主控码" placeholder="点击右侧图标扫码填入" disabled value="{{masterControl_Code}}" />
-        <image alt="扫码" src="../../images/icons/scan.png" @tap="ScanCode(0)"></image>
+        <input type='text' name='主控码' placeholder='点击右侧图标扫码填入' disabled value='{{masterControl_Code}}' />
+        <image alt='扫码' src='../../images/icons/scan.png' @tap='ScanCode(0)'></image>
       </view>
     </view>
     
     <!-- secondControl -->
-    <view class='addItemWrap' wx:if="{{addType == 1 || addType == 3}}">
+    <view class='addItemWrap' wx:if='{{addType == 1 || addType == 3}}'>
       <view class='addItem'>
         <text>选择主控</text>
-        <view wx:if="{{MasterControlList.length ==0}}">请先返回添加主控</view>
-        <picker wx:if="{{MasterControlList.length != 0}}" bindchange="bindPickerChangeTypeM" value="{{m_Type_index}}" range-key="main_control_name" range="{{MasterControlList}}">
+        <view wx:if='{{MasterControlList.length ==0}}'>请先返回添加主控</view>
+        <picker wx:if='{{MasterControlList.length != 0}}' bindchange='bindPickerChangeTypeM' value='{{m_Type_index}}' range-key='main_control_name' range='{{MasterControlList}}'>
           <text>{{MasterControlList[m_Type_index].main_control_name}}</text>
-          <image style="width: 30rpx;height: 30rpx;" src="../../images/icons/arrow-down.png"></image>
+          <image style='width: 30rpx;height: 30rpx;' src='../../images/icons/arrow-down.png'></image>
         </picker>
       </view>
     </view>
-    <view class='addItemWrap' wx:if="{{addType == 1}}">
+    <view class='addItemWrap' wx:if='{{addType == 1}}'>
       <view class='addItem'>
         <text>从控名称</text>
-        <input @input="changeSecondControlName" type="text" name="从控名称" value="{{secondControl_Name}}" />
+        <input @input='changeSecondControlName' type='text' name='从控名称' value='{{secondControl_Name}}' />
       </view>
     </view>
     
-    <view class='addItemWrap' wx:if="{{addType == 1}}">
+    <view class='addItemWrap' wx:if='{{addType == 1}}'>
       <view class='addItem'>
         <text>从控码</text>
-        <input type="text" name="从控码" placeholder="点击右侧图标扫码填入" disabled value="{{secondControl_Code}}" />
-        <image src="../../images/icons/scan.png" @tap="ScanCode(1)"></image>
+        <input type='text' name='从控码' placeholder='点击右侧图标扫码填入' disabled value='{{secondControl_Code}}' />
+        <image src='../../images/icons/scan.png' @tap='ScanCode(1)'></image>
       </view>
     </view>
 
      <!-- 单品 -->
-    <view class='addItemWrap' wx:if="{{addType == 2}}">
+    <view class='addItemWrap' wx:if='{{addType == 2}}'>
       <view class='addItem'>
         <text>单品名称</text>
-        <input @input="changeSingleProductName" type="text" name="单品名称" value="{{singleProduct_Name}}" />
+        <input @input='changeSingleProductName' type='text' name='单品名称' value='{{singleProduct_Name}}' />
       </view>
     </view>
-    <view class='addItemWrap' wx:if="{{addType == 2}}">
+    <view class='addItemWrap' wx:if='{{addType == 2}}'>
       <view class='addItem'>
         <text>单品码</text>
-        <input type="text" name="设备码" placeholder="点击右侧图标扫码填入" disabled value="{{singleProduct_Code}}" />
-        <image src="../../images/icons/scan.png" @tap="ScanCode(2)"></image>
+        <input type='text' name='设备码' placeholder='点击右侧图标扫码填入' disabled value='{{singleProduct_Code}}' />
+        <image src='../../images/icons/scan.png' @tap='ScanCode(2)'></image>
       </view>
     </view>
     
     <!-- equpiment -->
-    <!-- <view class='addItemWrap' wx:if="{{addType == 3}}">
+    <!-- <view class='addItemWrap' wx:if='{{addType == 3}}'>
       <view class='addItem'>
         <text>选择从控</text>
-        <picker wx:if="{{SecondControlList.length > 0}}" bindchange="bindPickerChangeTypeS" value="{{s_Type_index}}" range-key="second_control_name" range="{{SecondControlList}}">
+        <picker wx:if='{{SecondControlList.length > 0}}' bindchange='bindPickerChangeTypeS' value='{{s_Type_index}}' range-key='second_control_name' range='{{SecondControlList}}'>
           <text>{{SecondControlList[s_Type_index].second_control_name}}</text>
-          <image style="width: 30rpx;height: 30rpx;" src="../../images/icons/arrow-down.png"></image>
+          <image style='width: 30rpx;height: 30rpx;' src='../../images/icons/arrow-down.png'></image>
         </picker>
         <view wx:else>改主控下暂无从控，请先返回添加</view>
       </view>
     </view>
-     <view class='addItemWrap' wx:if="{{addType == 3}}">
+     <view class='addItemWrap' wx:if='{{addType == 3}}'>
        <view class='addItem'>
         <text>设备类型</text>
-        <picker bindchange="bindPickerChangeType" value="{{euqipment_Type_index}}" range-key="device_type_name" range="{{TypeList}}">
+        <picker bindchange='bindPickerChangeType' value='{{euqipment_Type_index}}' range-key='device_type_name' range='{{TypeList}}'>
           <text>{{TypeList[euqipment_Type_index].device_type_name}}</text>
-          <image style="width: 30rpx;height: 30rpx;" src="../../images/icons/arrow-down.png"></image>
+          <image style='width: 30rpx;height: 30rpx;' src='../../images/icons/arrow-down.png'></image>
         </picker>
       </view>
      </view>
-     <view class='addItemWrap' wx:if="{{addType == 3}}">
-       <view class='addItem' style="justify-content: space-between;">
+     <view class='addItemWrap' wx:if='{{addType == 3}}'>
+       <view class='addItem' style='justify-content: space-between;'>
         <text>设备图片</text>
-        <picker-view indicator-style="height: 30px;" style="width: 30px; height: 30px;" bindchange="bindChange">
+        <picker-view indicator-style='height: 30px;' style='width: 30px; height: 30px;' bindchange='bindChange'>
           <picker-view-column>
-            <view wx:for-items="{{IconList}}" wx:for-index="IconIdx" wx:for-item="Icon" wx:key="IconIdx" style="line-height: 30px">
-              <image style='width:30px;height:30px;' src="{{Icon.img}}"></image>
+            <view wx:for-items='{{IconList}}' wx:for-index='IconIdx' wx:for-item='Icon' wx:key='IconIdx' style='line-height: 30px'>
+              <image style='width:30px;height:30px;' src='{{Icon.img}}'></image>
             </view>
           </picker-view-column>
         </picker-view>
       </view>
      </view>
-     <view class='addItemWrap' wx:if="{{addType == 3}}">
+     <view class='addItemWrap' wx:if='{{addType == 3}}'>
        <view class='addItem'>
         <text>设备名称</text>
-        <input @input="changeEuqipment_Name" type="text" name="设备名称" value="{{euqipment_Name}}" />
+        <input @input='changeEuqipment_Name' type='text' name='设备名称' value='{{euqipment_Name}}' />
       </view>
      </view>
-     <view class='addItemWrap' wx:if="{{addType == 3}}">
+     <view class='addItemWrap' wx:if='{{addType == 3}}'>
        <view class='addItem'>
         <text>设备码</text>
-        <input type="text" name="设备码" placeholder="点击右侧图标扫码填入" disabled value="{{euqipment_Code}}" />
-        <image src="../../images/icons/scan.png" @tap="ScanCode(3)"></image>
+        <input type='text' name='设备码' placeholder='点击右侧图标扫码填入' disabled value='{{euqipment_Code}}' />
+        <image src='../../images/icons/scan.png' @tap='ScanCode(3)'></image>
       </view>
      </view> -->
-     <text wx:if="{{addType == 1}}" style="color: #999;">请确保所需选择的主控已经添加！</text>
-     <!-- <text wx:if="{{addType == 3}}" style="color: #999;">请确保所需选择的主控、从控已经添加！</text> -->
+     <text wx:if='{{addType == 1}}' style='color: #999;'>请确保所需选择的主控已经添加！</text>
+     <!-- <text wx:if='{{addType == 3}}' style='color: #999;'>请确保所需选择的主控、从控已经添加！</text> -->
 
-    <button type='warn' class='addBt' @tap="SureAdd">确认添加</button>
+    <button type='warn' class='addBt' @tap='SureAdd'>确认添加</button>
   </view>
 </template>
 
@@ -207,15 +208,15 @@ page{
       secondControltype: null,
       TypeList: [],
       masterControl_Name: '',
-      masterControl_Code: 'M12200',
+      masterControl_Code: '',
       secondControl_Name: '',
-      secondControl_Code: 'S122',
+      secondControl_Code: '',
       euqipment_Type_index: 0,
       Equipment_Icon: 0,
       euqipment_Name: '',
       euqipment_Code: '',
       singleProduct_Name: '',
-      singleProduct_Code: 'Single123',
+      singleProduct_Code: '',
       IconList: [],
       m_Type_index: 0,
       s_Type_index: 0,
@@ -223,36 +224,36 @@ page{
       MasterControlList2: [
         {
           home_id: 'c87a8d89f505480491b0ddb9fcddd50b',
-          id: "5f9ba28dacef11e88d1a00163e11716c",
-          main_control_code: "11133",
-          main_control_name: "ZK"
+          id: '5f9ba28dacef11e88d1a00163e11716c',
+          main_control_code: '11133',
+          main_control_name: 'ZK'
         },
         {
-          home_id: "c87a8d89f505480491b0ddb9fcddd50b",
-          id: "82048198acf311e88d1a00163e11716c",
-          main_control_code: "11144",
-          main_control_name: "ZK2"
+          home_id: 'c87a8d89f505480491b0ddb9fcddd50b',
+          id: '82048198acf311e88d1a00163e11716c',
+          main_control_code: '11144',
+          main_control_name: 'ZK2'
         }
       ],
       SecondControlList: [],
       SecondControlList2: [
         {
-          home_id: "c87a8d89f505480491b0ddb9fcddd50b",
-          id: "8a11b2adacf311e88d1a00163e11716c",
-          main_control_code: "11144",
-          main_control_id: "82048198acf311e88d1a00163e11716c",
-          second_contrl_code: "CK-KLKK144",
-          second_control_category: "1231",
-          second_control_name: "CK1"
+          home_id: 'c87a8d89f505480491b0ddb9fcddd50b',
+          id: '8a11b2adacf311e88d1a00163e11716c',
+          main_control_code: '11144',
+          main_control_id: '82048198acf311e88d1a00163e11716c',
+          second_contrl_code: 'CK-KLKK144',
+          second_control_category: '1231',
+          second_control_name: 'CK1'
         },
         {
-          home_id: "c87a8d89f505480491b0ddb9fcddd50b",
-          id: "8a11b2adacf311e88d1a00163e11716c",
-          main_control_code: "11144",
-          main_control_id: "82048198acf311e88d1a00163e11716c",
-          second_contrl_code: "CK-KLKK144",
-          second_control_category: "1231333",
-          second_control_name: "CK2"
+          home_id: 'c87a8d89f505480491b0ddb9fcddd50b',
+          id: '8a11b2adacf311e88d1a00163e11716c',
+          main_control_code: '11144',
+          main_control_id: '82048198acf311e88d1a00163e11716c',
+          second_contrl_code: 'CK-KLKK144',
+          second_control_category: '1231333',
+          second_control_name: 'CK2'
         }
       ]
     }
@@ -526,7 +527,9 @@ page{
                 title: '添加成功!',
                 icon: 'success'
               })
-              wepy.navigateBack()
+              setTimeout(() => {
+                wepy.navigateBack()
+              }, 1500)
               // this.$emit('refreshMasterControl-emit', 1, 2, 3)
               resolve(res)
               break
@@ -579,7 +582,9 @@ page{
                 title: '添加成功!',
                 icon: 'success'
               })
-              wepy.navigateBack()
+              setTimeout(() => {
+                wepy.navigateBack()
+              }, 1500)
               resolve(res)
               break
             case 0:
@@ -672,7 +677,6 @@ page{
       })
     }
 
-
     // addEQ () {
     //   if (this.MasterControlList.length === 0) {
     //     this.$invoke('toast', 'show', {
@@ -752,7 +756,7 @@ page{
 
     async userInfoAsync () {
       const MasterInfoData = await this.getMasterControlList()
-      if (MasterInfoData.length>0) {
+      if (MasterInfoData.length > 0) {
         const SecondInfoData = await this.getSecondControlList(MasterInfoData[this.m_Type_index].main_control_code)
         this.MasterControlList = MasterInfoData
         this.SecondControlList = SecondInfoData
@@ -764,7 +768,7 @@ page{
       this.addType = options.addType
       this.secondControltype = options.type
       this.$apply()
-      switch (options.addType){
+      switch (options.addType) {
         case '0':
           this.masterControl_Name = options.defaultName
           this.$apply()
@@ -782,7 +786,6 @@ page{
       this.userInfoAsync()
       // this.getEQType()
       // this.GetIconList()
-     
     }
   }
-</script>
+</script> 

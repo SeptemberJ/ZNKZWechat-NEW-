@@ -179,7 +179,9 @@ page{
                 title: '添加成功!',
                 icon: 'success'
               })
-              wepy.navigateBack()
+              setTimeout(() => {
+                wepy.navigateBack()
+              }, 1500)
               resolve(res)
               break
             case 0:

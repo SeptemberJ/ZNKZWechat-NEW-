@@ -83,9 +83,9 @@ setStore(store)
 export default class extends wepy.app {
   config = {
     pages: [
-      'pages/equipment/deviceType',
-      'pages/equipment/brand',
       'pages/loading',
+      'pages/equipment/brand',
+      'pages/equipment/deviceType',
       'pages/eqMoveHouse',
       'pages/equipment/index',
       'pages/equipment/add',

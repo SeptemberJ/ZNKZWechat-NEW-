@@ -120,7 +120,7 @@ page{
 
     <view class='homeList_columnTit'>
       <view class='columnItem'><text>家庭成员：</text></view>
-      <view wx:if="{{curHome.isCreater}}" class='columnItem' @tap="addMember"><image src='../../images/icons/add.png'></image><text style='color:#3498db;'>添加</text></view>
+      <view wx:if="{{curHome.isCreater}}" class='columnItem' @tap="addMember"><image src='../../images/icons/addMember.png'></image><text style='color:#3498db;'>添加</text></view>
     </view>
 
     <!-- memberList -->
@@ -277,7 +277,9 @@ page{
                 title: '删除成功!',
                 icon: 'success'
               })
-              wepy.navigateBack()
+              setTimeout(() => {
+                wepy.navigateBack()
+              }, 1500)
               // this.$navigate('./homeList?ifRefresh=true')
               resolve(res)
               break

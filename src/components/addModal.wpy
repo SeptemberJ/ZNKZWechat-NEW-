@@ -1,5 +1,6 @@
 <style lang="less">
 page{
+  font-size: 30rpx;
   .addModal{
     .modalMask{
       width: 100vw;
@@ -118,7 +119,17 @@ page{
         <input type="text" name="从控码" disabled value="{{secondControl_Code}}" />
         <image src="../images/icons/scan.png" @tap="ScanCode(1)"></image>
       </view>
-      <!-- equpiment -->
+      <!-- equpiment new -->
+      <view class='addItem' wx:if="{{addType == 3}}">
+        <text>设备名称</text>
+        <input @input="changeEuqipment_Name" type="text" name="设备名称" value="{{euqipment_Name}}" />
+      </view>
+       <view class='addItem' wx:if="{{addType == 3}}">
+        <text>设备码</text>
+        <input type="text" name="设备码" disabled value="{{ControlCode}}" />
+      </view>
+
+      <!-- equpiment old -->
       <view class='addItem' wx:if="{{addType == 2}}">
         <text>设备类型</text>
         <picker bindchange="bindPickerChangeType" value="{{euqipment_Type_index}}" range-key="device_type_name" range="{{TypeList}}">
@@ -181,7 +192,10 @@ page{
     props = {
       addType: {
         type: Number,
-        default: 0   // 0-主控  1-从控  2-设备
+        default: 0   // 0-主控  1-从控  2-设备  3-遥控码
+      },
+      ControlCode: {
+        type: String
       },
       MasterCode: {
         type: String
@@ -289,6 +303,11 @@ page{
           case 2:
             console.log('2---------------')
             this.addEQ()
+            // this.$emit('refreshEquipment-emit', 1, 2, 3)
+            break
+          case 3:
+            console.log('3---------------')
+            this.addControlEQ()
             // this.$emit('refreshEquipment-emit', 1, 2, 3)
             break
         }
@@ -498,6 +517,19 @@ page{
         })
       })
     }
+    addControlEQ () {
+      if (this.euqipment_Name === '') {
+        this.$parent.$invoke('toast', 'show', {
+          title: '请输入设备名称！',
+          img: '../../images/icons/attention.png'
+        })
+        return false
+      }
+      this.$parent.$invoke('toast', 'show', {
+        title: '暂不可添加！',
+        img: '../../images/icons/attention.png'
+      })
+    }
     // 获取场景图标
     GetIconList () {
       wepy.showLoading({
@@ -522,13 +554,13 @@ page{
             case 0:
               this.$parent.$invoke('toast', 'show', {
                 title: '获取图标失败！',
-                img: '../../../images/icons/attention.png'
+                img: '../images/icons/attention.png'
               })
               break
             default:
               this.$parent.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
-                img: '../../../images/icons/attention.png'
+                img: '../images/icons/attention.png'
               })
           }
         }).catch((res) => {
@@ -536,7 +568,7 @@ page{
           wepy.hideLoading()
           this.$parent.$invoke('toast', 'show', {
             title: '服务器繁忙！',
-            img: '../../../images/icons/attention.png'
+            img: '../images/icons/attention.png'
           })
         })
       })

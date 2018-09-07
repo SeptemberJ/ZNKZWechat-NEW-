@@ -83,9 +83,20 @@ page{
     }
     .addBt{
       width: 250rpx;
-      height: 80rpx;
-      line-height: 80rpx;
-      margin-top:80rpx;
+      height: 70rpx;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 30rpx;
+      margin-top:40rpx;
+      background: #F8F8F8;
+      border-radius: 15rpx;
+      border: 1px solid #3498db;
+      image{
+        width: 50rpx;
+        height: 50rpx;
+        margin-right: 10rpx;
+      }
     }
   }
 }
@@ -113,7 +124,11 @@ page{
         <text class="{{automation.on_off_status==0?'listItem_status':'listItem_status active'}}">{{automation.on_off_status==0?'offline':'online'}}</text>
       </view>
     </view>
-    <button wx:if="{{curHome.isCreater}}" class='addBt' @tap="addSA">添加</button>
+    <!-- <button wx:if="{{curHome.isCreater}}" class='addBt' @tap="addSA">添加</button> -->
+    <view wx:if="{{curHome.isCreater}}" class='addBt' @tap="addSA">
+      <image src='../../images/icons/automatic.png'></image>
+      <text>添加</text>
+    </view>
   <toast/>
   </view>
 </template>

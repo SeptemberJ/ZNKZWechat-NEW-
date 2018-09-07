@@ -2,7 +2,9 @@
 page{
   background: #efefef;
   font-size: 30rpx;
+  padding: 20rpx;
   .feedBack{
+    width: e("calc(100% - 40rpx)");
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -13,6 +15,9 @@ page{
       margin-top: 20rpx;
       height: 250rpx;
       background: #fff;
+      .problemsContent{
+        width: 100%;
+      }
     }
     .answer{
       width: e("calc(100% - 40rpx)");
@@ -22,16 +27,16 @@ page{
       background: #fff;
     }
     .add_bt{
-      width: 60%;
+      width: 100%;
       margin-top: 20rpx;
       text-align: center;
-      line-height: 100rpx;
+      line-height: 80rpx;
       background: #3498db;
       font-size: 32rpx;
       font-weight: bold;
       color: #fff;
       margin: 20px auto auto auto;
-      border-radius: 15rpx;
+      border-radius: 10rpx;
 
     }
   }
@@ -40,7 +45,7 @@ page{
 <template>
   <view class='feedBack'>
     <view class='problems'>
-      <textarea placeholder="请详细描述您的问题活不满，例如您在做什么时遇到了问题。希望我们有什么功能等。(最多150个字)" maxlength='150' auto-focus />
+      <textarea class='problemsContent' placeholder="请详细描述您的问题活不满，例如您在做什么时遇到了问题。希望我们有什么功能等。(最多150个字)" maxlength='150' auto-focus />
     </view>
     <text wx:if="{{type == 1}}" style="margin:20rpx">回复</text>
     <view wx:if="{{type == 1}}" class="answer">

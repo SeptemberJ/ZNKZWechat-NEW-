@@ -2,12 +2,31 @@
 page{
   background-image: linear-gradient(to right, #e4afcb 0%, #b8cbb8 0%, #b8cbb8 0%, #e2c58b 30%, #c2ce9c 64%, #7edbdc 100%);
   .controlWrap{
-    width: 600rpx;
+    width: 100%;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
+    .addBar{
+      width: e("calc(100% - 40rpx)");
+      padding: 0 20rpx;
+      height: 80rpx;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      .addOperation{
+        display: flex;
+        align-items: center;
+        font-size: 30rpx;
+        image{
+          width: 70rpx;
+          height: 70rpx;
+        }
+
+      }
+    }
   }
   .TabBox{
     width: 600rpx;
@@ -75,14 +94,26 @@ page{
 </style>
 <template>
     <view class='controlWrap'>
+      <view wx:if="{{!showArrow}}" class='addBar'>
+        <view class='addOperation' @tap="showIntroduction">
+          <image src="../../images/icons/doubt.png"></image>
+          <text>调试说明</text>
+        </view>
+        <view class='addOperation' @tap="sureAdd">
+          <image src="../../images/icons/addControl.png"></image>
+          <text>添加</text>
+        </view>
+      </view>
+      <introduction wx:if="{{showIntroduction}}"></introduction>
+      <AddModal :addType.sync="addType" :ControlCode.sync="controlCode" :ifShow.sync="ifAdd" wx:if="{{ifAdd}}"></AddModal>
       <!-- <button @tap="changeChart(0)">切换1</button>
       <button @tap="changeChart(1)">切换2</button>
       <button @tap="dispose">释放图表</button> -->
 
       <!-- 单独开关 -->
-      <controlPanelLight wx:if="{{ifShowChart && eqType != 'air'}}"></controlPanelLight>
+      <controlPanelLight wx:if="{{ifShowChart && eqType != 'aircondition'}}"></controlPanelLight>
       <!-- 空调 -->
-      <controlPanelAirCondition  wx:if="{{ifShowChart && eqType == 'air'}}"></controlPanelAirCondition>
+      <controlPanelAirCondition  wx:if="{{ifShowChart && eqType == 'aircondition'}}"></controlPanelAirCondition>
 
       <view class='TabBox' wx:if="{{!ifShowChart}}">
         <view class="{{CurTab == TabIdx?'TabItem Active':'TabItem'}}" @tap='changeTab({{TabIdx}})' wx:for-items="{{TabMenu}}" wx:for-index="TabIdx" wx:for-item="Tab" wx:key="TabIdx">{{Tab}}</view>
@@ -93,13 +124,14 @@ page{
         </view>
       </view>
       <!--ArrowDown  -->
-      <view wx:if="{{ifShowChart}}" class='ArrowDown'>
+      <view wx:if="{{ifShowChart && showArrow}}" class='ArrowDown'>
         <image @tap='showChart' src='../../images/icons/double-arrow-down.png'></image>
       </view>
         <!--ArrowUp  -->
-      <view wx:if="{{!ifShowChart}}" class='ArrowUp'>
+      <view wx:if="{{!ifShowChart && showArrow}}" class='ArrowUp'>
         <image @tap='hideChart'  src='../../images/icons/double-arrow-down.png'></image>
       </view>
+      <toast/>
     </view>
 </template>
 
@@ -109,6 +141,8 @@ page{
   import Toast from 'wepy-com-toast'
   import testMixin from '../../mixins/test'
   import * as echarts from '../../ec-canvasyl/echarts'
+  import AddModal from '../../components/addModal'
+  import introduction from '../../components/controlPanel/introduction'
   import controlPanelLight from '../../components/controlPanel/controlPanel_light'
   import controlPanelAirCondition from '../../components/controlPanel/controlPanel_airCondition'
 
@@ -228,6 +262,8 @@ page{
     }
     components = {
       toast: Toast,
+      AddModal: AddModal,
+      introduction: introduction,
       controlPanelLight: controlPanelLight,
       controlPanelAirCondition: controlPanelAirCondition
     }
@@ -240,8 +276,13 @@ page{
         onInit: this.init
         // lazyLoad: true
       },
+      addType: 3,
+      showIntroduction: false,
+      ifAdd: false,
+      controlCode: null,
       eqType: null,
       ifShowChart: true,
+      showArrow: false,
       datas: [[820, 932, 901, 934, 1290, 1330, 1320], [120, 1132, 91, 934, 290, 1330, 320]],
       // ecComponent: null,
       // chart: null,
@@ -279,7 +320,15 @@ page{
       hideChart () {
         this.ifShowChart = true
         this.$apply()
-      }
+      },
+      showIntroduction () {
+        this.showIntroduction = true
+        this.$apply()
+      },
+      sureAdd () {
+        this.ifAdd = true
+        this.$apply()
+      },
     }
 
     // self fn
@@ -311,6 +360,10 @@ page{
 
     onLoad(options) {
       this.eqType = options.eqType
+      this.controlCode = options.ControlCode
+      if (options.sourceFrom !== 'debugging') {
+        this.showArrow = true
+      }
       this.$apply()
 
     }

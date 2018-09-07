@@ -162,7 +162,8 @@ page{
     <view class='memberBar'>
       <image class='memberAvatar' src="{{member_avatar}}"></image>
       <view class='memberInfo'>
-        <text>{{member_name}}</text>
+        <text></text>
+        <!-- <text>{{member_name}}</text> -->
         <text class='memberPhone'>{{member_phone}}</text>
       </view>
     </view>
@@ -365,7 +366,9 @@ page{
                 title: '移除成员成功!',
                 icon: 'success'
               })
-              wepy.navigateBack()
+              setTimeout(() => {
+                wepy.navigateBack()
+              }, 1500)
               // this.$navigate('./homeList?ifRefresh=true')
               resolve(res)
               break

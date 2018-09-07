@@ -43,7 +43,7 @@ page{
           display: flex;
           justify-content: flex-start;
           align-items: center;
-          text{
+          .labelTit{
             width: 150rpx;
           }
           input[disabled]{color:#999;opacity:1;border-bottom: 0px;};
@@ -56,9 +56,10 @@ page{
             width: 50rpx;
             height: 50rpx;
             display: block;
-            background: pink;
           }
           .chooseAddress{
+            width: 50rpx;
+            height: 50rpx;
             font-weight:bold !important;
             color:#3498db !important;
           }
@@ -103,10 +104,10 @@ page{
       <text class='addTit'>修改{{modifyTit}}</text>
       <!-- masterControl -->
       <view class='addItem'>
-        <text>{{modifyTit}}</text>
+        <text class='labelTit'>{{modifyTit}}</text>
         <input @input="changeInput" wx:if="{{modifyType != 1}}" type="text" name="新名称" value="{{newModifyContent}}" />
         <!-- <input @input="changeInput" wx:if="{{modifyType != 1}}" type="text" name="新名称" disabled="{{modifyType != 0}}" value="{{newModifyContent}}" /> -->
-        <view @tap="chooseAddress" wx:if="{{modifyType == 1}}" ><text>{{newModifyContent}}</text><text class='chooseAddress'>选择</tex></view>
+        <view @tap="chooseAddress" wx:if="{{modifyType == 1}}" style="display: flex;flex-grow: 1;justify-content: flex-end;"><text>{{newModifyContent}}</text><image class='chooseAddress' src='../images/icons/address.png'></image></view>
       </view>
     </view>
     <view class='BtBlock'>
@@ -197,6 +198,7 @@ page{
       },
       CancelModify () {
         this.$parent.ifModify = false
+        this.$parent.newModifyContent = ''
         this.$parent.$apply()
       },
       SureModify () {
@@ -247,7 +249,11 @@ page{
                 title: '修改成功!',
                 icon: 'success'
               })
-              this.$emit('refreshHomeInfo-emit')
+              setTimeout(() => {
+                this.$parent.newModifyContent = ''
+                this.$parent.$apply()
+                this.$emit('refreshHomeInfo-emit')
+              }, 1000)
               resolve(res)
               break
             default:
@@ -286,7 +292,9 @@ page{
                 title: '修改成功!',
                 icon: 'success'
               })
-              this.$emit('refreshHouseInfo-emit')
+              setTimeout(() => {
+                this.$emit('refreshHouseInfo-emit')
+              }, 1000)
               resolve(res)
               break
             default:
