@@ -163,7 +163,7 @@ page{
       <image class='memberAvatar' src="{{member_avatar}}"></image>
       <view class='memberInfo'>
         <text></text>
-        <!-- <text>{{member_name}}</text> -->
+        <text>{{member_name}}</text>
         <text class='memberPhone'>{{member_phone}}</text>
       </view>
     </view>

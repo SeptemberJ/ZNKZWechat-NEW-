@@ -261,6 +261,7 @@ page{
           }).then((res) => {
             switch (res.data.code) {
               case 1:
+                this.$parent.globalData.register_id = res.data.id
                 wepy.hideLoading()
                 wepy.showToast({
                   title: '绑定成功!',

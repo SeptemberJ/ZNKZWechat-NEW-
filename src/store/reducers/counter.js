@@ -155,12 +155,12 @@ export default handleActions({
 }, {
   num: 0,
   asyncNum: 0,
-  // urlPre: 'http://192.168.10.174:8082', // 'http://192.168.10.174:8082', // 'http://205.168.1.100:8083', 
-  urlPre: 'http://www.smart-hox.com:8081',
+  urlPre: 'http://192.168.10.174:8081', // 'http://192.168.10.174:8082', // 'http://205.168.1.100:8083', 
+  // urlPre: 'http://www.smart-hox.com:8081',
   userInfo:{
-    nickName: '留白', // '留白'
-    phone: '18234567890',
-    avatarUrl: 'https://i.loli.net/2017/08/21/599a521472424.jpg'
+    nickName: '', // '留白'
+    phone: '',
+    avatarUrl: ''
   },
   addRoomList: [],
   addRoomList2: [
