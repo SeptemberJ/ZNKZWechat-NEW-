@@ -25,7 +25,7 @@ page{
         padding: 0 20rpx;
         border-bottom: 1px solid #efefef;
         text{
-          width: 100%;
+          width: e("calc(100% - 50rpx - 50rpx)");
           padding: 0 10rpx;
           display: flex;
           flex-grow: 1;

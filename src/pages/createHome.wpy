@@ -18,8 +18,15 @@ page{
       justify-content: space-between;
       padding: 0 20rpx;
       background:#fff;
-      text{
+      text:nth-of-type(1){
         width: 200rpx;
+      }
+      .longText{
+         display: flex;
+         flex-grow: 1;
+         height: 100rpx;
+         line-height: 100rpx;
+         color: #777;
       }
       input{
         height: 100%;
@@ -71,8 +78,8 @@ page{
     </view>
     <view class='createHome_item border_top'>
       <text>家庭位置</text>
-      <text style="width: calc(100% - 200rpx - 50rpx)">{{homeAddress?homeAddress:''}}</text>
-      <image src='../images/icons/arrow-right.png' @tap="getLocation"></image>
+      <text class='longText' @tap="getLocation">{{homeAddress?homeAddress:'选择家地址'}}</text>
+      <image src='../images/icons/address.png' @tap="getLocation"></image>
     </view>
 
     <view class='createHome_columnTit'>
@@ -129,7 +136,7 @@ page{
 
     data = {
       createFrom: 1,
-      homeName: 11,
+      homeName: '',
       homeAddress: null
     }
 
@@ -184,6 +191,13 @@ page{
           })
           return false
         }
+        if (!this.homeAddress) {
+          this.$invoke('toast', 'show', {
+            title: '请选择家的地址！',
+            img: '../images/icons/attention.png'
+          })
+          return false
+        }
         this.addRoomList.map((item, idx) => {
           if (item.choosed) {
             choosedRoom.push(item)
@@ -230,7 +244,7 @@ page{
               default:
                 wepy.hideLoading()
                 this.$invoke('toast', 'show', {
-                  title: '创建失败！',
+                  title: res.data.message,
                   img: '../images/icons/attention.png'
                 })
             }

@@ -110,7 +110,7 @@ page{
         this.$apply()
       },
       ToSecondControlType (MasterCode, MasterId) {
-        this.$navigate('./SecondControlType?MasterCode=' + MasterCode +'&MasterId=' + MasterId)
+        this.$navigate('./SecondControlType?MasterCode=' + MasterCode + '&MasterId=' + MasterId)
       },
       getMasterControlList () {
         console.log('in getMasterControlList----------------')
@@ -165,7 +165,7 @@ page{
       })
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/mainControl?id=' + MasterID +'&register_id=' + this.$parent.globalData.register_id + '&home_id=' + this.curHome.home_id,
+          url: this.urlPre + '/mainControl?id=' + MasterID + '&register_id=' + this.$parent.globalData.register_id + '&home_id=' + this.curHome.home_id,
           data: {
           },
           method: 'DELETE'

@@ -66,11 +66,12 @@ page{
     <view class="roomList">
       <view class='itemBar' wx:for-items="{{roomList}}" wx:for-item="roomItem" wx:key="roomIdx" wx:for-index="roomIdx">
         <text>{{roomItem.house_name}}</text>
-        <image @tap="editRoom({{roomItem.id}})" src="../../images/icons/edit.png"></image>
+        <image @tap="editRoom({{roomItem.id}}, {{roomItem.house_name}})" src="../../images/icons/edit.png"></image>
         <image @tap="deleteRoom({{roomItem.id}}, {{roomItem.register_id}})" src="../../images/icons/delete.png"></image>
       </view>
     </view>
-    <ModifyModal :modifyType.sync="modifyType" :ifShow.sync="ifModify" :newModifyContent.sync="newModifyContent"  wx:if="{{ifModify}}" :modifyTit.sync="modifyTit" :houseId.sync="houseId"></ModifyModal>
+    <ModifyModal :ifShow.sync="ifModify" wx:if="{{ifModify}}" :houseId.sync="houseId"></ModifyModal>
+    <!-- <ModifyModal :modifyType.sync="modifyType" :ifShow.sync="ifModify" :newModifyContent.sync="newModifyContent"  wx:if="{{ifModify}}" :modifyTit.sync="modifyTit" :houseId.sync="houseId"></ModifyModal> -->
   <toast/>
   </view>
 </template>
@@ -147,7 +148,8 @@ page{
           })
         })
       },
-      editRoom (RoomID) {
+      editRoom (RoomID, RoomName) {
+        this.$broadcast('modifyRoomInfo-broadcast', 2, '房间名称', RoomName)
         this.houseId = RoomID
         this.ifModify = true
         this.$apply()

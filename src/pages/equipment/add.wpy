@@ -74,7 +74,7 @@ page{
     <view class='addItemWrap'  wx:if='{{addType == 0}}'>
       <view class='addItem'>
         <text>主控码</text>
-        <input type='text' name='主控码' placeholder='点击右侧图标扫码填入' disabled value='{{masterControl_Code}}' />
+        <input type='text' name='主控码' placeholder='点击右侧图标扫码填入' @input='changeMasterControlCode' value='{{masterControl_Code}}' />
         <image alt='扫码' src='../../images/icons/scan.png' @tap='ScanCode(0)'></image>
       </view>
     </view>
@@ -100,7 +100,7 @@ page{
     <view class='addItemWrap' wx:if='{{addType == 1}}'>
       <view class='addItem'>
         <text>从控码</text>
-        <input type='text' name='从控码' placeholder='点击右侧图标扫码填入' disabled value='{{secondControl_Code}}' />
+        <input type='text' name='从控码' placeholder='点击右侧图标扫码填入' @input='changeSecondControlCode' value='{{secondControl_Code}}' />
         <image src='../../images/icons/scan.png' @tap='ScanCode(1)'></image>
       </view>
     </view>
@@ -115,13 +115,13 @@ page{
     <view class='addItemWrap' wx:if='{{addType == 2}}'>
       <view class='addItem'>
         <text>单品码</text>
-        <input type='text' name='设备码' placeholder='点击右侧图标扫码填入' disabled value='{{singleProduct_Code}}' />
+        <input type='text' name='设备码' placeholder='点击右侧图标扫码填入' @input='changeSingleProductCode' value='{{singleProduct_Code}}' />
         <image src='../../images/icons/scan.png' @tap='ScanCode(2)'></image>
       </view>
     </view>
     
     <!-- equpiment -->
-    <!-- <view class='addItemWrap' wx:if='{{addType == 3}}'>
+    <view class='addItemWrap' wx:if='{{addType == 3}}'>
       <view class='addItem'>
         <text>选择从控</text>
         <picker wx:if='{{SecondControlList.length > 0}}' bindchange='bindPickerChangeTypeS' value='{{s_Type_index}}' range-key='second_control_name' range='{{SecondControlList}}'>
@@ -161,10 +161,12 @@ page{
      <view class='addItemWrap' wx:if='{{addType == 3}}'>
        <view class='addItem'>
         <text>设备码</text>
-        <input type='text' name='设备码' placeholder='点击右侧图标扫码填入' disabled value='{{euqipment_Code}}' />
+        <input type='text' name='设备码' placeholder='点击右侧图标扫码填入' @input='changeEuqipmentCode' value='{{euqipment_Code}}' />
         <image src='../../images/icons/scan.png' @tap='ScanCode(3)'></image>
       </view>
-     </view> -->
+     </view>
+
+
      <text wx:if='{{addType == 1}}' style='color: #999;'>请确保所需选择的主控已经添加！</text>
      <!-- <text wx:if='{{addType == 3}}' style='color: #999;'>请确保所需选择的主控、从控已经添加！</text> -->
 
@@ -281,14 +283,26 @@ page{
         this.masterControl_Name = e.detail.value
         this.$apply()
       },
+      changeMasterControlCode (e) {
+        this.masterControl_Code = e.detail.value
+        this.$apply()
+      },
       // 从控名称
       changeSecondControlName (e) {
         this.secondControl_Name = e.detail.value
         this.$apply()
       },
+      changeSecondControlCode (e) {
+        this.secondControl_Code = e.detail.value
+        this.$apply()
+      },
       // 设备名称
       changeEuqipment_Name (e) {
         this.euqipment_Name = e.detail.value
+        this.$apply()
+      },
+      changeEuqipmentCode (e) {
+        this.euqipment_Code = e.detail.value
         this.$apply()
       },
       // 单品名称
@@ -427,82 +441,82 @@ page{
       })
     }
     // 设备类别
-    // getEQType () {
-    //   wepy.showLoading({
-    //     title: '加载中'
-    //   })
-    //   return new Promise((resolve, reject) => {
-    //     wepy.request({
-    //       url: this.urlPre + '/deviceType',
-    //       method: 'GET'
-    //     }).then((res) => {
-    //       wepy.hideLoading()
-    //       switch (res.data.code) {
-    //         case 1:
-    //           this.TypeList = res.data.deviceTypeList.data
-    //           this.$apply()
-    //           resolve(res)
-    //           break
-    //         default:
-    //           this.$parent.$invoke('toast', 'show', {
-    //             title: '服务器繁忙！',
-    //             img: '../../images/icons/attention.png'
-    //           })
-    //       }
-    //       resolve(res.data.openid)
-    //     }).catch((res) => {
-    //       wepy.hideLoading()
-    //       console.log(res)
-    //       this.$parent.$invoke('toast', 'show', {
-    //         title: '服务器繁忙！',
-    //         img: '../../images/icons/attention.png'
-    //       })
-    //     })
-    //   })
-    // }
+    getEQType () {
+      wepy.showLoading({
+        title: '加载中'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/deviceTypeScan',
+          method: 'GET'
+        }).then((res) => {
+          wepy.hideLoading()
+          switch (res.data.code) {
+            case 1:
+              this.TypeList = res.data.deviceTypeList
+              this.$apply()
+              resolve(res)
+              break
+            default:
+              this.$parent.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+          resolve(res.data.openid)
+        }).catch((res) => {
+          wepy.hideLoading()
+          console.log(res)
+          this.$parent.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
     // // 获取场景图标
-    // GetIconList () {
-    //   wepy.showLoading({
-    //     title: '加载中'
-    //   })
-    //   return new Promise((resolve, reject) => {
-    //     wepy.request({
-    //       url: this.urlPre + '/selectmachineimg',
-    //       method: 'POST',
-    //       header: {
-    //         'Content-Type': 'application/x-www-form-urlencoded'
-    //       }
-    //     }).then((res) => {
-    //       wepy.hideLoading()
-    //       switch (res.data.result) {
-    //         case 1:
-    //           this.IconList = res.data.scenariolist
-    //           this.Equipment_Icon = res.data.scenariolist[0].img
-    //           this.$apply()
-    //           resolve(res)
-    //           break
-    //         case 0:
-    //           this.$parent.$invoke('toast', 'show', {
-    //             title: '获取图标失败！',
-    //             img: '../../../images/icons/attention.png'
-    //           })
-    //           break
-    //         default:
-    //           this.$parent.$invoke('toast', 'show', {
-    //             title: '服务器繁忙！',
-    //             img: '../../../images/icons/attention.png'
-    //           })
-    //       }
-    //     }).catch((res) => {
-    //       console.log(res)
-    //       wepy.hideLoading()
-    //       this.$parent.$invoke('toast', 'show', {
-    //         title: '服务器繁忙！',
-    //         img: '../../../images/icons/attention.png'
-    //       })
-    //     })
-    //   })
-    // }
+    GetIconList () {
+      wepy.showLoading({
+        title: '加载中'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/selectmachineimg',
+          method: 'POST',
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }).then((res) => {
+          wepy.hideLoading()
+          switch (res.data.result) {
+            case 1:
+              this.IconList = res.data.scenariolist
+              this.Equipment_Icon = res.data.scenariolist[0].img
+              this.$apply()
+              resolve(res)
+              break
+            case 0:
+              this.$parent.$invoke('toast', 'show', {
+                title: '获取图标失败！',
+                img: '../../../images/icons/attention.png'
+              })
+              break
+            default:
+              this.$parent.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$parent.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../../images/icons/attention.png'
+          })
+        })
+      })
+    }
     addMasterControl () {
       if (this.masterControl_Name === '' || this.masterControl_Code === '') {
         this.$invoke('toast', 'show', {
@@ -677,82 +691,82 @@ page{
       })
     }
 
-    // addEQ () {
-    //   if (this.MasterControlList.length === 0) {
-    //     this.$invoke('toast', 'show', {
-    //       title: '请先添加主控！',
-    //       img: '../../images/icons/attention.png'
-    //     })
-    //     return false
-    //   }
-    //   if (this.SecondControlList.length === 0) {
-    //     this.$invoke('toast', 'show', {
-    //       title: '请先添加从控！',
-    //       img: '../../images/icons/attention.png'
-    //     })
-    //     return false
-    //   }
-    //   if (this.euqipment_Name === '' || this.euqipment_Code === '') {
-    //     this.$invoke('toast', 'show', {
-    //       title: '请输入设备名称或设备码！',
-    //       img: '../../images/icons/attention.png'
-    //     })
-    //     return false
-    //   }
-    //   wepy.showLoading({
-    //     title: '加载中'
-    //   })
-    //   return new Promise((resolve, reject) => {
-    //     wepy.request({
-    //       url: this.urlPre + '/device',
-    //       data: {
-    //         register_id: this.curRoom.register_id,
-    //         home_id: this.curHome.home_id,
-    //         house_id: this.curRoom.id,
-    //         main_control_code: this.MasterControlList[this.m_Type_index].main_control_code,
-    //         main_control_id: this.MasterControlList[this.m_Type_index].id,
-    //         second_control_id: this.SecondControlList[this.s_Type_index].id,
-    //         device_name: this.euqipment_Name,
-    //         device_code: this.euqipment_Code,
-    //         default_device_type: this.TypeList[this.euqipment_Type_index].device_type_code,
-    //         device_img: this.Equipment_Icon,
-    //         device_status: 0
-    //       },
-    //       method: 'POST'
-    //     }).then((res) => {
-    //       wepy.hideLoading()
-    //       switch (res.data.code) {
-    //         case 1:
-    //           wepy.showToast({
-    //             title: '添加成功!',
-    //             icon: 'success'
-    //           })
-    //           wepy.navigateBack()
-    //           resolve(res)
-    //           break
-    //         case 0:
-    //           this.$invoke('toast', 'show', {
-    //             title: '该名称不可用！',
-    //             img: '../../images/icons/attention.png'
-    //           })
-    //           break
-    //         default:
-    //           this.$invoke('toast', 'show', {
-    //             title: '服务器繁忙！',
-    //             img: '../../images/icons/attention.png'
-    //           })
-    //       }
-    //       resolve(res)
-    //     }).catch((res) => {
-    //       console.log(res)
-    //       wepy.hideLoading()
-    //       this.$invoke('toast', 'show', {
-    //         title: '服务器繁忙！',
-    //         img: '../../images/icons/attention.png'
-    //       })
-    //     })
-    //   })
-    // }
+    addEQ () {
+      if (this.MasterControlList.length === 0) {
+        this.$invoke('toast', 'show', {
+          title: '请先添加主控！',
+          img: '../../images/icons/attention.png'
+        })
+        return false
+      }
+      if (this.SecondControlList.length === 0) {
+        this.$invoke('toast', 'show', {
+          title: '请先添加从控！',
+          img: '../../images/icons/attention.png'
+        })
+        return false
+      }
+      if (this.euqipment_Name === '' || this.euqipment_Code === '') {
+        this.$invoke('toast', 'show', {
+          title: '请输入设备名称或设备码！',
+          img: '../../images/icons/attention.png'
+        })
+        return false
+      }
+      wepy.showLoading({
+        title: '加载中'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/device',
+          data: {
+            register_id: this.curRoom.register_id,
+            home_id: this.curHome.home_id,
+            house_id: this.curRoom.id,
+            main_control_code: this.MasterControlList[this.m_Type_index].main_control_code,
+            main_control_id: this.MasterControlList[this.m_Type_index].id,
+            second_control_id: this.SecondControlList[this.s_Type_index].id,
+            device_name: this.euqipment_Name,
+            device_code: this.euqipment_Code,
+            default_device_type: this.TypeList[this.euqipment_Type_index].device_type_code,
+            device_img: this.Equipment_Icon,
+            device_status: 0
+          },
+          method: 'POST'
+        }).then((res) => {
+          wepy.hideLoading()
+          switch (res.data.code) {
+            case 1:
+              wepy.showToast({
+                title: '添加成功!',
+                icon: 'success'
+              })
+              wepy.navigateBack()
+              resolve(res)
+              break
+            case 0:
+              this.$invoke('toast', 'show', {
+                title: '该名称不可用！',
+                img: '../../images/icons/attention.png'
+              })
+              break
+            default:
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+          resolve(res)
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
 
     async userInfoAsync () {
       const MasterInfoData = await this.getMasterControlList()
@@ -782,10 +796,12 @@ page{
           this.Equipment_Icon = options.img
           this.$apply()
           break
+        case '3':
+          this.getEQType()
+          this.GetIconList()
+          break
       }
       this.userInfoAsync()
-      // this.getEQType()
-      // this.GetIconList()
     }
   }
 </script> 

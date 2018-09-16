@@ -135,8 +135,9 @@ page{
     </view>
 
     <view wx:if="{{curHome.isCreater}}" class='homeList_bt' @tap="deleteHome">移除家庭</view>
-
-    <ModifyModal :modifyType.sync="modifyType" :ifShow.sync="ifModify" :newModifyContent.sync="newModifyContent"  wx:if="{{ifModify}}" :modifyTit.sync="modifyTit"></ModifyModal>
+    
+    <ModifyModal  :ifShow.sync="ifModify"  wx:if="{{ifModify}}"></ModifyModal>
+    <!-- <ModifyModal :modifyType.sync="modifyType" :ifShow.sync="ifModify" :newModifyContent.sync="newModifyContent" :modifyTit="modifyTit"  wx:if="{{ifModify}}"></ModifyModal> -->
 
   <toast/>
   </view>
@@ -228,16 +229,24 @@ page{
         })
       },
       modifyHomeName () {
-        this.modifyType = 0
-        this.modifyTit = '家名称'
         this.ifModify = true
         this.$apply()
+        this.$broadcast('modifyHomeInfo-broadcast', 0, '家名称', this.homeName, this.homeAddress)
+        // this.modifyType = 0
+        // this.modifyTit = '家名称'
+        // this.ifModify = true
+        // this.newModifyContent = this.homeName
+        // this.$apply()
       },
       modifyHomeAddress () {
-        this.modifyType = 1
-        this.modifyTit = '家地址'
         this.ifModify = true
         this.$apply()
+        this.$broadcast('modifyHomeInfo-broadcast', 1, '家地址', this.homeName, this.homeAddress)
+        // this.modifyType = 1
+        // this.modifyTit = '家地址'
+        // this.ifModify = true
+        // this.newModifyContent = this.homeAddress
+        // this.$apply()
       },
       deleteHome () {
         return new Promise((resolve, reject) => {
@@ -360,7 +369,7 @@ page{
     }
 
     events = {
-      refreshHomeInfo () {
+      'refreshHomeInfo': () => {
         console.log('refreshHomeInfo---------------------')
         this.homeInfoAsync(this.homeId)
       },

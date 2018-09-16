@@ -25,7 +25,7 @@ page{
         padding: 0 20rpx;
         border-bottom: 1px solid #efefef;
         text{
-          width: 100%;
+          width:e("calc(100% - 50rpx - 50rpx - 50rpx - 10rpx)");
           padding: 0 10rpx;
         }
         image{
@@ -34,18 +34,24 @@ page{
         }
       }
     }
-    .addBt{
+    .addBtTwo{
       width: 100%;
       height: 100rpx;
-      text-align: center;
-      font-size: 32rpx;
-      font-weight: bold;
-      background: red;
-      color: #fff;
-      line-height: 100rpx;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       position: fixed;
       left: 0;
       bottom: 0px;
+      .addBtItem{
+        width: 100%;
+        height: 100rpx;
+        text-align: center;
+        font-size: 32rpx;
+        font-weight: bold;
+        color: #fff;
+        line-height: 100rpx;
+      }
     }
   }
 }
@@ -57,12 +63,16 @@ page{
       <view class="Equipment" wx:for-items="{{EquipmentList}}" wx:for-item="Equipment" wx:key="Idx" wx:for-index="Idx">
         <image src="{{Equipment.device_img}}"></image>
         <text>{{Equipment.device_name}}</text>
-        <image style="margin-right: 10rpx;" src="../../images/icons/editor-line.png" @tap="editEQ({{Equipment.id}}, {{Equipment.roomid}})"></image>
+        <image style="margin-right: 10rpx;" src="../../images/icons/editor-line.png" @tap="editEQ({{Equipment.id}}, {{Equipment.roomid}}, {{Equipment.device_name}}, {{Equipment}})"></image>
+        <!-- <image style="margin-right: 10rpx;" src="../../images/icons/editor-line.png" @tap="editEQ({{Equipment.id}}, {{Equipment.roomid}}, {{Equipment.device_name}})"></image> -->
         <image src="../../images/icons/delete.png" @tap="deleteEQ({{Equipment.id}})"></image>
       </view>
       <toast/>
     </view>
-    <view class='addBt' @tap="addEquipment">添加</view>
+    <view class='addBtTwo'>
+      <view class='addBtItem' style="background: #3498db" @tap="addEquipmentNoraml">添加无线设备</view>
+      <view class='addBtItem' style="background: #d4237a" @tap="addEquipmentHW">添加红外设备</view>
+    </view>
   </view>
 </template>
 
@@ -117,12 +127,19 @@ page{
     }
 
     methods = {
-      addEquipment () {
-        this.$navigate('./brand')
-        // this.$navigate('./add?addType=3')
+      addEquipmentNoraml () {
+        this.$navigate('./add?addType=3')
       },
-      editEQ (EQID, RoomId, EQName) {
-        this.$navigate('./edit?addType=3&id=' + EQID + '&houseId=' + roomid + '&oldName=' + EQName)
+      addEquipmentHW () {
+        this.$navigate('./brand')
+      },
+      editEQ (EQID, RoomId, EQName, Equipment) {
+        if (Equipment.master_control) {  // 三级设备
+          this.$navigate('./edit?addType=3&id=' + EQID + '&houseId=' + RoomId + '&oldName=' + EQName +'&WholeInfo=' +JSON.stringify(Equipment))
+        } else {  // 单品
+          this.$navigate('./edit?addType=2&id=' + EQID + '&houseId=' + RoomId + '&oldName=' + EQName)
+        }
+        
       },
       deleteEQ (EQID) {
         return new Promise((resolve, reject) => {

@@ -11,7 +11,7 @@ page{
       opacity: 0.5;
     }
     .modalMainWrap{
-      width: 80%;
+      width: 85%;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -44,7 +44,7 @@ page{
           justify-content: flex-start;
           align-items: center;
           .labelTit{
-            width: 150rpx;
+            width: 200rpx;
           }
           input[disabled]{color:#999;opacity:1;border-bottom: 0px;};
           input{
@@ -105,9 +105,10 @@ page{
       <!-- masterControl -->
       <view class='addItem'>
         <text class='labelTit'>{{modifyTit}}</text>
-        <input @input="changeInput" wx:if="{{modifyType != 1}}" type="text" name="新名称" value="{{newModifyContent}}" />
+        <input @input="changeInputHomeName" wx:if="{{modifyType == 0}}" type="text" name="新名称" value="{{newHomeName}}" />
+        <input @input="changeInputRoomName" wx:if="{{modifyType == 2}}" type="text" name="新名称" value="{{newRoomName}}" />
         <!-- <input @input="changeInput" wx:if="{{modifyType != 1}}" type="text" name="新名称" disabled="{{modifyType != 0}}" value="{{newModifyContent}}" /> -->
-        <view @tap="chooseAddress" wx:if="{{modifyType == 1}}" style="display: flex;flex-grow: 1;justify-content: flex-end;"><text>{{newModifyContent}}</text><image class='chooseAddress' src='../images/icons/address.png'></image></view>
+        <view @tap="chooseAddress" wx:if="{{modifyType == 1}}" style="display: flex;flex-grow: 1;justify-content: flex-end;"><text>{{newHomeAddress}}</text><image class='chooseAddress' src='../images/icons/address.png'></image></view>
       </view>
     </view>
     <view class='BtBlock'>
@@ -134,16 +135,16 @@ page{
 
   export default class ModifyModal extends wepy.component {
     props = {
-      modifyType: {
-        type: Number,
-        default: 0   // 0-家名称 1-家地址 2-房间名称
-      },
-      modifyTit: {
-        type: String
-      },
-      newModifyContent: {
-        twoWay: true
-      },
+      // modifyType: {
+      //   type: Number,
+      //   default: 0   // 0-家名称 1-家地址 2-房间名称
+      // },
+      // modifyTit: {
+      //   type: String
+      // },
+      // newModifyContent: {
+      //   twoWay: true
+      // },
       houseId: {
         twoWay: true
       },
@@ -153,30 +154,37 @@ page{
     }
 
     data = {
-
+      modifyType: 0,
+      modifyTit: '',
+      newHomeName: '',
+      newRoomName: '',
+      newHomeAddress: ''
+      // newModifyContent: ''
+    }
+    watch = {
+      // newModifyContent (curVal, oldVal) {
+      //   console.log('curVal modify--------------')
+      //   console.log(curVal)
+      // },
+      // modifyTit (curVal, oldVal) {
+      //   console.log('modifyTit modify curVal--------------')
+      //   console.log(curVal)
+      // }
     }
 
     components = {
     }
 
     methods = {
-      changeInput (e) {
-        this.$parent.newModifyContent = e.detail.value
-        this.$parent.$apply()
-        // switch (this.modifyType) {
-        //   case 0:
-        //     console.log('0---------------')
-        //     this.newNickName = e.detail.value
-        //     this.$parent.newModifyContent = e.detail.value
-        //     this.$parent.$apply()
-        //     break
-        //   case 1:
-        //     console.log('1---------------')
-        //     break
-        //   case 2:
-        //     console.log('2---------------')
-        //     break
-        // }
+      changeInputHomeName (e) {
+        this.newHomeName = e.detail.value
+        this.$apply()
+        // this.$parent.newModifyContent = e.detail.value
+        // this.$parent.$apply()
+      },
+      changeInputRoomName (e) {
+        this.newRoomName = e.detail.value
+        this.$apply()
       },
       chooseAddress () {
         console.log('chooseAddress---------------')
@@ -185,8 +193,11 @@ page{
           wepy.chooseLocation({
           }).then((res) => {
             console.log(res)
-            _THIS.$parent.newModifyContent = res.address
-            _THIS.$parent.$apply()
+            _THIS.newHomeAddress = res.address
+            _THIS.$apply()
+            console.log('===================' + _THIS.newHomeAddress)
+            // _THIS.$parent.newModifyContent = res.address
+            // _THIS.$parent.$apply()
             resolve(res.address)
           }).catch((res) => {
             console.log(res)
@@ -198,7 +209,7 @@ page{
       },
       CancelModify () {
         this.$parent.ifModify = false
-        this.$parent.newModifyContent = ''
+        // this.$parent.newModifyContent = ''
         this.$parent.$apply()
       },
       SureModify () {
@@ -208,11 +219,11 @@ page{
         switch (this.modifyType) {
           case 0:
             console.log('修改家名称---------------')
-            this.modifyHomeInfo(this.$parent.newModifyContent, this.$parent.homeAddress, this.$parent.homeIsDefault)
+            this.modifyHomeInfo(this.newHomeName, this.newHomeAddress, this.$parent.homeIsDefault)
             break
           case 1:
             console.log('修改家地址---------------')
-            this.modifyHomeInfo(this.$parent.homeName, this.$parent.newModifyContent, this.$parent.homeIsDefault)
+            this.modifyHomeInfo(this.newHomeName, this.newHomeAddress, this.$parent.homeIsDefault)
             break
           case 2:
             console.log('修改房间名称---------------')
@@ -220,6 +231,22 @@ page{
             break
         }
       }
+    }
+
+    events = {
+      'modifyHomeInfo-broadcast': (type, title, homeName, homeAddress) => {
+        this.modifyType = type
+        this.modifyTit = title
+        this.newHomeName = homeName
+        this.newHomeAddress = homeAddress
+        this.$apply()
+      },
+      'modifyRoomInfo-broadcast': (type, title, roomName) => {
+        this.modifyType = type
+        this.modifyTit = title
+        this.newRoomName = roomName
+        this.$apply()
+      },
     }
 
     // self fu
@@ -250,8 +277,8 @@ page{
                 icon: 'success'
               })
               setTimeout(() => {
-                this.$parent.newModifyContent = ''
-                this.$parent.$apply()
+                // this.$parent.newModifyContent = ''
+                // this.$parent.$apply()
                 this.$emit('refreshHomeInfo-emit')
               }, 1000)
               resolve(res)
@@ -277,7 +304,7 @@ page{
       console.log('修改房间名称--------------------')
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: encodeURI(this.urlPre + '/house?id=' + this.houseId + '&house_name=' + this.$parent.newModifyContent + '&home_id=' + this.curHome.home_id),
+          url: encodeURI(this.urlPre + '/house?id=' + this.houseId + '&house_name=' + this.newRoomName + '&home_id=' + this.curHome.home_id),
           data: {
           },
           method: 'PUT',
@@ -313,6 +340,9 @@ page{
           })
         })
       })
+    }
+    onLoad () {
+      console.log(this.modifyTit)
     }
   }
 </script>
