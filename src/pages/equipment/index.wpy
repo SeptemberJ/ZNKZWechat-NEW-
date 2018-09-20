@@ -160,7 +160,7 @@ page{
         this.$apply()
       },
       ToSecondControlType (MasterCode, MasterId) {
-        this.$navigate('./SecondControlType?MasterCode=' + MasterCode +'&MasterId=' + MasterId)
+        this.$navigate('./SecondControlType?MasterCode=' + MasterCode + '&MasterId=' + MasterId)
       },
       getMasterControlList () {
         console.log('in getMasterControlList----------------')

@@ -118,7 +118,7 @@ page{
         this.$apply()
       },
       ToEquipment (ID) {
-        this.$navigate('./Equipment?secondControlId=' + ID + '&MasterCode=' + this.MasterCode +'&MasterId=' + this.masterControlId)
+        this.$navigate('./Equipment?secondControlId=' + ID + '&MasterCode=' + this.MasterCode + '&MasterId=' + this.masterControlId)
       },
       deleteSecondControl (SecondID) {
         return new Promise((resolve, reject) => {
@@ -171,7 +171,7 @@ page{
       })
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/secondControl?id=' + SecondID +'&register_id=' + this.$parent.globalData.register_id + '&home_id=' + this.curHome.home_id,
+          url: this.urlPre + '/secondControl?id=' + SecondID + '&register_id=' + this.$parent.globalData.register_id + '&home_id=' + this.curHome.home_id,
           data: {
           },
           method: 'DELETE'

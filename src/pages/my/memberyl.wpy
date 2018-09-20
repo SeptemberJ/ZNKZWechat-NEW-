@@ -322,30 +322,6 @@ page{
         this.houseList[RoomIdx].deviceList[EqIdx].ifCheck = !EQ.ifCheck
         this.$apply()
       },
-      // 单选设备
-      toggleSingleEq2 (EqIdx, RoomIdx) {
-        let EqList = this.houseList[RoomIdx].deviceList.slice(0)
-        let EQ = EqList[EqIdx]
-        EqList[EqIdx].ifCheck = !EqList[EqIdx].ifCheck
-        let hasCheckedItem = true
-        EqList.map((Eq, Idx) => {
-          if (!Eq.ifCheck) {
-            hasCheckedItem = false
-          }
-        })
-        // 是否含有勾选项
-        console.log('hasCheckedItem-------------')
-        console.log(hasCheckedItem)
-        if (hasCheckedItem) {
-          this.houseList[RoomIdx].ifCheck = true
-        } else {
-          this.houseList[RoomIdx].ifCheck = false
-        }
-        this.$apply()
-        // 单选状态切换
-        this.houseList[RoomIdx].deviceList[EqIdx].ifCheck = EQ.ifCheck
-        this.$apply()
-      },
       saveSet () {
         console.log('tap saveSet---------')
         this.setInfoAsync()

@@ -443,9 +443,9 @@ page{
           url: this.urlPre + '/secondControlDefault',
           method: 'GET'
         }).then((res) => {
-          let Temp = []
+          // let Temp = []
           var ControlType = res.data.secondControlDefaultList
-          ControlType.map((item, idx)=>{
+          ControlType.map((item, idx) => {
             let Obj = []
             Obj.push(item.listDefaultSecondControlType)
             Obj.push(item.listDefaultSecondControlChangeType)
@@ -675,7 +675,7 @@ page{
         })
       })
     }
-    //删除场景
+    // 删除场景
     sureDelete() {
       wepy.showLoading({
         title: '加载中...'

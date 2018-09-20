@@ -328,7 +328,7 @@ page{
       sureAdd () {
         this.ifAdd = true
         this.$apply()
-      },
+      }
     }
 
     // self fn
@@ -365,7 +365,6 @@ page{
         this.showArrow = true
       }
       this.$apply()
-
     }
     onReady() {
       // 获取组件

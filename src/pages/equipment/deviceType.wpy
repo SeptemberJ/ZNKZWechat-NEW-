@@ -93,10 +93,10 @@ page{
     data = {
       brandId: null,
       deviceTypeList: [
-        {'id':0, 'code': 'C101', 'typeName': '插座', 'type': 'socket', 'img': 'http://118.25.47.123:8080/upload/阀门.png'},
-        {'id':1, 'code': 'C102', 'typeName': '开关', 'type': 'switch', 'img': 'http://118.25.47.123:8080/upload/电源.png'},
-        {'id':2, 'code': 'C103', 'typeName': '照明', 'type': 'light', 'img': 'http://118.25.47.123:8080/upload/灯.png'},
-        {'id':3, 'code': 'C104', 'typeName': '空调', 'type': 'aircondition','img': 'http://118.25.47.123:8080/upload/空调.png'}
+        {'id': 0, 'code': 'C101', 'typeName': '插座', 'type': 'socket', 'img': 'http://118.25.47.123:8080/upload/阀门.png'},
+        {'id': 1, 'code': 'C102', 'typeName': '开关', 'type': 'switch', 'img': 'http://118.25.47.123:8080/upload/电源.png'},
+        {'id': 2, 'code': 'C103', 'typeName': '照明', 'type': 'light', 'img': 'http://118.25.47.123:8080/upload/灯.png'},
+        {'id': 3, 'code': 'C104', 'typeName': '空调', 'type': 'aircondition', 'img': 'http://118.25.47.123:8080/upload/空调.png'}
       ]
     }
 

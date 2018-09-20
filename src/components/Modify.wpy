@@ -246,7 +246,7 @@ page{
         this.modifyTit = title
         this.newRoomName = roomName
         this.$apply()
-      },
+      }
     }
 
     // self fu

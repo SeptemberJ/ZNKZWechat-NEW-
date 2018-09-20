@@ -169,7 +169,7 @@ page{
       })
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/mainControl?id=' + MasterID +'&register_id=' + this.$parent.globalData.register_id + '&home_id=' + this.curHome.home_id,
+          url: this.urlPre + '/mainControl?id=' + MasterID + '&register_id=' + this.$parent.globalData.register_id + '&home_id=' + this.curHome.home_id,
           data: {
           },
           method: 'DELETE'

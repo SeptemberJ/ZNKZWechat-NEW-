@@ -92,12 +92,12 @@ page{
 
     data = {
       brandList: [
-        {'id':0, 'typeName': '海尔', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'},
-        {'id':1, 'typeName': '格力', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'},
-        {'id':2, 'typeName': 'LG', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'},
-        {'id':3, 'typeName': '美的', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'},
-        {'id':2, 'typeName': '海信', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'},
-        {'id':3, 'typeName': '松下', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'}
+        {'id': 0, 'typeName': '海尔', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'},
+        {'id': 1, 'typeName': '格力', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'},
+        {'id': 2, 'typeName': 'LG', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'},
+        {'id': 3, 'typeName': '美的', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'},
+        {'id': 2, 'typeName': '海信', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'},
+        {'id': 3, 'typeName': '松下', 'img': 'https://i.loli.net/2017/08/21/599a521472424.jpg'}
       ]
     }
 

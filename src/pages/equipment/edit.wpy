@@ -630,8 +630,6 @@ page{
           this.$apply()
           break
       }
-      
-      
     }
   }
 </script>

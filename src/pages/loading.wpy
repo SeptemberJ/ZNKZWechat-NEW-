@@ -194,7 +194,8 @@
               if (Temp.length > 0) { // 已创建家的进入首页，否则先创建家
                 // 是否时创建者
                 Temp.map((item, idx) => {
-                  item.isCreater = item.register_id === UserID ? true: false
+                  item.isCreater = item.register_id === UserID
+                  // item.isCreater = item.register_id === UserID ? true: false
                   if (item.isdefault === '1') {
                     console.log('isdefault==1---------------')
                     console.log(item)

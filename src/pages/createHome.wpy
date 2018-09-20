@@ -116,7 +116,7 @@ page{
     urlPre (state) {
       return state.counter.urlPre
     }
-  },{
+  }, {
     changeAddRoomList,
     updateHomeList,
     updateCurHome,
@@ -331,9 +331,9 @@ page{
           switch (res.data.code) {
             case 1:
               let defaultRoomList = []
-              res.data.houseListDefault.map ((item, idx) => {
+              res.data.houseListDefault.map((item, idx) => {
                 let obj = {
-                  house_name: item.dhouse_name, 
+                  house_name: item.dhouse_name,
                   choosed: true
                 }
                 defaultRoomList.push(obj)
@@ -419,7 +419,8 @@ page{
               if (res.data.homeList.length > 0) { // 已创建家的进入首页，否则先创建家
                 this.methods.updateHomeList(res.data.homeList)
                 res.data.homeList.map((item, idx) => {
-                  item.isCreater = item.register_id === this.$parent.globalData.register_id ? true: false
+                  // item.isCreater = item.register_id === this.$parent.globalData.register_id ? true : false
+                  item.isCreater = item.register_id === this.$parent.globalData.register_id
                   if (item.isdefault === '1') {
                     console.log('isdefault==1---------------')
                     console.log(item)

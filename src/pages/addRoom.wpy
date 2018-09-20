@@ -222,7 +222,7 @@ page{
         }).then((res) => {
           switch (res.data.code) {
             case 1:
-            let TempName = []
+              let TempName = []
               res.data.houseListAll.map((item, idx) => {
                 TempName.push(item.dhouse_name)
               })
