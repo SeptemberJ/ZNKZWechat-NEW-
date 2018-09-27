@@ -252,7 +252,7 @@ page{
     async homeInfoAsync () {
       const backInfo = await this.getUserHomeList()
       console.log('IfHasDefaultHome------------[')
-      if (!backInfo.ifHasDefaultHome) {
+      if (!backInfo.ifHasDefaultHome && backInfo.homeList.length > 0) {
         this.setDefaultHome(backInfo.homeList[0].home_id, backInfo.homeList[0].home_name, backInfo.homeList[0].faddress, 1)
         this.methods.updateCurHome(backInfo.homeList[0])
       }

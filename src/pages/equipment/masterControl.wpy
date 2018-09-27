@@ -57,7 +57,7 @@ page{
       <view class="masterControl" wx:for-items="{{masterControlList}}" wx:for-item="masterControl" wx:key="Idx" wx:for-index="Idx">
         <text>{{masterControl.main_control_name}}</text>
         <image style="margin-right: 10rpx;" src="../../images/icons/editor-line.png" @tap="editMaster({{masterControl.id}}, {{masterControl.main_control_name}})"></image>
-        <image src="../../images/icons/delete.png" @tap="deleteMasterControl({{masterControl.id}})"></image>
+        <image src="../../images/icons/delete.png" @tap="deleteMasterControl({{masterControl.id}}, {{masterControl.main_control_code}})"></image>
       </view>
       <toast/>
     </view>
@@ -119,7 +119,7 @@ page{
       editMaster (MasterID, MasterName) {
         this.$navigate('./edit?addType=0&id=' + MasterID + '&oldName=' + MasterName)
       },
-      deleteMasterControl (MasterID) {
+      deleteMasterControl (MasterID, MasterCode) {
         return new Promise((resolve, reject) => {
           wepy.showModal({
             title: '提示',
@@ -127,7 +127,7 @@ page{
           }).then((res) => {
             if (res.confirm) {
               console.log('用户点击确定')
-              this.sureDelete(MasterID)
+              this.sureDelete(MasterID, MasterCode)
             } else if (res.cancel) {
               console.log('用户点击取消')
             }
@@ -163,13 +163,13 @@ page{
         })
       })
     }
-    sureDelete (MasterID) {
+    sureDelete (MasterID, MasterCode) {
       wepy.showLoading({
         title: '加载中...'
       })
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/mainControl?id=' + MasterID + '&register_id=' + this.$parent.globalData.register_id + '&home_id=' + this.curHome.home_id,
+          url: this.urlPre + '/mainControl?id=' + MasterID + '&main_control_code=' + MasterCode + '&register_id=' + this.$parent.globalData.register_id + '&home_id=' + this.curHome.home_id,
           data: {
           },
           method: 'DELETE'

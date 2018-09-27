@@ -310,6 +310,10 @@ page{
         this.singleProduct_Name = e.detail.value
         this.$apply()
       },
+      changeSingleProductCode (e) {
+        this.singleProduct_Code = e.detail.value
+        this.$apply()
+      },
       // 选择主控
       bindPickerChangeTypeM (e) {
         this.m_Type_index = e.detail.value
@@ -377,7 +381,7 @@ page{
             break
           case '1':
             console.log('1---------------')
-            this.addSecondControl(0) //0-无下挂设备
+            this.addSecondControl(0) // 0-无下挂设备
             break
           case '2':
             console.log('2---------------')
@@ -385,7 +389,7 @@ page{
             break
           case '3':
             console.log('1---------------')
-            this.addSecondControl(1) //1-有下挂设备
+            this.addSecondControl(1) // 1-有下挂设备
             break
           case '4':
             console.log('4---------------')
@@ -526,7 +530,7 @@ page{
       })
     }
     addMasterControl () {
-      if (this.masterControl_Name === '' || this.masterControl_Code === '') {
+      if (this.masterControl_Name.trim() === '' || this.masterControl_Code.trim() === '') {
         this.$invoke('toast', 'show', {
           title: '请输入主控名称或主控码！',
           img: '../../images/icons/attention.png'
@@ -581,7 +585,7 @@ page{
       })
     }
     addSecondControl (Type) {
-      if (this.secondControl_Name === '' || this.secondControl_Code === '') {
+      if (this.secondControl_Name.trim() === '' || this.secondControl_Code.trim() === '') {
         this.$invoke('toast', 'show', {
           title: '请输入从控名称或从控码！',
           img: '../../images/icons/attention.png'
@@ -638,7 +642,7 @@ page{
       })
     }
     addSingleProduct () {
-      if (this.singleProduct_Name === '' || this.singleProduct_Code === '') {
+      if (this.singleProduct_Name.trim() === '' || this.singleProduct_Code.trim() === '') {
         this.$invoke('toast', 'show', {
           title: '请输入单品名称或单品码！',
           img: '../../images/icons/attention.png'
@@ -778,7 +782,7 @@ page{
         })
         return false
       }
-      if (this.euqipment_Name === '' || this.euqipment_Code === '') {
+      if (this.euqipment_Name.trim() === '' || this.euqipment_Code.trim() === '') {
         this.$invoke('toast', 'show', {
           title: '请输入设备名称或设备码！',
           img: '../../images/icons/attention.png'

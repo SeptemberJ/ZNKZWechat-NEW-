@@ -184,14 +184,14 @@ page{
       createHome () {
         let ifEmpty = true
         let choosedRoom = []
-        if (!this.homeName) {
+        if (!this.homeName || this.homeName.trim() === '') {
           this.$invoke('toast', 'show', {
             title: '请输入家的名称！',
             img: '../images/icons/attention.png'
           })
           return false
         }
-        if (!this.homeAddress) {
+        if (!this.homeAddress || this.homeAddress.trim() === '') {
           this.$invoke('toast', 'show', {
             title: '请选择家的地址！',
             img: '../images/icons/attention.png'

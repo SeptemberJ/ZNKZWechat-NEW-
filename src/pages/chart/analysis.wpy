@@ -1,0 +1,236 @@
+<style>
+.equipmentInfo{
+  width: calc(100% - 20px);
+  height: 150rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.equipmentCode{
+  margin: 10px auto;
+  font-size: 14px;
+}
+.DataList{
+  width: 750rpx;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-around;
+  margin: 30px auto;
+}
+.DataItem{
+  width: 340rpx;
+  height: 100px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  box-shadow: 0rpx 0rpx 5px rgba(0,0,0,.3);
+  margin-bottom: 20px;
+}
+/* .DataItem:nth-of-type(6n+1){
+  background: #79de80;
+}
+.DataItem:nth-of-type(6n+2){
+  background: #fbe76c;
+} */
+.leftBox{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.leftBox image{
+  width: 80rpx;
+  height: 80rpx;
+}
+.rightBox{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.rightBox{
+  font-size: 14px;
+}
+
+</style>
+<template>
+  <view class='equipmentInfo'>
+    <text class='Title Bold'>{{EquipmentName}}</text>
+  </view>
+  <view>
+    <view wx:if="{{ifHasData}}" class='DataList'>
+      <view class='DataItem' wx:for="{{dataList}}" wx:for-index="DataIdx" wx:for-item="Data" wx:key="DataIdx" data-kind='{{Data.kind}}'  data-datavalue='{{Data.value}}' bindtap='ToDetail'>
+        <view class='leftBox'>
+          <image src='{{Data.img}}'></image>
+        </view>
+        <view class='rightBox'>
+          <text class='Bold MarginB_10'>{{Data.kind}}</text>
+          <text>{{Data.value}}{{Data.unit}}</text>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{!ifHasData}}" class='InfoNull'>
+      <image src="../../images/icons/box-empty.png" />
+      <text>暂无数据</text>
+    </view>
+    <toast/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../../mixins/test'
+
+  @connect({
+    homeList (state) {
+      return state.counter.homeList
+    },
+    urlPre (state) {
+      return state.counter.urlPre
+    }
+  }, {
+  })
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '当前监控数值'
+    }
+    components = {
+      toast: Toast
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      ifHasData: false,
+      EquipmentName: '',
+      EquipmentId: '',
+      dataList: [
+        {'kindI': 'pm25', 'kind': 'PM2.5', 'value': '', 'img': '../../images/icons/pm2.5.png', 'unit': 'μg/m³'},
+        {'kindI': 'pm100', 'kind': 'PM10', 'value': '', 'img': '../../images/icons/pm10.png', 'unit': 'μg/m³'},
+        {'kindI': 'co2', 'kind': 'CO2', 'value': '', 'img': '../../images/icons/co2.png', 'unit': 'ppm'},
+        {'kindI': 'co', 'kind': 'CO', 'value': '', 'img': '../../images/icons/CO.png', 'unit': 'ppm'},
+        {'kindI': 'formaldehyde', 'kind': '甲醛', 'value': '', 'img': '../../images/icons/HCHO.png', 'unit': 'ppm'},
+        {'kindI': 'temperature', 'kind': '温度', 'value': '', 'img': '../../images/icons/temperature.png', 'unit': '°C'},
+        {'kindI': 'humidity', 'kind': '湿度', 'value': '', 'img': '../../images/icons/humidity.png', 'unit': '%RH'},
+        {'kindI': 'voc', 'kind': 'VOCs', 'value': '', 'img': '../../images/icons/steamer.png', 'unit': ''}
+      ]
+    }
+
+    computed = {
+    }
+
+    methods = {
+      ToDetail (e) {
+        let Info = {
+          Kind: e.currentTarget.dataset.kind,
+          EquipmentId: this.EquipmentId,
+          EquipmentName: this.EquipmentName,
+          Data: e.currentTarget.dataset.datavalue
+        }
+        wepy.setStorage({
+          key: "equipmentInfo",
+          data: Info
+        })
+        wepy.navigateTo({
+          url: './chart'
+        })
+      }
+    }
+
+    // self fn
+
+    // 获取当前监测数据
+    GetCurData (ID) {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/hair_current?device_id=' + ID,//  + 00123456,
+          // url: 'https://jingshangs.com/zk_hky/selectnoqrcode?qrcodeid=24A4F45E-06FE-49B8-A7D9-7B29EF74948B',
+          method: 'GET'
+        }).then((res) => {
+          switch (res.data.result.code) {
+            case 1:
+              
+              if (res.data.result.hair) {
+                let temp = this.dataList.slice(0)
+                temp.map((item, idx) => {
+                  switch (item.kindI) {
+                    case 'pm25':
+                      item.value = res.data.result.hair.pm25
+                      break
+                    case 'pm100':
+                      item.value = res.data.result.hair.pm100
+                      break
+                    case 'co2':
+                      item.value = res.data.result.hair.co2
+                      break
+                    case 'co':
+                      item.value = res.data.result.hair.co
+                      break
+                    case 'formaldehyde':
+                      item.value = res.data.result.hair.formaldehyde
+                      break
+                    case 'temperature':
+                      item.value = res.data.result.hair.temperature
+                      break
+                     case 'humidity':
+                      item.value = res.data.result.hair.humidity
+                      break
+                    case 'voc':
+                      item.value = res.data.result.hair.voc
+                      break
+                  }
+                })
+                this.dataList = temp
+                this.ifHasData = true
+                this.$apply()
+              }
+              wepy.hideLoading()
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '获取监测数据失败!',
+                img: '../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+
+    events = {
+    }
+
+    onLoad (options) {
+      this.EquipmentId = options.eqId
+      this.EquipmentName = options.eqName
+      this.$apply()
+    }
+    onShow () {
+      this.GetCurData(this.EquipmentId)
+    }
+  }
+</script>

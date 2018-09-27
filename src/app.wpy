@@ -68,6 +68,23 @@
 .noBorderRadius{
   border-radius: 0 !important;
 }
+.InfoNull{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20rpx auto;
+    text-align: center;
+    color: #8a8a8a;
+}
+.InfoNull image{
+    width: 120rpx;
+    height: 120rpx;
+    margin: 40rpx auto;
+}
+.InfoNull text{
+  font-size: 14px;
+}
 </style>
 
 <script>
@@ -84,6 +101,8 @@ export default class extends wepy.app {
   config = {
     pages: [
       'pages/loading',
+      'pages/chart/analysis',
+      'pages/chart/chart',
       'pages/equipment/brand',
       'pages/equipment/deviceType',
       'pages/eqMoveHouse',

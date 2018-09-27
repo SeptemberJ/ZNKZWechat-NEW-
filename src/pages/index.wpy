@@ -400,7 +400,12 @@ page{
         <image src="{{eqItem.device_img}}"></image>
         <text class='equipment_name' @tap="toControlPanel({{eqItem.default_device_type}})">{{eqItem.device_name}}</text>
         <image @tap="moveHouse({{eqItem.device_name}}, {{eqItem.id}})" style="margin-right: 10rpx;" src="../images/icons/move-up.png"></image>
-        <text @tap="OperationToggle({{eqItem}})" class="{{eqItem.device_status==='0'?'equipment_status':'equipment_status active'}}">{{eqItem.device_status==='0'?'offline':'online'}}</text>
+        <image wx:if="{{eqItem.default_device_type == 'HAir(有线)' && eqItem.device_config ==='1'}}" @tap="seeData({{eqItem.device_name}}, {{eqItem.id}})" style="margin-right: 10rpx;" src="{{eqItem.device_status == 0 ? '../images/icons/AnalysisBlue.png' : '../images/icons/AnalysisGray.png'}}"></image>
+        <!-- 0 OK 1 未连接 2 链接中端 3 测量点不对 {{eqItem.device_status==='0'?'online':'offline'}}-->
+        <text wx:if="{{eqItem.main_control_code == ''}}" class="{{eqItem.device_status==='0'?'equipment_status active':'equipment_status'}}">{{eqItem.device_status==='0'?'online':'offline'}}</text>
+
+        <text wx:if="{{eqItem.main_control_code != ''}}"  @tap="OperationToggle({{eqItem}})" class="{{eqItem.device_status==='0' && eqItem.device_config ==='1'?'equipment_status active':'equipment_status'}}">{{eqItem.device_config ==='1'? (eqItem.device_status==='0'?'online':'offline') : '配置'}}</text>
+
       </view>
     </view>
     <!-- <button wx:if="{{curHome.isCreater}}" class='addBt' @tap="addEquipment">添加设备</button> -->
@@ -507,7 +512,7 @@ page{
         })
       },
       OperationToggle (eqItem) {
-        if (eqItem.device_config !== 1) {
+        if (eqItem.device_config !== '1') {
           this.EqConfig(eqItem)
         } else {
           this.EqPlay(eqItem.main_control_code)
@@ -521,13 +526,54 @@ page{
         // wepy.navigateTo({
         //   url: './eqMoveHouse?eqName=' + Name + '&eqId=' = Id
         // })
+      },
+      // 查看数据
+      seeData (EQName, EQId) {
+        wepy.navigateTo({
+          url: './chart/analysis?eqName=' + EQName + '&eqId=' + EQId
+        })
       }
     }
 
     // self fun
 
     // 命令序号
-    getCurCNS (NUM) {
+    getCurCNS (MasterCode) {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/deviceSequence?main_control_code=' + MasterCode,
+          method: 'GET'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              resolve(res.data.sequence_number)
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    getCurCNS2 (NUM) {
       // 补零
       function PrefixInteger (NUM, length) {  
         return (Array(length).join('0') + NUM).slice(-length)
@@ -538,18 +584,19 @@ page{
       // }
 
       let CSN = PrefixInteger(NUM.toString(16), 4)
-      let pre = CSN.substring(0,2)
+      let pre = CSN.substring(0, 2)
       let nex = CSN.substring(2)
 
       return nex + pre
     }
-    EqConfig (eqItem) {
+    async EqConfig (eqItem) {
+      var sendCurCns = await this.getCurCNS(eqItem.main_control_code)
       wepy.showLoading({
         title: '加载中'
       })
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/deviceConfig?main_control_id=' + eqItem.main_control_code + '&second_control_id=' + eqItem.device_code + '&sequence_number=0001&measure_point=08&control_point=00&qty=01',
+          url: this.urlPre + '/deviceConfig?main_control_id=' + eqItem.main_control_code + '&second_control_id=' + eqItem.device_code + '&sequence_number=' + sendCurCns + '&measure_point=08&control_point=00&qty=01',
           method: 'GET'
         }).then((res) => {
           switch (res.data.code) {
@@ -559,7 +606,7 @@ page{
               //   title: '切换成功!',
               //   icon: 'success'
               // })
-              this.UpdateConfigStatus(eqItem.id)
+              this.UpdateConfigStatus(eqItem.id, eqItem.main_control_code)
               resolve(res)
               break
             case 0:
@@ -586,22 +633,32 @@ page{
         })
       })
     }
-    EqPlay (MasterCode) {
+    async EqPlay (MasterCode) {
+      var sendCurCns = await this.getCurCNS(MasterCode)
       wepy.showLoading({
         title: '加载中'
       })
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/payload22?topic=' + MasterCode + '/ConfigAck&sequence_number=' + this.getCurCNS(this.curCns),
+          url: this.urlPre + '/payload?topic=' + MasterCode + '/ConfigAck&sequence_number=' + sendCurCns,
           method: 'GET'
         }).then((res) => {
-          switch (res.data.code) {
+          switch (res.data.result.code) {
             case 1:
               wepy.hideLoading()
-              wepy.showToast({
-                title: '操作成功!',
-                icon: 'success'
-              })
+              console.log(res.data.result.payload.payload)
+              console.log(res.data.result.payload.payload === 'sendCurCns')
+              // if (res.data.result.payload.payload === 'sendCurCns') {
+              //   wepy.showToast({
+              //     title: '指令匹配!',
+              //     icon: 'success'
+              //   })
+              // } else {
+              //   this.$invoke('toast', 'show', {
+              //     title: '指令不匹配!',
+              //     img: '../../images/icons/attention.png'
+              //   })
+              // }
               resolve(res)
               break
             case 0:
@@ -628,13 +685,13 @@ page{
         })
       })
     }
-    UpdateConfigStatus (EQID) {
+    UpdateConfigStatus (EQID,MasterCode) {
       wepy.showLoading({
         title: '加载中'
       })
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/deviceConfig?id=' + EQID + '&device_config=1',
+          url: this.urlPre + '/deviceConfig?id=' + EQID + '&device_config=1' + '&main_control_code=' + MasterCode,
           method: 'PUT'
         }).then((res) => {
           switch (res.data.code) {
@@ -644,6 +701,7 @@ page{
                 title: '调试成功!',
                 icon: 'success'
               })
+              this.getRoomEQ(this.roomList[this.CurRoomIndex].id)
               resolve(res)
               break
             case 0:

@@ -495,7 +495,7 @@ page{
         }).then((res) => {
           let Temp = []
           var ControlType = res.data.secondControlDefaultList
-          ControlType.map((item, idx)=>{
+          ControlType.map((item, idx) => {
             let Obj = []
             Obj.push(item.listDefaultSecondControlType)
             Obj.push(item.listDefaultSecondControlChangeType)

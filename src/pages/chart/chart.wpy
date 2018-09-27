@@ -1,0 +1,578 @@
+<style lang="less">
+page{
+  .controlWrap{
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    .KindTitle{
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      margin: 10px;
+    }
+    .CurInfo{
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      .CurData{
+        width: 150rpx;
+        height: 150rpx;
+        line-height: 150rpx;
+        text-align: center;
+        border: 4px solid #3498db;
+        border-radius: 50%;
+      }
+      .CurData text{
+        font-size: 40rpx;
+      }
+      .additionalData{
+        width: 500rpx;
+        height: 100%;
+        padding: 0 10rpx;
+        font-size: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+      }
+    }
+  }
+  .TabBox{
+    width: 600rpx;
+    height: 50rpx;
+    margin: 40rpx auto 20rpx auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #3498db;
+    border-top-left-radius: 20rpx;
+    border-bottom-left-radius: 20rpx;
+    border-top-right-radius: 20rpx;
+    border-bottom-right-radius: 20rpx;
+    overflow: hidden;
+  }
+  .TabItem{
+    width: 200rpx;
+    text-align: center;
+    padding: 0 10px;
+    height: 100%;
+    line-height: 50rpx;
+    font-size: 30rpx;
+  }
+  .Active{
+    background: #3498db;
+    color: #fff;
+  }
+  ec-canvas {
+    width: 100%;
+    height: 750rpx;
+  }
+}
+</style>
+<template>
+    <view class='controlWrap'>
+      <view class='KindTitle Title'>{{Kind}}</view>
+      <view class='CurInfo'>
+        <view class='CurData'>
+          <text class='data'>{{CurNumber}}</text>
+        </view>
+        <view class='additionalData'>
+          <text>设备：{{EquipmentName}}</text>
+          <text>单位：{{CurUnit}}</text>
+        </view>
+      </view>
+      <view class='TabBox' wx:if="{{!ifShowChart}}">
+        <view class="{{CurTab == TabIdx?'TabItem Active':'TabItem'}}" @tap='changeTab({{TabIdx}})' wx:for-items="{{TabMenu}}" wx:for-index="TabIdx" wx:for-item="Tab" wx:key="TabIdx">近{{Tab}}h</view>
+      </view>
+      <view style="width:100%;height:700rpx;">
+        <view style="width:100%;height:700rpx;" hidden="{{ifShowChart}}">
+          <ec-canvas id="mychart-dom-bar" canvas-id="mychart-bar" ec="{{ ec }}"></ec-canvas>
+        </view>
+      </view>
+      <toast/>
+    </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import Toast from 'wepy-com-toast'
+  import testMixin from '../../mixins/test'
+  import * as echarts from '../../ec-canvasyl/echarts'
+
+  var Chart = null
+  var ecComponent = null
+  // 不同指标的划分范围
+  var LimitRange = {
+    'PM2.5': [{
+      gt: 0,
+      lte: 35,
+      color: '#096'
+    }, {
+      gt: 35,
+      lte: 75,
+      color: '#ffde33'
+    }, {
+      gt: 75,
+      lte: 115,
+      color: '#ff9933'
+    }, {
+      gt: 115,
+      lte: 150,
+      color: '#cc0033'
+    }, {
+      gt: 150,
+      lte: 250,
+      color: '#660099'
+    }, {
+      gt: 250,
+      color: '#7e0023'
+    }],
+    'CO2': [{
+      gt: 350,
+      lte: 450,
+      color: '#096'
+    }, {
+      gt: 450,
+      lte: 1000,
+      color: '#ffde33'
+    }, {
+      gt: 1000,
+      lte: 2000,
+      color: '#ff9933'
+    }, {
+      gt: 2000,
+      lte: 5000,
+      color: '#cc0033'
+    }, {
+      gt: 5000,
+      color: '#660099'
+    }],
+    'CO': [{
+      gt: 0.1,
+      lte: 0.5,
+      color: '#096'
+    }, {
+      gt: 0.5,
+      lte: 5,
+      color: '#ffde33'
+    }, {
+      gt: 5,
+      lte: 15,
+      color: '#ff9933'
+    }, {
+      gt: 15,
+      lte: 100,
+      color: '#cc0033'
+    }, {
+      gt: 100,
+      lte: 200,
+      color: '#660099'
+    }, {
+      gt: 200,
+      color: '#7e0023'
+    }],
+    '甲醛': [{
+      gt: 0.06,
+      lte: 0.1,
+      color: '#096'
+    }, {
+      gt: 0.1,
+      lte: 0.5,
+      color: '#ffde33'
+    }, {
+      gt: 0.5,
+      lte: 1,
+      color: '#ff9933'
+    }, {
+      gt: 1,
+      color: '#cc0033'
+    }],
+    '温度': [{
+      gt: 0,
+      lte: 10,
+      color: '#0000FF'
+    }, {
+      gt: 10,
+      lte: 16,
+      color: '#87CEFA'
+    }, {
+      gt: 16,
+      lte: 25,
+      color: '#096'
+    }, {
+      gt: 25,
+      lte: 28,
+      color: '#ffde33'
+    }, {
+      gt: 28,
+      color: '#cc0033'
+    }]
+  }
+
+  function setOption (chart, Day, URL) {
+    console.log('in setOption----------------')
+    wepy.showLoading({
+      title: '加载中'
+    })
+    return new Promise((resolve, reject) => {
+      wepy.getStorage({
+        key: 'equipmentInfo'
+      }).then((res) => {
+        // let DATA = {
+        //   day: Day,
+        //   qrcodeid: res.data.EquipmentId,
+        //   kind: res.data.Kind
+        // }
+        return new Promise((resolve, reject) => {
+          wepy.request({
+            // url: URL + '/hair?device_id=00123456&type=humidity&hh=12',
+            url: URL + '/hair?device_id=' + res.data.EquipmentId + '&type=' + res.data.Kind + '&hh=' + Day,
+            // url: 'https://jingshangs.com/zk_hky/selectnoqrcode1',
+            method: 'GET'
+          }).then((res) => {
+            switch (res.data.result.code) {
+              case 1:
+              let dataArray = []
+              res.data.result.hairList.map((item) => {
+                dataArray.push([item.faddtime, item.humidity])
+              })
+                const option = {
+                  title: {
+                    text: ''
+                  },
+                  tooltip: {
+                    trigger: 'axis'
+                  },
+                  xAxis: {
+                    data: dataArray.map(function (item) {
+                      return ''
+                    })
+                  },
+                  yAxis: {
+                    splitLine: {
+                      show: false
+                    }
+                  },
+                  visualMap: {
+                    show: false,
+                    top: 10,
+                    right: 10,
+                    pieces: LimitRange[res.data.kind],
+                    outOfRange: {
+                      color: '#999'
+                    }
+                  },
+                  series: {
+                    name: '',
+                    type: 'line',
+                    data: dataArray.map(function (item) {
+                      return item[1]
+                    }),
+                    markLine: {
+                      silent: true,
+                      data: []
+                    }
+                  }
+                }
+                chart.setOption(option)
+                wepy.hideLoading()
+                break
+              case 0:
+                wepy.hideLoading()
+                wepy.showToast({
+                  image: '../../../images/attention.png',
+                  title: '数据获取失败！'
+                })
+                break
+              default:
+                wepy.hideLoading()
+                this.$invoke('toast', 'show', {
+                  title: '服务器繁忙！',
+                  img: '../../images/icons/attention.png'
+                })
+            }
+          }).catch((res) => {
+            console.log(res)
+            wepy.hideLoading()
+            this.$invoke('toast', 'show', {
+              title: '服务器繁忙！',
+              img: '../../images/icons/attention.png'
+            })
+          })
+        })
+      }).catch((res) => {
+        console.log(res)
+      })
+    })
+  }
+
+  @connect({
+    urlPre (state) {
+      return state.counter.urlPre
+    },
+    homeList (state) {
+      return state.counter.homeList
+    },
+    userInfo (state) {
+      return state.counter.userInfo
+    }
+  }, {
+  })
+
+  export default class My extends wepy.page {
+    config = {
+      navigationBarTitleText: '控制面板',
+      usingComponents: {
+        'ec-canvas': '../../ec-canvasyl/ec-canvas'
+      }
+    }
+    components = {
+      toast: Toast
+    }
+
+    mixins = [testMixin]
+
+    data = {
+      Kind: '',
+      CurNumber: '',
+      CurUnit: '',
+      EquipmentName: '',
+      ec: {
+        // onInit: this.init
+        // lazyLoad: true
+      },
+      addType: 3,
+      showIntroduction: false,
+      ifAdd: false,
+      controlCode: null,
+      eqType: null,
+      ifShowChart: true,
+      showArrow: false,
+      datas: [[820, 932, 901, 934, 1290, 1330, 1320], [120, 1132, 91, 934, 290, 1330, 320]],
+      // ecComponent: null,
+      // chart: null,
+      isLoaded: false,
+      CurTab: 0,
+      TabMenu: ['6', '12', '24']
+    }
+
+    computed = {
+    }
+
+    methods = {
+      changeTab (IDX) {
+        console.log('click')
+        this.CurTab = IDX
+        this.$apply()
+        this.tabChange(IDX)
+      },
+      changeChart (IDX) {
+        console.log('click')
+        this.CurTab = IDX
+        this.$apply()
+        this.tabChange(IDX)
+      },
+      dispose () {
+        console.log('dispose')
+        this.ifShowChart = true
+        this.$apply()
+      },
+      showChart () {
+        this.ifShowChart = false
+        this.$apply()
+        this.tabChange(this.CurTab)
+      },
+      hideChart () {
+        this.ifShowChart = true
+        this.$apply()
+      },
+      showIntroduction () {
+        this.showIntroduction = true
+        this.$apply()
+      },
+      sureAdd () {
+        this.ifAdd = true
+        this.$apply()
+      }
+    }
+
+    // self fn
+    init (Day) {
+      console.log('in init----------------')
+      ecComponent.init((canvas) => {
+        // 获取组件的 canvas、width、height 后的回调函数
+        // 在这里初始化图表
+        const chart = echarts.init(canvas, '320', {
+          width: '320',
+          height: '324'
+          // width: width ? width : app.globalData.width,
+          // height: height ? height : app.globalData.width,
+        })
+        setOption(chart, Day, this.urlPre)
+        // 将图表实例绑定到 this 上，可以在其他成员函数（如 dispose）中访问
+        Chart = chart
+        // this.chart = chart
+        this.ifShowChart = false
+        this.$apply()
+        return chart
+      })
+    }
+    // get data
+    // getData (DATA) {
+    //   return new Promise((resolve, reject) => {
+    //     wepy.request({
+    //       // url: this.urlPre + '/selectnoqrcode?qrcodeid=' + ID,
+    //       url: 'https://jingshangs.com/zk_hky/selectnoqrcode1',
+    //       method: 'POST',
+    //       data: {
+    //         qrcodes: DATA
+    //       }
+    //     }).then((res) => {
+    //       switch (res.data.result) {
+    //         case 1:
+    //           const option = {
+    //             title: {
+    //               text: ''
+    //             },
+    //             tooltip: {
+    //               trigger: 'axis'
+    //             },
+    //             xAxis: {
+    //               data: res.data.qrcodelist.map(function (item) {
+    //                 return ''
+    //               })
+    //             },
+    //             yAxis: {
+    //               splitLine: {
+    //                 show: false
+    //               }
+    //             },
+    //             visualMap: {
+    //               show: false,
+    //               top: 10,
+    //               right: 10,
+    //               pieces: LimitRange[DATA.kind],
+    //               outOfRange: {
+    //                 color: '#999'
+    //               }
+    //             },
+    //             series: {
+    //               name: '',
+    //               type: 'line',
+    //               data: res.data.qrcodelist.map(function (item) {
+    //                 return item[1]
+    //               }),
+    //               markLine: {
+    //                 silent: true,
+    //                 data: []
+    //               }
+    //             }
+    //           }
+    //           Chart.setOption(option)
+    //           wepy.hideLoading()
+    //           break
+    //         case 0:
+    //           wepy.hideLoading()
+    //           wepy.showToast({
+    //             image: '../../../images/attention.png',
+    //             title: '数据获取失败！'
+    //           })
+    //           break
+    //         default:
+    //           wepy.hideLoading()
+    //           this.$invoke('toast', 'show', {
+    //             title: '服务器繁忙！',
+    //             img: '../../images/icons/attention.png'
+    //           })
+    //       }
+    //     }).catch((res) => {
+    //       console.log(res)
+    //       wepy.hideLoading()
+    //       this.$invoke('toast', 'show', {
+    //         title: '服务器繁忙！',
+    //         img: '../../images/icons/attention.png'
+    //       })
+    //     })
+    //   })
+    // }
+
+    tabChange (IDX) {
+      this.init(this.TabMenu[IDX])
+    }
+
+    events = {
+    }
+
+    onLoad(options) {
+      return new Promise((resolve, reject) => {
+        wepy.getStorage({
+          key: 'equipmentInfo'
+        }).then((res) => {
+          switch (res.data.Kind) {
+            case 'PM2.5':
+              this.CurUnit = 'μg/m³'
+              this.$apply()
+              break
+            case 'PM10':
+              this.CurUnit = 'μg/m³'
+              this.$apply()
+              break
+            case 'CO2':
+              this.CurUnit = 'ppm'
+              this.$apply()
+              break
+            case 'CO':
+              this.CurUnit = 'ppm'
+              this.$apply()
+              break
+            case '甲醛':
+              this.CurUnit = 'ppm'
+              this.$apply()
+              break
+            case '温度':
+              this.CurUnit = '℃'
+              this.$apply()
+              break
+            case '湿度':
+              this.CurUnit = '%RH'
+              this.$apply()
+              break
+            case 'VOCs':
+              this.CurUnit = '等级'
+              this.$apply()
+              break
+          }
+          this.Kind = res.data.Kind
+          this.EquipmentName = res.data.EquipmentName
+          this.CurNumber = res.data.Data
+          this.EquipmentId = res.data.EquipmentId
+          this.$apply()
+        })
+      }).catch((res) => {
+        console.log(res)
+      })
+    }
+
+    onShow () {
+      let _this = this
+      setTimeout(() => {
+        _this.ifShowChart = false
+        _this.$apply()
+        _this.init(7)
+      }, 500)
+    }
+    onReady() {
+      // 获取组件
+      ecComponent = this.$wxpage.selectComponent('#mychart-dom-bar')
+      // this.$apply()
+      // console.log(this.$wxpage.selectComponent('#mychart-dom-bar'))
+    }
+  }
+</script>

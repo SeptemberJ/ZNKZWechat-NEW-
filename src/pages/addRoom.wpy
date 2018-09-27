@@ -135,7 +135,13 @@ page{
         this.$apply()
       },
       saveRoomName () {
-        if (this.roomName) {
+        if (!this.roomName || this.roomName.trim() === '') {
+          this.$invoke('toast', 'show', {
+            title: '请输入房间名称!',
+            img: '../images/icons/attention.png'
+          })
+          return false
+        } else {
           if (this.type === '1') {
             console.log('1-------------------')
             // 后来添加房间 直接保存添加
@@ -146,13 +152,6 @@ page{
             this.methods.changeAddRoomList(this.roomName)
             wepy.navigateBack()
           }
-        } else {
-          console.log('else------')
-          this.$invoke('toast', 'show', {
-            title: '请输入房间名称!',
-            img: '../images/icons/attention.png'
-          })
-          return false
         }
       }
     }

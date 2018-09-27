@@ -219,14 +219,35 @@ page{
         switch (this.modifyType) {
           case 0:
             console.log('修改家名称---------------')
+            if (!this.newHomeName || this.newHomeName.trim() === '') {
+              this.$parent.$invoke('toast', 'show', {
+                title: '新名称不能为空！',
+                img: '../../images/icons/attention.png'
+              })
+              return false
+            }
             this.modifyHomeInfo(this.newHomeName, this.newHomeAddress, this.$parent.homeIsDefault)
             break
           case 1:
             console.log('修改家地址---------------')
+            if (!this.newHomeAddress || this.newHomeAddress.trim() === '') {
+              this.$parent.$invoke('toast', 'show', {
+                title: '新地址不能为空！',
+                img: '../../images/icons/attention.png'
+              })
+              return false
+            }
             this.modifyHomeInfo(this.newHomeName, this.newHomeAddress, this.$parent.homeIsDefault)
             break
           case 2:
             console.log('修改房间名称---------------')
+            if (!this.newHomeName || this.newHomeName.trim() === '') {
+              this.$parent.$invoke('toast', 'show', {
+                title: '新名称不能为空！',
+                img: '../../images/icons/attention.png'
+              })
+              return false
+            }
             this.modifyRoomName()
             break
         }
