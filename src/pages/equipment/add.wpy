@@ -80,7 +80,7 @@ page{
     </view>
     
     <!-- secondControl -->
-    <view class='addItemWrap' wx:if='{{addType == 1 || addType == 4}}'>
+    <view class='addItemWrap' wx:if='{{addType == 1 || addType == 3 || addType == 4}}'>
       <view class='addItem'>
         <text>选择主控</text>
         <view wx:if='{{MasterControlList.length ==0}}'>请先返回添加主控</view>
@@ -90,14 +90,14 @@ page{
         </picker>
       </view>
     </view>
-    <view class='addItemWrap' wx:if='{{addType == 1}}'>
+    <view class='addItemWrap' wx:if='{{addType == 1 || addType == 3}}'>
       <view class='addItem'>
         <text>从控名称</text>
         <input @input='changeSecondControlName' type='text' name='从控名称' value='{{secondControl_Name}}' />
       </view>
     </view>
     
-    <view class='addItemWrap' wx:if='{{addType == 1}}'>
+    <view class='addItemWrap' wx:if='{{addType == 1 || addType == 3}}'>
       <view class='addItem'>
         <text>从控码</text>
         <input type='text' name='从控码' placeholder='点击右侧图标扫码填入' @input='changeSecondControlCode' value='{{secondControl_Code}}' />
@@ -123,12 +123,12 @@ page{
     <!-- equpiment -->
     <view class='addItemWrap' wx:if='{{addType == 4}}'>
       <view class='addItem'>
-        <text>选择从控</text>
+        <text>选择从控{{SecondControlList.length}}=</text>
         <picker wx:if='{{SecondControlList.length > 0}}' bindchange='bindPickerChangeTypeS' value='{{s_Type_index}}' range-key='second_control_name' range='{{SecondControlList}}'>
           <text>{{SecondControlList[s_Type_index].second_control_name}}</text>
           <image style='width: 30rpx;height: 30rpx;' src='../../images/icons/arrow-down.png'></image>
         </picker>
-        <view wx:else>改主控下暂无从控，请先返回添加</view>
+        <view wx:else>改主控下暂无从控，请先返回添加 {{SecondControlList.length}}</view>
       </view>
     </view>
      <view class='addItemWrap' wx:if='{{addType == 4}}'>
@@ -171,6 +171,7 @@ page{
      <!-- <text wx:if='{{addType == 3}}' style='color: #999;'>请确保所需选择的主控、从控已经添加！</text> -->
 
     <button type='warn' class='addBt' @tap='SureAdd'>确认添加</button>
+    <toast/>
   </view>
 </template>
 
@@ -267,9 +268,11 @@ page{
       m_Type_index (curVal, oldVal) {
         console.log('m_Type_index新值--------------')
         console.log(curVal)
-        const Info = this.getSecondControlList(this.MasterControlList[curVal].main_control_code)
-        this.SecondControlList = Info
-        this.$apply()
+        this.userInfoAsync(this.MasterControlList[curVal].main_control_code)
+        // const Info = await this.getSecondControlList(this.MasterControlList[curVal].main_control_code)
+        // this.SecondControlList = Info
+        // this.$apply()
+        console.log(this.SecondControlList)
         console.log(this.SecondControlList.length)
         // this.SecondControlList = this.getSecondControlList(this.MasterControlList[curVal].main_control_code)
         // console.log(typeof (this.getSecondControlList(this.MasterControlList[curVal].main_control_code)).length)
@@ -388,7 +391,7 @@ page{
             this.addSingleProduct()
             break
           case '3':
-            console.log('1---------------')
+            console.log('3---------------')
             this.addSecondControl(1) // 1-有下挂设备
             break
           case '4':
@@ -642,7 +645,10 @@ page{
       })
     }
     addSingleProduct () {
-      if (this.singleProduct_Name.trim() === '' || this.singleProduct_Code.trim() === '') {
+      console.log('单品----------')
+      console.log(this.singleProduct_Name)
+      if (!this.singleProduct_Name || this.singleProduct_Name.trim() === '' || !this.singleProduct_Code || this.singleProduct_Code.trim() === '') {
+        console.log('单品11----------')
         this.$invoke('toast', 'show', {
           title: '请输入单品名称或单品码！',
           img: '../../images/icons/attention.png'
@@ -870,6 +876,10 @@ page{
           this.secondControl_Name = options.defaultName
           this.getEQType()
           this.GetIconList()
+          this.$apply()
+          break
+        case '3':
+          this.secondControl_Name = options.defaultName
           this.$apply()
           break
         case '2':

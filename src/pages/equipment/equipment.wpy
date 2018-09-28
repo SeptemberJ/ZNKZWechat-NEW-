@@ -133,7 +133,7 @@ page{
       addEquipmentHW () {
         this.$navigate('./brand')
       },
-      editEQ (EQID, RoomId, EQName, Equipment) {
+      editEQ (EQID, RoomId, EQName, Equipment) { // 0-主控 1-从控无下挂 3-从控有下挂 2-单品 4-三级设备
         if (Equipment.master_control) {  // 三级设备
           this.$navigate('./edit?addType=4&id=' + EQID + '&houseId=' + RoomId + '&oldName=' + EQName + '&WholeInfo=' + JSON.stringify(Equipment))
         } else {  // 单品

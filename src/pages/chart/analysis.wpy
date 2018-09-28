@@ -66,7 +66,7 @@
   </view>
   <view>
     <view wx:if="{{ifHasData}}" class='DataList'>
-      <view class='DataItem' wx:for="{{dataList}}" wx:for-index="DataIdx" wx:for-item="Data" wx:key="DataIdx" data-kind='{{Data.kind}}'  data-datavalue='{{Data.value}}' bindtap='ToDetail'>
+      <view class='DataItem' wx:for="{{dataList}}" wx:for-index="DataIdx" wx:for-item="Data" wx:key="DataIdx" data-kind='{{Data.kindI}}' data-kindmy='{{Data.kind}}'  data-datavalue='{{Data.value}}' bindtap='ToDetail'>
         <view class='leftBox'>
           <image src='{{Data.img}}'></image>
         </view>
@@ -113,16 +113,17 @@
     data = {
       ifHasData: false,
       EquipmentName: '',
+      EqCode: '',
       EquipmentId: '',
       dataList: [
-        {'kindI': 'pm25', 'kind': 'PM2.5', 'value': '', 'img': '../../images/icons/pm2.5.png', 'unit': 'μg/m³'},
-        {'kindI': 'pm100', 'kind': 'PM10', 'value': '', 'img': '../../images/icons/pm10.png', 'unit': 'μg/m³'},
-        {'kindI': 'co2', 'kind': 'CO2', 'value': '', 'img': '../../images/icons/co2.png', 'unit': 'ppm'},
-        {'kindI': 'co', 'kind': 'CO', 'value': '', 'img': '../../images/icons/CO.png', 'unit': 'ppm'},
-        {'kindI': 'formaldehyde', 'kind': '甲醛', 'value': '', 'img': '../../images/icons/HCHO.png', 'unit': 'ppm'},
-        {'kindI': 'temperature', 'kind': '温度', 'value': '', 'img': '../../images/icons/temperature.png', 'unit': '°C'},
-        {'kindI': 'humidity', 'kind': '湿度', 'value': '', 'img': '../../images/icons/humidity.png', 'unit': '%RH'},
-        {'kindI': 'voc', 'kind': 'VOCs', 'value': '', 'img': '../../images/icons/steamer.png', 'unit': ''}
+        {'kindI': 'pm25', 'kind': 'PM2.5', 'value': '--', 'img': '../../images/icons/pm2.5.png', 'unit': 'μg/m³'},
+        {'kindI': 'pm100', 'kind': 'PM10', 'value': '--', 'img': '../../images/icons/pm10.png', 'unit': 'μg/m³'},
+        {'kindI': 'co2', 'kind': 'CO2', 'value': '--', 'img': '../../images/icons/co2.png', 'unit': 'ppm'},
+        {'kindI': 'co', 'kind': 'CO', 'value': '--', 'img': '../../images/icons/CO.png', 'unit': 'ppm'},
+        {'kindI': 'formaldehyde', 'kind': '甲醛', 'value': '--', 'img': '../../images/icons/HCHO.png', 'unit': 'ppm'},
+        {'kindI': 'temperature', 'kind': '温度', 'value': '--', 'img': '../../images/icons/temperature.png', 'unit': '°C'},
+        {'kindI': 'humidity', 'kind': '湿度', 'value': '--', 'img': '../../images/icons/humidity.png', 'unit': '%RH'},
+        {'kindI': 'voc', 'kind': 'VOCs', 'value': '--', 'img': '../../images/icons/steamer.png', 'unit': ''}
       ]
     }
 
@@ -133,12 +134,14 @@
       ToDetail (e) {
         let Info = {
           Kind: e.currentTarget.dataset.kind,
+          KindMy: e.currentTarget.dataset.kindmy,
           EquipmentId: this.EquipmentId,
+          EqCode: this.EqCode,
           EquipmentName: this.EquipmentName,
           Data: e.currentTarget.dataset.datavalue
         }
         wepy.setStorage({
-          key: "equipmentInfo",
+          key: 'equipmentInfo',
           data: Info
         })
         wepy.navigateTo({
@@ -150,16 +153,15 @@
     // self fn
 
     // 获取当前监测数据
-    GetCurData (ID) {
+    GetCurData (EqCode) {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/hair_current?device_id=' + ID,//  + 00123456,
+          url: this.urlPre + '/hair_current?device_id=' + EqCode, //  + 00123456,
           // url: 'https://jingshangs.com/zk_hky/selectnoqrcode?qrcodeid=24A4F45E-06FE-49B8-A7D9-7B29EF74948B',
           method: 'GET'
         }).then((res) => {
           switch (res.data.result.code) {
             case 1:
-              
               if (res.data.result.hair) {
                 let temp = this.dataList.slice(0)
                 temp.map((item, idx) => {
@@ -182,7 +184,7 @@
                     case 'temperature':
                       item.value = res.data.result.hair.temperature
                       break
-                     case 'humidity':
+                    case 'humidity':
                       item.value = res.data.result.hair.humidity
                       break
                     case 'voc':
@@ -227,10 +229,11 @@
     onLoad (options) {
       this.EquipmentId = options.eqId
       this.EquipmentName = options.eqName
+      this.EqCode = options.EqCode
       this.$apply()
     }
     onShow () {
-      this.GetCurData(this.EquipmentId)
+      this.GetCurData(this.EqCode)
     }
   }
 </script>

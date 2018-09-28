@@ -400,11 +400,11 @@ page{
         <image src="{{eqItem.device_img}}"></image>
         <text class='equipment_name' @tap="toControlPanel({{eqItem.default_device_type}})">{{eqItem.device_name}}</text>
         <image @tap="moveHouse({{eqItem.device_name}}, {{eqItem.id}})" style="margin-right: 10rpx;" src="../images/icons/move-up.png"></image>
-        <image wx:if="{{eqItem.default_device_type == 'HAir(有线)' && eqItem.device_config ==='1'}}" @tap="seeData({{eqItem.device_name}}, {{eqItem.id}})" style="margin-right: 10rpx;" src="{{eqItem.device_status == 0 ? '../images/icons/AnalysisBlue.png' : '../images/icons/AnalysisGray.png'}}"></image>
+        <image wx:if="{{eqItem.default_device_type == 'HAir(有线)'}}" @tap="seeData({{eqItem.device_name}}, {{eqItem.id}}, {{eqItem.device_code}})" style="margin-right: 10rpx;" src="{{eqItem.device_status == 0 ? '../images/icons/AnalysisBlue.png' : '../images/icons/AnalysisGray.png'}}"></image>
         <!-- 0 OK 1 未连接 2 链接中端 3 测量点不对 {{eqItem.device_status==='0'?'online':'offline'}}-->
         <text wx:if="{{eqItem.main_control_code == ''}}" class="{{eqItem.device_status==='0'?'equipment_status active':'equipment_status'}}">{{eqItem.device_status==='0'?'online':'offline'}}</text>
 
-        <text wx:if="{{eqItem.main_control_code != ''}}"  @tap="OperationToggle({{eqItem}})" class="{{eqItem.device_status==='0' && eqItem.device_config ==='1'?'equipment_status active':'equipment_status'}}">{{eqItem.device_config ==='1'? (eqItem.device_status==='0'?'online':'offline') : '配置'}}</text>
+        <text wx:if="{{eqItem.main_control_code != ''}}"  @tap="OperationToggle({{eqItem}})" class="{{eqItem.device_status==='0'?'equipment_status active':'equipment_status'}}">{{eqItem.device_status==='0'?'online':'offline'}}</text>
 
       </view>
     </view>
@@ -512,12 +512,15 @@ page{
         })
       },
       OperationToggle (eqItem) {
-        if (eqItem.device_config !== '1') {
-          this.EqConfig(eqItem)
-        } else {
-          this.EqPlay(eqItem.main_control_code)
-        }
+        this.EqConfig(eqItem)
       },
+      // OperationToggle (eqItem) {
+      //   if (eqItem.device_config !== '1') {
+      //     this.EqConfig(eqItem)
+      //   } else {
+      //     this.EqPlay(eqItem.main_control_code)
+      //   }
+      // },
       // 设备搬家
       moveHouse (Name, Id) {
         wepy.navigateTo({
@@ -528,9 +531,9 @@ page{
         // })
       },
       // 查看数据
-      seeData (EQName, EQId) {
+      seeData (EQName, EQId, EQCode) {
         wepy.navigateTo({
-          url: './chart/analysis?eqName=' + EQName + '&eqId=' + EQId
+          url: './chart/analysis?eqName=' + EQName + '&eqId=' + EQId + '&EqCode=' + EQCode
         })
       }
     }
@@ -602,11 +605,8 @@ page{
           switch (res.data.code) {
             case 1:
               wepy.hideLoading()
-              // wepy.showToast({
-              //   title: '切换成功!',
-              //   icon: 'success'
-              // })
-              this.UpdateConfigStatus(eqItem.id, eqItem.main_control_code)
+              this.EqPlay(eqItem, sendCurCns)
+              // this.UpdateConfigStatus(eqItem.id, eqItem.main_control_code)
               resolve(res)
               break
             case 0:
@@ -633,21 +633,22 @@ page{
         })
       })
     }
-    async EqPlay (MasterCode) {
-      var sendCurCns = await this.getCurCNS(MasterCode)
+    async EqPlay (eqItem, sendCurCns) {
+      // var sendCurCns = await this.getCurCNS(eqItem.main_control_code)
       wepy.showLoading({
         title: '加载中'
       })
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/payload?topic=' + MasterCode + '/ConfigAck&sequence_number=' + sendCurCns,
+          url: this.urlPre + '/payload?topic=' + eqItem.main_control_code + '/ConfigAck&sequence_number=' + sendCurCns,
           method: 'GET'
         }).then((res) => {
+          console.log(res)
           switch (res.data.result.code) {
             case 1:
               wepy.hideLoading()
-              console.log(res.data.result.payload.payload)
-              console.log(res.data.result.payload.payload === 'sendCurCns')
+              // console.log(res.data.result.payload.payload)
+              // console.log(res.data.result.payload.payload === 'sendCurCns')
               // if (res.data.result.payload.payload === 'sendCurCns') {
               //   wepy.showToast({
               //     title: '指令匹配!',
@@ -659,20 +660,21 @@ page{
               //     img: '../../images/icons/attention.png'
               //   })
               // }
+              this.UpdateConfigStatus(eqItem.id, eqItem.main_control_code)
               resolve(res)
               break
             case 0:
               wepy.hideLoading()
               this.$invoke('toast', 'show', {
-                title: '服务器繁忙！',
-                img: '../../images/icons/attention.png'
+                title: res.data.result.message,
+                img: '../images/icons/attention.png'
               })
               break
             default:
               wepy.hideLoading()
               this.$invoke('toast', 'show', {
                 title: '服务器繁忙！',
-                img: '../../images/icons/attention.png'
+                img: '../images/icons/attention.png'
               })
           }
         }).catch((res) => {
@@ -680,7 +682,7 @@ page{
           wepy.hideLoading()
           this.$invoke('toast', 'show', {
             title: '服务器繁忙！',
-            img: '../../images/icons/attention.png'
+            img: '../images/icons/attention.png'
           })
         })
       })
@@ -772,6 +774,7 @@ page{
       return new Promise((resolve, reject) => {
         wepy.request({
           url: 'https://jingshangs.com/hky_JK/selecttemperature',
+          // url: 'http://205.168.1.121:8085/selecttemperature',
           data: {
             latitude: 31.87165,
             longitude: 121.18179
@@ -786,19 +789,19 @@ page{
               break
             case 0:
               wepy.showToast({
-                image: '../images/icon/attention.png',
+                image: '../images/icons/attention.png',
                 title: '获取空气信息失败'
               })
               break
             default:
               wepy.showToast({
-                image: '../images/icon/attention.png',
+                image: '../images/icons/attention.png',
                 title: '服务器繁忙！'
               })
           }
         }).catch((res) => {
           wepy.showToast({
-            image: '../images/icon/attention.png',
+            image: '../images/icons/attention.png',
             title: '服务器繁忙！'
           })
           console.log(res)

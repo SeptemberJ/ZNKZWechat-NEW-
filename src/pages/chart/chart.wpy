@@ -224,7 +224,7 @@ page{
     return new Promise((resolve, reject) => {
       wepy.getStorage({
         key: 'equipmentInfo'
-      }).then((res) => {
+      }).then((RES) => {
         // let DATA = {
         //   day: Day,
         //   qrcodeid: res.data.EquipmentId,
@@ -233,7 +233,7 @@ page{
         return new Promise((resolve, reject) => {
           wepy.request({
             // url: URL + '/hair?device_id=00123456&type=humidity&hh=12',
-            url: URL + '/hair?device_id=' + res.data.EquipmentId + '&type=' + res.data.Kind + '&hh=' + Day,
+            url: URL + '/hair?device_id=' + RES.data.EqCode + '&type=' + RES.data.Kind + '&hh=' + Day,
             // url: 'https://jingshangs.com/zk_hky/selectnoqrcode1',
             method: 'GET'
           }).then((res) => {
@@ -241,8 +241,9 @@ page{
               case 1:
               let dataArray = []
               res.data.result.hairList.map((item) => {
-                dataArray.push([item.faddtime, item.humidity])
+                dataArray.push([item.faddtime, item[RES.data.Kind]])
               })
+              console.log(dataArray)
                 const option = {
                   title: {
                     text: ''
@@ -272,6 +273,7 @@ page{
                   series: {
                     name: '',
                     type: 'line',
+                    symbol: "none",
                     data: dataArray.map(function (item) {
                       return item[1]
                     }),
@@ -510,12 +512,19 @@ page{
     events = {
     }
 
+humidity
+pm25
+pm100
+formaldehyde
+voc
+co2
+co
     onLoad(options) {
       return new Promise((resolve, reject) => {
         wepy.getStorage({
           key: 'equipmentInfo'
         }).then((res) => {
-          switch (res.data.Kind) {
+          switch (res.data.KindMy) {
             case 'PM2.5':
               this.CurUnit = 'μg/m³'
               this.$apply()

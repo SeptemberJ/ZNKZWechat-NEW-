@@ -115,7 +115,7 @@ page{
       </view>
      </view> -->
 
-     <view class='addItemWrap' wx:if="{{addType == 2}}">
+     <view class='addItemWrap' wx:if="{{addType == 4}}">
        <view class='addItem'>
         <text>设备名称</text>
         <input @input="changeEuqipment_Name" type="text" name="设备名称" value="{{euqipment_Name}}" />
@@ -166,7 +166,7 @@ page{
     mixins = [testMixin]
 
     data = {
-      addType: 3, // 0-主控 1-从控 2-单品 3-设备
+      addType: 0, // 0-主控 1-从控无下挂 3-从控有下挂 2-单品 4-三级设备
       modifyId: null,
       secondControltype: null,
       TypeList: [],
@@ -223,7 +223,7 @@ page{
       },
       SureAdd () {
         console.log(this.addType)
-        // dosomething
+        // 0-主控 1-从控无下挂 3-从控有下挂 2-单品 4-三级设备
         switch (this.addType) {
           case '0':
             console.log('0---------------')
@@ -237,9 +237,13 @@ page{
             console.log('2---------------')
             this.modifySingleProduction()
             break
+          case '4':
+            console.log('4---------------')
+            this.modifyEQ()
+            break
           case '3':
             console.log('3---------------')
-            this.modifyEQ()
+            this.modifySecondControl()
             break
         }
       }
@@ -606,20 +610,29 @@ page{
       this.modifyId = options.id
       this.$apply()
       switch (options.addType) {
-        case '0':
+        case '0': // 0-主控
           this.masterControl_Name = options.oldName
           this.$apply()
           break
-        case '1':
+        case '1': // 1-从控无下挂
           this.secondControl_Name = options.oldName
           this.$apply()
           break
-        case '2':
+        case '4':  // 4-三级设备
+          this.euqipment_Name = options.oldName
+          this.$apply()
+          break
+        case '2':  // 单品
           this.houseId = options.houseId
           this.euqipment_Name = options.oldName
           this.$apply()
           break
-        case '3':
+        case '3':  // 3-从控有下挂
+          this.houseId = options.houseId
+          this.secondControl_Name = options.oldName
+          this.$apply()
+          break
+        case '3-':
           this.houseId = options.houseId
           this.euqipment_Name = options.oldName
           let WholeInfo = JSON.parse(options.WholeInfo)
