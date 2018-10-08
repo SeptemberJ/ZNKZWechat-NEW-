@@ -123,12 +123,12 @@ page{
     <!-- equpiment -->
     <view class='addItemWrap' wx:if='{{addType == 4}}'>
       <view class='addItem'>
-        <text>选择从控{{SecondControlList.length}}=</text>
+        <text>选择从控</text>
         <picker wx:if='{{SecondControlList.length > 0}}' bindchange='bindPickerChangeTypeS' value='{{s_Type_index}}' range-key='second_control_name' range='{{SecondControlList}}'>
           <text>{{SecondControlList[s_Type_index].second_control_name}}</text>
           <image style='width: 30rpx;height: 30rpx;' src='../../images/icons/arrow-down.png'></image>
         </picker>
-        <view wx:else>改主控下暂无从控，请先返回添加 {{SecondControlList.length}}</view>
+        <view wx:else>改主控下暂无从控，请先返回添加</view>
       </view>
     </view>
      <view class='addItemWrap' wx:if='{{addType == 4}}'>
@@ -595,6 +595,13 @@ page{
         })
         return false
       }
+      if (!this.curRoom && Type === 0) {
+        this.$invoke('toast', 'show', {
+          title: '请先添加房间！',
+          img: '../../images/icons/attention.png'
+        })
+        return false
+      }
       wepy.showLoading({
         title: '加载中'
       })
@@ -651,6 +658,13 @@ page{
         console.log('单品11----------')
         this.$invoke('toast', 'show', {
           title: '请输入单品名称或单品码！',
+          img: '../../images/icons/attention.png'
+        })
+        return false
+      }
+      if (!this.curRoom) {
+        this.$invoke('toast', 'show', {
+          title: '请先添加房间！',
           img: '../../images/icons/attention.png'
         })
         return false
@@ -791,6 +805,13 @@ page{
       if (this.euqipment_Name.trim() === '' || this.euqipment_Code.trim() === '') {
         this.$invoke('toast', 'show', {
           title: '请输入设备名称或设备码！',
+          img: '../../images/icons/attention.png'
+        })
+        return false
+      }
+      if (!this.curRoom) {
+        this.$invoke('toast', 'show', {
+          title: '请先添加房间！',
           img: '../../images/icons/attention.png'
         })
         return false

@@ -198,10 +198,15 @@ export default class extends wepy.app {
 
   onLaunch() {
     console.log('onLaunch-------------')
-    wepy.getSystemInfo({
-      success: (res) => {
+    return new Promise((resolve, reject) => {
+      wepy.getSystemInfo({
+      }).then((res) => {
         this.globalData.width = res.windowWidth
-      }
+        console.log(res)
+        resolve(res)
+      }).catch((res) => {
+        console.log(res)
+      })
     })
     // this.userInfoAsync()
   }

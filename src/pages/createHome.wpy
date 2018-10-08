@@ -78,8 +78,11 @@ page{
     </view>
     <view class='createHome_item border_top'>
       <text>家庭位置</text>
-      <text class='longText' @tap="getLocation">{{homeAddress?homeAddress:'选择家地址'}}</text>
-      <image src='../images/icons/address.png' @tap="getLocation"></image>
+      <input class='longText' @input="changeHomeAddress" value="{{homeAddress}}" placeholder="填写家地址"/ >
+      <image wx-if="{{authored}}" src='../images/icons/address.png' @tap="chooseAddress"></image>
+      <button wx-if="{{!authored}}" open-type="openSetting" bindopensetting="chooseAddress" style="background:#fff;border: 0px;">
+        <image src='../images/icons/address.png'></image>
+      </button>
     </view>
 
     <view class='createHome_columnTit'>
@@ -135,6 +138,7 @@ page{
     mixins = [testMixin]
 
     data = {
+      authored: false,
       createFrom: 1,
       homeName: '',
       homeAddress: null
@@ -157,18 +161,12 @@ page{
         this.homeName = e.detail.value
         this.$apply()
       },
-      getLocation () {
-        return new Promise((resolve, reject) => {
-          wepy.chooseLocation({
-          }).then((res) => {
-            console.log(res)
-            this.homeAddress = res.address
-            this.$apply()
-            resolve(res)
-          }).catch((res) => {
-            console.log(res)
-          })
-        })
+      changeHomeAddress (e) {
+        this.homeAddress = e.detail.value
+        this.$apply()
+      },
+      chooseAddress () {
+        this.getLocation()
       },
       changeChoosed (e) {
         let Idx = e.currentTarget.dataset.idx
@@ -450,6 +448,39 @@ page{
         })
       })
     }
+    // 再次地理位置授权
+    authoration () {
+      return new Promise((resolve, reject) => {
+        wepy.getSetting({
+        }).then((res) => {
+          console.log('getSetting...', res)
+          if (res.authSetting['scope.userLocation'] === true) {
+            this.authored = true
+            this.$apply()
+            console.log('用户已开启定位授权')
+          } else {
+            this.getLocation()
+          }
+          resolve(res)
+        }).catch((res) => {
+          console.log(res)
+        })
+      })
+    }
+
+    getLocation () {
+      return new Promise((resolve, reject) => {
+        wepy.chooseLocation({
+        }).then((res) => {
+          console.log(res)
+          this.homeAddress = res.address
+          this.$apply()
+          resolve(res)
+        }).catch((res) => {
+          console.log(res)
+        })
+      })
+    }
 
     events = {
     }
@@ -458,6 +489,7 @@ page{
       // 0-初次创建 1-列表页创建
       this.getDefaultRoomList()
       this.createFrom = options.createFrom
+      this.authoration()
     }
   }
 </script>

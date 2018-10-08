@@ -114,7 +114,7 @@ page{
 
     <view class='itemBar'>
       <text>家庭位置</text>
-      <text  class='incidentalText'>{{homeAddress}}</text>
+      <text  class='incidentalText' @tap="modifyHomeAddress">{{homeAddress}}</text>
       <image wx:if="{{curHome.isCreater}}" @tap="modifyHomeAddress" src="../../images/icons/arrow-right.png"></image>
     </view>
 

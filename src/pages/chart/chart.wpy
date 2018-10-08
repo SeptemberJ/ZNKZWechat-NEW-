@@ -73,6 +73,9 @@ page{
     width: 100%;
     height: 750rpx;
   }
+  canvas {
+    width: 100% !important;
+  }
 }
 </style>
 <template>
@@ -92,7 +95,7 @@ page{
       </view>
       <view style="width:100%;height:700rpx;">
         <view style="width:100%;height:700rpx;" hidden="{{ifShowChart}}">
-          <ec-canvas id="mychart-dom-bar" canvas-id="mychart-bar" ec="{{ ec }}"></ec-canvas>
+          <ec-canvas style="width:750rpx;" id="mychart-dom-bar" canvas-id="mychart-bar" ec="{{ ec }}"></ec-canvas>
         </view>
       </view>
       <toast/>
@@ -230,6 +233,17 @@ page{
         //   qrcodeid: res.data.EquipmentId,
         //   kind: res.data.Kind
         // }
+        
+        // 码倒叙
+        // let EqCode = RES.data.EqCode
+        // let len = EqCode.length
+        // let count = len/2
+        // let arr = []
+        // for(let i = 0;i<count;i++){
+        //   arr.push(EqCode[i*2]+EqCode[i*2 + 1])
+        // }
+        // let reverseId = arr.reverse().map(item => {return item}).join('')
+
         return new Promise((resolve, reject) => {
           wepy.request({
             // url: URL + '/hair?device_id=00123456&type=humidity&hh=12',
@@ -239,11 +253,11 @@ page{
           }).then((res) => {
             switch (res.data.result.code) {
               case 1:
-              let dataArray = []
-              res.data.result.hairList.map((item) => {
-                dataArray.push([item.faddtime, item[RES.data.Kind]])
-              })
-              console.log(dataArray)
+                let dataArray = []
+                res.data.result.hairList.reverse().map((item) => {
+                  dataArray.push([item.faddtime, item[RES.data.Kind]])
+                })
+                console.log(dataArray)
                 const option = {
                   title: {
                     text: ''
@@ -273,7 +287,7 @@ page{
                   series: {
                     name: '',
                     type: 'line',
-                    symbol: "none",
+                    symbol: 'none',
                     data: dataArray.map(function (item) {
                       return item[1]
                     }),
@@ -281,7 +295,11 @@ page{
                       silent: true,
                       data: []
                     }
+                  },
+                  grid: {
+                    left: 45
                   }
+
                 }
                 chart.setOption(option)
                 wepy.hideLoading()
@@ -331,6 +349,8 @@ page{
   export default class My extends wepy.page {
     config = {
       navigationBarTitleText: '控制面板',
+      enablePullDownRefresh: true,
+      backgroundTextStyle: 'dark',
       usingComponents: {
         'ec-canvas': '../../ec-canvasyl/ec-canvas'
       }
@@ -408,11 +428,13 @@ page{
     // self fn
     init (Day) {
       console.log('in init----------------')
+      let _THIS = this
       ecComponent.init((canvas) => {
         // 获取组件的 canvas、width、height 后的回调函数
         // 在这里初始化图表
-        const chart = echarts.init(canvas, '320', {
-          width: '320',
+        console.log(this.$parent.globalData)
+        const chart = echarts.init(canvas, '', {
+          width: this.$parent.globalData.width,
           height: '324'
           // width: width ? width : app.globalData.width,
           // height: height ? height : app.globalData.width,
@@ -511,14 +533,6 @@ page{
 
     events = {
     }
-
-humidity
-pm25
-pm100
-formaldehyde
-voc
-co2
-co
     onLoad(options) {
       return new Promise((resolve, reject) => {
         wepy.getStorage({
@@ -568,13 +582,24 @@ co
         console.log(res)
       })
     }
+    onPullDownRefresh() {
+      console.log('下拉刷新列表')
+      // 5秒模拟数据加载
+      this.ifShowChart = false
+      this.$apply()
+      this.init(this.TabMenu[this.CurTab])
 
+      setTimeout(function () {
+      // 不加这个方法真机下拉会一直处于刷新状态，无法复位
+      wepy.stopPullDownRefresh()
+      }, 1000)
+    }
     onShow () {
       let _this = this
       setTimeout(() => {
         _this.ifShowChart = false
         _this.$apply()
-        _this.init(7)
+        _this.init(6)
       }, 500)
     }
     onReady() {

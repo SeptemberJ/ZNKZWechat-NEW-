@@ -124,13 +124,13 @@ page{
         </view>
       </view>
       <!--ArrowDown  -->
-      <view wx:if="{{ifShowChart && showArrow}}" class='ArrowDown'>
+      <!-- <view wx:if="{{ifShowChart && showArrow}}" class='ArrowDown'>
         <image @tap='showChart' src='../../images/icons/double-arrow-down.png'></image>
-      </view>
+      </view> -->
         <!--ArrowUp  -->
-      <view wx:if="{{!ifShowChart && showArrow}}" class='ArrowUp'>
+      <!-- <view wx:if="{{!ifShowChart && showArrow}}" class='ArrowUp'>
         <image @tap='hideChart'  src='../../images/icons/double-arrow-down.png'></image>
-      </view>
+      </view> -->
       <toast/>
     </view>
 </template>
