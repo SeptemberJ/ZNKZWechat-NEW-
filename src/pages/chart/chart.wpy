@@ -366,6 +366,7 @@ page{
       CurNumber: '',
       CurUnit: '',
       EquipmentName: '',
+      hasData: true,
       ec: {
         // onInit: this.init
         // lazyLoad: true
