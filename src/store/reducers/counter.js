@@ -155,7 +155,7 @@ export default handleActions({
 }, {
   num: 0,
   asyncNum: 0,
-  // urlPre: 'http://205.168.1.106:8081/hoxJK', // 'http://192.168.10.174:8081', // 'http://205.168.1.100:8083', 
+  // urlPre: 'http://205.168.1.122:8081/hoxJK', // 'http://192.168.10.174:8081', // 'http://205.168.1.100:8083', 
   urlPre: 'http://www.smart-hox.com:8081/hoxJK',
   userInfo:{
     nickName: '', // '留白'

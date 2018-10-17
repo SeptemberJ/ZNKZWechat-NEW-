@@ -70,7 +70,7 @@ page{
       <toast/>
     </view>
     <view class='addBtTwo'>
-      <view class='addBtItem' style="background: #3498db" @tap="addEquipmentNoraml">添加无线设备</view>
+      <!-- <view class='addBtItem' style="background: #3498db" @tap="addEquipmentNoraml">添加无线设备</view> -->
       <view class='addBtItem' style="background: #d4237a" @tap="addEquipmentHW">添加红外设备</view>
     </view>
   </view>

@@ -66,7 +66,7 @@ page{
     <view class="roomList">
       <view class='itemBar' wx:for-items="{{roomList}}" wx:for-item="roomItem" wx:key="roomIdx" wx:for-index="roomIdx">
         <text>{{roomItem.house_name}}</text>
-        <image @tap="editRoom({{roomItem.id}}, {{roomItem.house_name}})" src="../../images/icons/edit.png"></image>
+        <image @tap="editRoom({{roomItem.id}}, {{roomItem.house_name}})" src="../../images/icons/editor-line.png"></image>
         <image @tap="deleteRoom({{roomItem.id}}, {{roomItem.register_id}})" src="../../images/icons/delete.png"></image>
       </view>
     </view>
@@ -134,7 +134,7 @@ page{
         return new Promise((resolve, reject) => {
           wepy.showModal({
             title: '提示',
-            content: '确定删除改房间?'
+            content: '该操作会将该房间下的所有设备一起删除，确定删除?'
           }).then((res) => {
             if (res.confirm) {
               console.log('用户点击确定')

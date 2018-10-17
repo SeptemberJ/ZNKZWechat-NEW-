@@ -233,7 +233,6 @@ page{
         //   qrcodeid: res.data.EquipmentId,
         //   kind: res.data.Kind
         // }
-        
         // 码倒叙
         // let EqCode = RES.data.EqCode
         // let len = EqCode.length
@@ -591,8 +590,8 @@ page{
       this.init(this.TabMenu[this.CurTab])
 
       setTimeout(function () {
-      // 不加这个方法真机下拉会一直处于刷新状态，无法复位
-      wepy.stopPullDownRefresh()
+        // 不加这个方法真机下拉会一直处于刷新状态，无法复位
+        wepy.stopPullDownRefresh()
       }, 1000)
     }
     onShow () {
