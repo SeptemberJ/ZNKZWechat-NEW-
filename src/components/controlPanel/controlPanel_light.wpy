@@ -33,7 +33,8 @@ page{
 </style>
 <template>
   <view class='controlPanel'>
-    <text class="Light {{isFocus?'focus': 'blur'}}" @tap="ToggleSwitch">OFF</text>
+    <text class="Light {{isFocus?'focus': 'blur'}}" @tap="OperationToggle">{{switchStatusCur == null ? switchStatusInit : (switchStatusCur == '0' ? '关' : '开')}}</text>
+    <!-- <text class="Light {{isFocus?'focus': 'blur'}}" @tap="OperationToggle">{{switchStatusInit}}</text> -->
   </view>
 </template>
 
@@ -51,89 +52,106 @@ page{
   }, {
   })
 
-  export default class ModifyModal extends wepy.component {
-    // props = {
-    //   modifyType: {
-    //     type: Number,
-    //     default: 0   // 0-家名称 1-家地址 2-房间名称
-    //   },
-    //   modifyTit: {
-    //     type: String
-    //   },
-    //   newModifyContent: {
-    //     twoWay: true
-    //   },
-    //   houseId: {
-    //     twoWay: true
-    //   },
-    //   ifShow: {
-    //     twoWay: true
-    //   }
-    // }
+  export default class Light extends wepy.component {
+    props = {
+      // switchStatusInit: {
+      //   twoWay: true
+      // }
+    }
 
     data = {
-      isFocus: false
-
+      isFocus: false,
+      switchStatusCur: null,
+      timer: '',
+      switchStatusInit: ''
     }
 
-    components = {
+    computed = {
+      switchStatusInit () {
+        if (this.$parent.data.controlEqItem.device_status) {
+          // debugger
+          // console.log('switchStatusInit---' + (this.$parent.data.controlEqItem.device_status.toString() === '0'))
+          // console.log('switchStatusInit current' + this.$parent.data.controlEqItem.device_status)
+          // (this.$parent.data.controlEqItem.device_status == '0' ? '关' : '开')
+          // console.log('this.$parent变了')
+          // console.log(this.$parent.data.controlEqItem.device_status)
+          console.log('switchStatusInit---')
+          console.log(this.$parent.data.controlEqItem.device_status)
+          console.log(this.$parent.data.controlEqItem.device_status == '0' ? '关' : '开')
+          return (this.$parent.data.controlEqItem.device_status.toString() == '0' ? '关' : '开')
+        }
+      }
     }
-
-    methods = {
-      ToggleSwitch () {
-        this.isFocus = true
-        this.$apply()
-        const innerAudioContext = wepy.createInnerAudioContext()
-        innerAudioContext.autoplay = true
-        innerAudioContext.src = 'https://jingshangs.com/upload/ON.mp3'
-        innerAudioContext.onPlay(() => {
-          console.log('播放')
-        })
-        innerAudioContext.onError((res) => {
-          console.log(res)
-        })
-        wepy.showModal({
-          title: '提示',
-          content: '设备不在线！',
-          showCancel: false,
-          success: (res) => {
-          }
-        })
-        setTimeout(() => {
-          this.isFocus = false
-          this.$apply()
-        }, 300)
+    watch = {
+      switchStatusCur (newValue, oldValue) {
+          console.log(`switchStatusCur: ${oldValue} -> ${newValue}`)
       }
     }
 
+    methods = {
+      OperationToggle () {
+        wepy.showLoading({
+          title: '加载中'
+        })
+        // let eqItem = this.$parent.data.controlEqItem
+        // console.log(this.$parent.data.controlEqItem.device_status)
+        // debugger
+        if (this.$parent.data.controlEqItem.device_config === '1') {
+          this.SwitchConfig(this.$parent.data.controlEqItem)
+        } else {
+          this.EqConfig('switch', this.$parent.data.controlEqItem)
+        }
+      }
+      // ToggleSwitch () {
+      //   this.isFocus = true
+      //   this.$apply()
+      //   const innerAudioContext = wepy.createInnerAudioContext()
+      //   innerAudioContext.autoplay = true
+      //   innerAudioContext.src = 'https://jingshangs.com/upload/ON.mp3'
+      //   innerAudioContext.onPlay(() => {
+      //     console.log('播放')
+      //   })
+      //   innerAudioContext.onError((res) => {
+      //     console.log(res)
+      //   })
+      //   wepy.showModal({
+      //     title: '提示',
+      //     content: '设备不在线！',
+      //     showCancel: false,
+      //     success: (res) => {
+      //     }
+      //   })
+      //   setTimeout(() => {
+      //     this.isFocus = false
+      //     this.$apply()
+      //   }, 300)
+      // }
+    }
+
     // self fn
-    modifyRoomName () {
-      console.log('修改房间名称--------------------')
+    // 命令序号
+    getCurCNS (MasterCode) {
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: encodeURI(this.urlPre + '/house?id=' + this.houseId + '&house_name=' + this.$parent.newModifyContent + '&home_id=' + this.curHome.home_id),
-          data: {
-          },
-          method: 'PUT',
-          header: {
-            'content-type': 'application/json' // 默认值
-          }
+          url: this.urlPre + '/deviceSequence?main_control_code=' + MasterCode,
+          method: 'GET'
         }).then((res) => {
           switch (res.data.code) {
             case 1:
+              resolve(res.data.sequence_number)
+              break
+            case 0:
               wepy.hideLoading()
-              wepy.showToast({
-                title: '修改成功!',
-                icon: 'success'
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
               })
-              this.$emit('refreshHouseInfo-emit')
-              resolve(res)
               break
             default:
               wepy.hideLoading()
               this.$invoke('toast', 'show', {
-                title: '修改失败！',
-                img: '../images/icons/attention.png'
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
               })
           }
         }).catch((res) => {
@@ -141,7 +159,177 @@ page{
           wepy.hideLoading()
           this.$invoke('toast', 'show', {
             title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    // 配置
+    async EqConfig (type, eqItem) {
+      var sendCurCns = await this.getCurCNS(eqItem.main_control_code)
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/deviceConfig?main_control_id=' + eqItem.main_control_code + '&sequence_number=' + sendCurCns + '&home_id=' + this.curHome.home_id,
+          method: 'GET'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              setTimeout(() => { this.EqPlay(type, eqItem, sendCurCns, 'ConfigAck', '') }, 3000)
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    async EqPlay (type, eqItem, sendCurCns, topic, switchStatus) {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/payload?topic=' + eqItem.main_control_code + '/' + topic + '&sequence_number=' + sendCurCns + '&device_status=' + switchStatus + '&id=' + eqItem.id,
+          method: 'GET'
+        }).then((res) => {
+          switch (res.data.result.code) {
+            case 1:
+              if (switchStatus === '') { // 配置完去更新
+                this.UpdateConfigStatus(type, eqItem)
+              } else { // 开关操作
+                // 页面上更新开关状态
+                if (res.data.result.payload === '00') {
+                  clearInterval(this.timer)
+                  this.$parent.data.controlEqItem.device_status = switchStatus
+                  this.$parent.$apply()
+                  this.switchStatusCur = switchStatus
+                  this.$apply()
+                  wepy.hideLoading()
+                } else {
+                  wepy.hideLoading()
+                  this.$invoke('toast', 'show', {
+                    title: res.data.result.result,
+                    img: '../images/icons/attention.png'
+                  })
+                }
+              }
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: res.data.result.message,
+                img: '../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙11！',
+                img: '../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙22！',
             img: '../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    async UpdateConfigStatus (type, eqItem) {
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/deviceConfig?id=' + eqItem.id + '&device_config=1' + '&main_control_code=' + eqItem.main_control_code,
+          method: 'PUT'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '调试成功!',
+                icon: 'success'
+              })
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    // 开关
+    async SwitchConfig (eqItem) {
+      console.log(eqItem.device_status.toString() === '0' ? '00000000' : '447a0000')
+      var sendCurCns = await this.getCurCNS(eqItem.main_control_code)
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/deviceControl?main_control_code=' + eqItem.main_control_code + '&sequence_number=' + sendCurCns + '&deivce_code=' + eqItem.device_code + '&control_type=01' + '&control_number=01' + '&control_data=' + (eqItem.device_status.toString() === '0' ? '00000000' : '447a0000'),
+          method: 'GET'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              // setTimeout(() => { this.EqPlay('switch', eqItem, sendCurCns, 'ControlAck', eqItem.device_status.toString() === '0' ? 1 : 0) }, 3000)
+              this.timer = setInterval(() => {
+                this.EqPlay('switch', eqItem, sendCurCns, 'ControlAck', eqItem.device_status === '0' ? 1 : 0)
+              }, 1000)
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙！',
+            img: '../../images/icons/attention.png'
           })
         })
       })

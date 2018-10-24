@@ -23,9 +23,10 @@ page{
       border-radius: 10rpx;
       z-index: 99;
       background: #fff;
+      padding-top: 40rpx;
       .modalMain{
         width: e("calc(100% - 40rpx)");
-        padding: 20rpx 20rpx 0rpx 20rpx;
+        padding: 0rpx 20rpx 0rpx 20rpx;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -36,21 +37,26 @@ page{
           line-height: 20rpx;
           font-size: 34rpx;
           text-align: center;
+          font-weight: bold;
+          border-bottom: 1px solid #eee;
         }
         .addItem{
-          width: 100%;
+          width: 98%;
           height: 80rpx;
           display: flex;
           justify-content: flex-start;
           align-items: center;
           .labelTit{
             width: 200rpx;
+            font-weight: bold;
+            color: #333;
           }
           input[disabled]{color:#999;opacity:1;border-bottom: 0px;};
           input{
             width: e("calc(100% - 0rpx)");
             padding: 0 10rpx;
-            border-bottom: 1px solid #efefef;
+            border-bottom: 0px solid #efefef;
+            text-align: right;
           }
           image{
             width: 50rpx;
@@ -72,6 +78,7 @@ page{
         justify-content: center;
         align-items: center;
         margin-top: 20rpx;
+        border-top: 1px solid #eee;
         .Bt{
           width: 50%;
           height: 70rpx;
@@ -104,13 +111,19 @@ page{
       <text class='addTit'>修改{{modifyTit}}</text>
       <!-- masterControl -->
       <view class='addItem'>
-        <text class='labelTit'>{{modifyTit}}</text>
+        <text class='labelTit'>{{modifyTit}}：</text>
         <input @input="changeInputHomeName" wx:if="{{modifyType == 0}}" type="text" name="新名称" value="{{newHomeName}}" />
         <input @input="changeInputRoomName" wx:if="{{modifyType == 2}}" type="text" name="新名称" value="{{newRoomName}}" />
         <!-- <input @input="changeInput" wx:if="{{modifyType != 1}}" type="text" name="新名称" disabled="{{modifyType != 0}}" value="{{newModifyContent}}" /> -->
-        <view @tap="chooseAddress" wx:if="{{modifyType == 1}}" style="display: flex;flex-grow: 1;justify-content: flex-end;">
-          <input @input="changeInputHomeAddress" type="text" name="新名称" value="{{newHomeAddress}}"/>
-          <image class='chooseAddress' src='../images/icons/address.png'></image>
+        <!-- <view @tap="chooseAddress" wx:if="{{modifyType == 1}}" style="display: flex;flex-grow: 1;justify-content: flex-end;"> -->
+        <view wx:if="{{modifyType == 1}}" style="display: flex;flex-grow: 1;justify-content: flex-end;">
+          <picker mode="region" bindchange="bindRegionChange" value="{{region}}" custom-item="{{customItem}}" style="width: 100%;text-align: right;">
+            <view class="picker">
+              {{newHomeAddress}}
+            </view>
+          </picker>
+          <!-- <input @input="changeInputHomeAddress" type="text" name="新名称" value="{{newHomeAddress}}"/>
+          <image class='chooseAddress' src='../images/icons/address.png'></image> -->
         </view>
       </view>
     </view>
@@ -161,7 +174,9 @@ page{
       modifyTit: '',
       newHomeName: '',
       newRoomName: '',
-      newHomeAddress: ''
+      newHomeAddress: '',
+      region: ['', '', ''],
+      customItem: ''
       // newModifyContent: ''
     }
     watch = {
@@ -187,6 +202,10 @@ page{
       },
       changeInputRoomName (e) {
         this.newRoomName = e.detail.value
+        this.$apply()
+      },
+      bindRegionChange (e) {
+        this.newHomeAddress = e.detail.value[0] + e.detail.value[1] + e.detail.value[2]
         this.$apply()
       },
       changeInputHomeAddress (e) {

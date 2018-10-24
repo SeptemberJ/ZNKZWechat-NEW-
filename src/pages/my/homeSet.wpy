@@ -103,7 +103,7 @@ page{
 
     <view class='itemBar'>
       <text>家庭名称</text>
-      <text class='incidentalText'>{{homeName}}</text>
+      <text class='incidentalText' @tap="modifyHomeName">{{homeName}}</text>
       <image wx:if="{{curHome.isCreater}}"  @tap="modifyHomeName" src="../../images/icons/arrow-right.png"></image>
     </view>
     <view class='itemBar'>

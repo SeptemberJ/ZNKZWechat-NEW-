@@ -74,15 +74,20 @@ page{
   <view class='createHome'>
     <view class='createHome_item'>
       <text>家庭名称</text>
-      <input @input="changeHomeName" type="text" name="homeName" placeholder="填写家庭名称" value="{{homeName}}" style="width: calc(100% - 200rpx)"/>
+      <input @input="changeHomeName" type="text" name="homeName" placeholder="填写家庭名称" value="{{homeName}}" style="width: 100%;text-align: right;"/>
     </view>
     <view class='createHome_item border_top'>
       <text>家庭位置</text>
-      <input class='longText' @input="changeHomeAddress" value="{{homeAddress}}" placeholder="填写家地址"/ >
+      <picker mode="region" bindchange="bindRegionChange" value="{{region}}" custom-item="{{customItem}}" style="width: 100%;text-align: right;">
+        <view class="picker">
+          {{homeAddress}}
+        </view>
+      </picker>
+      <!-- <input class='longText' @input="changeHomeAddress" value="{{homeAddress}}" placeholder="填写家地址"/ >
       <image wx-if="{{authored}}" src='../images/icons/address.png' @tap="chooseAddress"></image>
       <button wx-if="{{!authored}}" open-type="openSetting" bindopensetting="chooseAddress" style="background:#fff;border: 0px;">
         <image src='../images/icons/address.png'></image>
-      </button>
+      </button> -->
     </view>
 
     <view class='createHome_columnTit'>
@@ -141,7 +146,9 @@ page{
       authored: false,
       createFrom: 1,
       homeName: '',
-      homeAddress: null
+      homeAddress: '请选择',
+      region: ['', '', ''],
+      customItem: ''
     }
 
     computed = {
@@ -159,6 +166,10 @@ page{
     methods = {
       changeHomeName (e) {
         this.homeName = e.detail.value
+        this.$apply()
+      },
+      bindRegionChange (e) {
+        this.homeAddress = e.detail.value[0] + e.detail.value[1] + e.detail.value[2]
         this.$apply()
       },
       changeHomeAddress (e) {
@@ -189,7 +200,7 @@ page{
           })
           return false
         }
-        if (!this.homeAddress || this.homeAddress.trim() === '') {
+        if (this.homeAddress === '请选择' || this.homeAddress.trim() === '') {
           this.$invoke('toast', 'show', {
             title: '请选择家的地址！',
             img: '../images/icons/attention.png'

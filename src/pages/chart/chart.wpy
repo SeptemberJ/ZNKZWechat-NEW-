@@ -250,10 +250,10 @@ page{
             // url: 'https://jingshangs.com/zk_hky/selectnoqrcode1',
             method: 'GET'
           }).then((res) => {
-            switch (res.data.result.code) {
+            switch (res.data.code) {
               case 1:
                 let dataArray = []
-                res.data.result.hairList.reverse().map((item) => {
+                res.data.hairList.reverse().map((item) => {
                   dataArray.push([item.faddtime, item[RES.data.Kind]])
                 })
                 console.log(dataArray)

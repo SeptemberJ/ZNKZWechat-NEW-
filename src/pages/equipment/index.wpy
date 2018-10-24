@@ -63,8 +63,9 @@ page{
         padding: 0 20rpx;
       }
       image{
-        width: 50rpx;
-        height: 50rpx;
+        width: 60rpx;
+        height: 60rpx;
+        border-radius: 50%;
       }
     }
   }
@@ -97,8 +98,9 @@ page{
     </view>
     
     <view class="listBlock">
-      <view class="listItem" @tap="toAdd({{addItem.deviceDescibe}}, {{addItem.devcieType}},{{addItem.deviceTypeName}}, {{addItem.devcieTypePic}})" wx:for-items="{{list}}" wx:for-item="addItem" wx:key="Idx" wx:for-index="Idx">
-        <image src="{{addItem.devcieTypePic}}"></image>
+      <view class="listItem" @tap="toAdd({{addItem.deviceDescibe}}, {{addItem.devcieType}},{{addItem.deviceTypeName}}, {{addItem.devcieTypePic}}, {{addItem.id}})" wx:for-items="{{list}}" wx:for-item="addItem" wx:key="Idx" wx:for-index="Idx">
+        <image src="{{'http://www.smart-hox.com:8083/upFiles/' + addItem.devcieTypePic}}"></image>
+        <!-- <image src="{{'http://www.smart-hox.com:8083/upFiles/' + addItem.devcieTypePic}}"></image> -->
         <text>{{addItem.deviceDescibe}}</text>
         <image src="../../images/icons/arrow-right.png"></image>
       </view>
@@ -165,8 +167,8 @@ page{
       getMasterControlList () {
         console.log('in getMasterControlList----------------')
       },
-      toAdd (defaultName, addType, type, img) {
-        this.$navigate('./add?addType=' + addType + '&type=' + type + '&defaultName=' + defaultName + '&img=' + img)
+      toAdd (defaultName, addType, type, img, id) {
+        this.$navigate('./add?addType=' + addType + '&type=' + type + '&defaultName=' + defaultName + '&img=' + img + '&id=' + id)
       },
       toMasterControl () {
         this.$navigate('./masterControl')
@@ -189,7 +191,12 @@ page{
           url: this.urlPre + '/deviceType',
           method: 'GET'
         }).then((res) => {
-          this.list = res.data.deviceTypeList.data
+          var reg = /\\/g
+          this.list = res.data.deviceTypeList.data.map((item) => {
+            let tempSrc = item.devcieTypePic.replace(reg, "/")
+            item.devcieTypePic = tempSrc
+            return  item
+          })
           this.$apply()
           wepy.hideLoading()
           resolve(res)

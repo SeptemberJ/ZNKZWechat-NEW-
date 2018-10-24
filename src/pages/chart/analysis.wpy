@@ -154,41 +154,44 @@
 
     // 获取当前监测数据
     GetCurData (EqCode) {
+      wepy.showLoading({
+        title: '加载中'
+      })
       return new Promise((resolve, reject) => {
         wepy.request({
           url: this.urlPre + '/hair_current?device_id=' + EqCode, //  + 00123456,
           // url: 'https://jingshangs.com/zk_hky/selectnoqrcode?qrcodeid=24A4F45E-06FE-49B8-A7D9-7B29EF74948B',
           method: 'GET'
         }).then((res) => {
-          switch (res.data.result.code) {
+          switch (res.data.code) {
             case 1:
-              if (res.data.result.hair) {
+              if (res.data.hair) {
                 let temp = this.dataList.slice(0)
                 temp.map((item, idx) => {
                   switch (item.kindI) {
                     case 'pm25':
-                      item.value = res.data.result.hair.pm25
+                      item.value = res.data.hair.pm25
                       break
                     case 'pm100':
-                      item.value = res.data.result.hair.pm100
+                      item.value = res.data.hair.pm100
                       break
                     case 'co2':
-                      item.value = res.data.result.hair.co2
+                      item.value = res.data.hair.co2
                       break
                     case 'co':
-                      item.value = res.data.result.hair.co
+                      item.value = res.data.hair.co
                       break
                     case 'formaldehyde':
-                      item.value = res.data.result.hair.formaldehyde
+                      item.value = res.data.hair.formaldehyde
                       break
                     case 'temperature':
-                      item.value = res.data.result.hair.temperature
+                      item.value = res.data.hair.temperature
                       break
                     case 'humidity':
-                      item.value = res.data.result.hair.humidity
+                      item.value = res.data.hair.humidity
                       break
                     case 'voc':
-                      item.value = res.data.result.hair.voc
+                      item.value = res.data.hair.voc
                       break
                   }
                 })

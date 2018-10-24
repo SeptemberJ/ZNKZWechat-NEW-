@@ -272,10 +272,11 @@ page{
 
     data = {
       // canvasId: 'mychart-pie',
-      ec: {
-        onInit: this.init
-        // lazyLoad: true
-      },
+      // ec: {
+      //   onInit: this.init
+      //   // lazyLoad: true
+      // },
+      controlEqItem: {},
       addType: 3,
       showIntroduction: false,
       ifAdd: false,
@@ -291,7 +292,11 @@ page{
       TabMenu: ['日', '周', '月', '年']
     }
 
-    computed = {
+    watch = {
+      controlEqItem (newValue, oldValue) {
+        console.log(`newValue value-------------` + newValue.device_status)
+        console.log(`oldValue value-------------` + oldValue.device_status)
+      }
     }
 
     methods = {
@@ -359,7 +364,8 @@ page{
     }
 
     onLoad(options) {
-      this.eqType = options.eqType
+      this.controlEqItem = JSON.parse(options.eqItem)
+      this.eqType = options.eqItem.default_device_type
       this.controlCode = options.ControlCode
       if (options.sourceFrom !== 'debugging') {
         this.showArrow = true
@@ -370,7 +376,6 @@ page{
       // 获取组件
       ecComponent = this.$wxpage.selectComponent('#mychart-dom-bar')
       this.$apply()
-      console.log(this.$wxpage.selectComponent('#mychart-dom-bar'))
     }
   }
 </script>

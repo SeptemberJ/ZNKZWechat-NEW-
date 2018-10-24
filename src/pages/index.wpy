@@ -254,6 +254,13 @@ page{
         }
         &_status{
           width:100rpx;
+          text-align: center;
+        }
+        .switchBt{
+          padding: 10rpx 5rpx;
+          background: #3498db;
+          color: #fff;
+          border-radius: 8rpx;
         }
       }
       .empty{
@@ -396,15 +403,19 @@ page{
     <!-- equipment -->
     <view class='equipmentList'>
       <Empty :tipTitle.sync="tipTitle" wx:if="{{equipmentList.length == 0 || roomList.length == 0}}"></Empty>
-      <view class='equipment' wx:if="{{equipmentList.length > 0 && roomList.length > 0}}" wx:for-items="{{equipmentList}}" wx:for-item="eqItem" wx:key="roomIdx" wx:for-index="roomIdx">
+      <view class='equipment' wx:if="{{equipmentList.length > 0 && roomList.length > 0}}" wx:for-items="{{equipmentList}}" wx:for-item="eqItem" wx:key="eqIdx" wx:for-index="eqIdx">
         <image src="{{eqItem.device_img != ''? eqItem.device_img : '../images/icons/singleProduction.png'}}"></image>
-        <text class='equipment_name' @tap="toControlPanel({{eqItem.default_device_type}})">{{eqItem.device_name}}</text>
+        <text class='equipment_name' @tap="toControlPanel({{eqItem}})">{{eqItem.device_name}}</text>
         <image @tap="moveHouse({{eqItem.device_name}}, {{eqItem.id}})" style="margin-right: 10rpx;" src="../images/icons/move-up.png"></image>
         <image wx:if="{{eqItem.default_device_type == 'HAir(有线)'}}" @tap="seeData({{eqItem}}, {{eqItem.device_name}}, {{eqItem.id}}, {{eqItem.device_code}}, {{eqItem.device_config}})" style="margin-right: 10rpx;" src="{{eqItem.device_status == 0 ? '../images/icons/AnalysisBlue.png' : '../images/icons/AnalysisGray.png'}}"></image>
         <!-- 0 OK 1 未连接 2 链接中端 3 测量点不对 {{eqItem.device_status==='0'?'online':'offline'}}-->
-        <text wx:if="{{eqItem.main_control_code == ''}}" class="{{eqItem.device_status==='0'?'equipment_status active':'equipment_status'}}">{{eqItem.device_status==='0'?'online':'offline'}}</text>
+        <!-- 不在线 统一offLine -->
+        <text wx:if="{{eqItem.type == 0}}" class="equipment_status">offline</text>
+        <!-- 在线 分可不可开关-->
+        <text wx:if="{{eqItem.main_control_code != '' && eqItem.type == 1 && eqItem.default_device_type == 'lamp'}}"  @tap="OperationToggle({{eqItem}}, {{eqIdx}})" class="{{eqItem.device_status==='0'?'equipment_status active switchBt':'equipment_status switchBt'}}">{{eqItem.device_status == 0 ? 'OFF' : 'ON'}}</text>
+        <text wx:if="{{eqItem.main_control_code != '' && eqItem.type == 1 && eqItem.default_device_type != 'lamp'}}" class="equipment_status active">online</text>
 
-        <text wx:if="{{eqItem.main_control_code != ''}}"  @tap="OperationToggle({{eqItem}})" class="{{eqItem.device_status==='0'?'equipment_status active':'equipment_status'}}">{{eqItem.device_status==='0'?'online':'offline'}}</text>
+        <!-- <text wx:if="{{eqItem.main_control_code != ''}}"  @tap="OperationToggle({{eqItem}})" class="{{eqItem.device_status==='0'?'equipment_status active':'equipment_status'}}">{{eqItem.device_status==='0'?'online':'offline'}}</text> -->
 
       </view>
     </view>
@@ -466,6 +477,7 @@ page{
     mixins = [testMixin]
 
     data = {
+      timer: '',
       tipTitle: '暂无设备，请添加',
       airQuality: null,
       Toggle_show: 0,  // 0初始 1展开 -1关闭
@@ -506,29 +518,34 @@ page{
           url: './room/roomManage'
         })
       },
-      toControlPanel (TYPE) {
-        wepy.navigateTo({
-          url: './control/index?eqType=' + TYPE
-        })
+      toControlPanel (eqItem) {
+
+        // if (eqItem.default_device_type === 'HAir(有线)') {
+        //   return false
+        // }
+        // wepy.navigateTo({
+        //   url: './control/index?eqItem=' + JSON.stringify(eqItem)
+        // })
+        // wepy.setStorage({
+        //   key:"controlEqItem",
+        //   data:eqItem
+        // }).then((res) => {
+        // }).catch((res) => {
+        //   console.log(res)
+        // })
       },
-      OperationToggle (eqItem) {
-        this.EqConfig(eqItem)
+      OperationToggle (eqItem, eqIdx) {
+        if (eqItem.device_config === '1') {
+          this.SwitchConfig(eqItem, eqIdx)
+        } else {
+          this.EqConfig('switch', eqItem, eqIdx)
+        }
       },
-      // OperationToggle (eqItem) {
-      //   if (eqItem.device_config !== '1') {
-      //     this.EqConfig(eqItem)
-      //   } else {
-      //     this.EqPlay(eqItem.main_control_code)
-      //   }
-      // },
       // 设备搬家
       moveHouse (Name, Id) {
         wepy.navigateTo({
           url: './eqMoveHouse?eqName=' + Name + '&eqId=' + Id
         })
-        // wepy.navigateTo({
-        //   url: './eqMoveHouse?eqName=' + Name + '&eqId=' = Id
-        // })
       },
       // 查看数据
       seeData (EQItem, EQName, EQId, EQCode, DeviceConfig) {
@@ -537,7 +554,7 @@ page{
             url: './chart/analysis?eqName=' + EQName + '&eqId=' + EQId + '&EqCode=' + EQCode
           })
         } else {
-          this.EqConfig(EQItem)
+          this.EqConfig('chart', EQItem)
         }
       }
     }
@@ -596,22 +613,200 @@ page{
 
       return nex + pre
     }
-    async EqConfig (eqItem) {
+    // 配置
+    async EqConfig (type, eqItem, eqIdx) {
       var sendCurCns = await this.getCurCNS(eqItem.main_control_code)
       wepy.showLoading({
         title: '加载中'
       })
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/deviceConfig?main_control_id=' + eqItem.main_control_code + '&second_control_id=00123456' + '&sequence_number=' + sendCurCns + '&measure_point=08&control_point=00&qty=01',
-          // url: this.urlPre + '/deviceConfig?main_control_id=' + eqItem.main_control_code + '&second_control_id=' + eqItem.device_code + '&sequence_number=' + sendCurCns + '&measure_point=08&control_point=00&qty=01',
+          url: this.urlPre + '/deviceConfig?main_control_id=' + eqItem.main_control_code + '&sequence_number=' + sendCurCns + '&home_id=' + this.curHome.home_id,
+          // url: this.urlPre + '/deviceConfig?main_control_id=' + eqItem.main_control_code + '&second_control_id=00123456' + '&sequence_number=' + sendCurCns + '&measure_point=08&control_point=00&qty=01',
           method: 'GET'
         }).then((res) => {
           switch (res.data.code) {
             case 1:
+              // wepy.hideLoading()
+              // var t1 = setInterval(this.EqPlay(eqItem, sendCurCns, t1), 1000)
+              setTimeout(() => { this.EqPlay(type, eqItem, sendCurCns, 'ConfigAck', '', eqIdx) }, 3000)
+              // this.UpdateConfigStatus(eqItem.id, eqItem.main_control_code)
+              resolve(res)
+              break
+            case 0:
               wepy.hideLoading()
-              this.EqPlay(eqItem, sendCurCns)
-              this.UpdateConfigStatus(eqItem.id, eqItem.main_control_code)
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙1！',
+                img: '../../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙2！',
+                img: '../../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙3！',
+            img: '../../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    async EqPlay (type, eqItem, sendCurCns, topic, switchStatus, eqIdx) {
+      wepy.showLoading({
+        title: '加载中'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/payload?topic=' + eqItem.main_control_code + '/' + topic + '&sequence_number=' + sendCurCns + '&device_status=' + switchStatus + '&id=' + eqItem.id,
+          method: 'GET'
+        }).then((res) => {
+          console.log(res)
+          switch (res.data.result.code) {
+            case 1:
+              wepy.hideLoading()
+              if (switchStatus === '') { // 配置完去更新
+                this.UpdateConfigStatus(type, eqItem, eqIdx)
+              } else { // 开关操作
+                // 页面上更新开关状态
+                if (res.data.result.payload === '00') {
+                  clearInterval(this.timer)
+                  this.getRoomEQ(this.roomList[this.CurRoomIndex].id)
+                  // this.equipmentList[eqIdx].device_status = switchStatus
+                  // this.$apply()
+                } else {
+                  this.$invoke('toast', 'show', {
+                    title: res.data.result.result,
+                    img: '../images/icons/attention.png'
+                  })
+                }
+              }
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: res.data.result.message,
+                img: '../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙11！',
+                img: '../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙22！',
+            img: '../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    async EqPlay0 (type, eqItem, sendCurCns, topic, switchStatus, eqIdx) {
+      console.log(type)
+      console.log(eqIdx)
+      debugger
+      // var sendCurCns = await this.getCurCNS(eqItem.main_control_code)
+      wepy.showLoading({
+        title: '加载中'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/payload?topic=' + eqItem.main_control_code + '/' + topic + '&sequence_number=' + sendCurCns + '&device_status=' + switchStatus,
+          method: 'GET'
+        }).then((res) => {
+          console.log(res)
+          switch (res.data.result.code) {
+            case 1:
+              wepy.hideLoading()
+              if (type !== 'switch') {
+                console.log('不是开关去更新--------')
+                this.UpdateConfigStatus(type, eqItem, eqIdx)
+              } else {
+                if (switchStatus === '' ) { // 配置
+                  console.log('配置-------------------')
+                  debugger
+                  this.UpdateConfigStatus(type, eqItem, eqIdx)
+                  // this.SwitchConfig(eqItem, eqIdx)
+                } else {
+                  // 页面上更新开关状态
+                  if (res.data.result.payload === '00') {
+                    debugger
+                    this.UpdateConfigStatus(type, eqItem)
+                    // console.log(this.equipmentList[eqIdx])
+                    // debugger
+                    // this.equipmentList[eqIdx].device_status = switchStatus
+                    // this.$apply()
+                  } else {
+                    this.$invoke('toast', 'show', {
+                      title: res.data.result.result,
+                      img: '../images/icons/attention.png'
+                    })
+                  }
+                }
+              }
+              resolve(res)
+              break
+            case 0:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: res.data.result.message,
+                img: '../images/icons/attention.png'
+              })
+              break
+            default:
+              wepy.hideLoading()
+              this.$invoke('toast', 'show', {
+                title: '服务器繁忙11！',
+                img: '../images/icons/attention.png'
+              })
+          }
+        }).catch((res) => {
+          console.log(res)
+          wepy.hideLoading()
+          this.$invoke('toast', 'show', {
+            title: '服务器繁忙22！',
+            img: '../images/icons/attention.png'
+          })
+        })
+      })
+    }
+    async UpdateConfigStatus (type, eqItem, eqIdx) {
+      wepy.showLoading({
+        title: '加载中'
+      })
+      return new Promise((resolve, reject) => {
+        wepy.request({
+          url: this.urlPre + '/deviceConfig?id=' + eqItem.id + '&device_config=1' + '&main_control_code=' + eqItem.main_control_code,
+          method: 'PUT'
+        }).then((res) => {
+          switch (res.data.code) {
+            case 1:
+              wepy.hideLoading()
+              wepy.showToast({
+                title: '调试成功!',
+                icon: 'success'
+              })
+              // 图表类配置成功跳转图表
+              if (type === 'chart') {
+                wepy.navigateTo({
+                  url: './chart/analysis?eqName=' + eqItem.device_name + '&eqId=' + eqItem.id + '&EqCode=' + eqItem.device_code
+                })
+                this.getRoomEQ(this.roomList[this.CurRoomIndex].id)
+              }
+              if (type === 'switch') {
+                this.getRoomEQ(this.roomList[this.CurRoomIndex].id, 'switch', eqItem, eqIdx)
+              }
               resolve(res)
               break
             case 0:
@@ -638,77 +833,23 @@ page{
         })
       })
     }
-    async EqPlay (eqItem, sendCurCns) {
-      // var sendCurCns = await this.getCurCNS(eqItem.main_control_code)
+    // 开关
+    async SwitchConfig (eqItem, eqIdx) {
+      var sendCurCns = await this.getCurCNS(eqItem.main_control_code)
       wepy.showLoading({
         title: '加载中'
       })
       return new Promise((resolve, reject) => {
         wepy.request({
-          url: this.urlPre + '/payload?topic=' + eqItem.main_control_code + '/ConfigAck&sequence_number=' + sendCurCns,
+          url: this.urlPre + '/deviceControl?main_control_code=' + eqItem.main_control_code + '&sequence_number=' + sendCurCns + '&deivce_code=' + eqItem.device_code + '&control_type=01' + '&control_number=01' + '&control_data=' + (eqItem.device_status === '0' ? '00000000' : '447a0000'),
           method: 'GET'
-        }).then((res) => {
-          console.log(res)
-          switch (res.data.result.code) {
-            case 1:
-              wepy.hideLoading()
-              // console.log(res.data.result.payload.payload)
-              // console.log(res.data.result.payload.payload === 'sendCurCns')
-              // if (res.data.result.payload.payload === 'sendCurCns') {
-              //   wepy.showToast({
-              //     title: '指令匹配!',
-              //     icon: 'success'
-              //   })
-              // } else {
-              //   this.$invoke('toast', 'show', {
-              //     title: '指令不匹配!',
-              //     img: '../../images/icons/attention.png'
-              //   })
-              // }
-              this.UpdateConfigStatus(eqItem.id, eqItem.main_control_code)
-              resolve(res)
-              break
-            case 0:
-              wepy.hideLoading()
-              this.$invoke('toast', 'show', {
-                title: res.data.result.message,
-                img: '../images/icons/attention.png'
-              })
-              break
-            default:
-              wepy.hideLoading()
-              this.$invoke('toast', 'show', {
-                title: '服务器繁忙！',
-                img: '../images/icons/attention.png'
-              })
-          }
-        }).catch((res) => {
-          console.log(res)
-          wepy.hideLoading()
-          this.$invoke('toast', 'show', {
-            title: '服务器繁忙！',
-            img: '../images/icons/attention.png'
-          })
-        })
-      })
-    }
-    UpdateConfigStatus (EQID, MasterCode) {
-      wepy.showLoading({
-        title: '加载中'
-      })
-      return new Promise((resolve, reject) => {
-        wepy.request({
-          url: this.urlPre + '/deviceConfig?id=' + EQID + '&device_config=1' + '&main_control_code=' + MasterCode,
-          method: 'PUT'
         }).then((res) => {
           switch (res.data.code) {
             case 1:
-              wepy.hideLoading()
-              wepy.showToast({
-                title: '调试成功!',
-                icon: 'success'
-              })
-              this.getRoomEQ(this.roomList[this.CurRoomIndex].id)
+              // setTimeout(() => { this.EqPlay('switch', eqItem, sendCurCns, 'ControlAck', eqItem.device_status === '0' ? 1 : 0, eqIdx) }, 3000)
+              this.timer = setInterval(() => {
+                this.EqPlay('switch', eqItem, sendCurCns, 'ControlAck', eqItem.device_status === '0' ? 1 : 0, eqIdx)
+              }, 1000)
               resolve(res)
               break
             case 0:
@@ -841,7 +982,7 @@ page{
       })
     }
     // 房间下设备列表
-    getRoomEQ (RoomId) {
+    getRoomEQ (RoomId, type, eqItem, eqIdx) {
       wepy.showLoading({
         title: '加载中...'
       })
@@ -853,6 +994,9 @@ page{
           this.equipmentList = res.data.deviceHouseList
           wepy.hideLoading()
           this.$apply()
+           if (type === 'switch') {
+              this.SwitchConfig(eqItem, eqIdx)
+            }
           resolve(res.data.deviceHouseList)
         }).catch((res) => {
           console.log(res)
