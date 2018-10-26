@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions'
-import { INCREMENT, DECREMENT, ASYNC_INCREMENT,WXUSERINFO, CHANGEADDROOMLIST, CHANGESCENEINFO, CHANGEAUTOMATIONINFO, UPDATEHOMELIST, UPDATECURHOME, UPDATECURROOMLIST, UPDATECURROOM } from '../types/counter'
+import { INCREMENT, DECREMENT, ASYNC_INCREMENT, SWITCHSTATUS, WXUSERINFO, CHANGEADDROOMLIST, CHANGESCENEINFO, CHANGEAUTOMATIONINFO, UPDATEHOMELIST, UPDATECURHOME, UPDATECURROOMLIST, UPDATECURROOM } from '../types/counter'
 
 export default handleActions({
   // 创建场景的信息
@@ -151,11 +151,17 @@ export default handleActions({
       ...state,
       asyncNum: state.asyncNum + action.payload
     }
+  },
+  [SWITCHSTATUS] (state, action) {
+    return {
+      ...state,
+      switchStatus: action.payload
+    }
   }
 }, {
   num: 0,
   asyncNum: 0,
-  // urlPre: 'http://205.168.1.122:8081/hoxJK', // 'http://192.168.10.174:8081', // 'http://205.168.1.100:8083', 
+  // urlPre: 'http://205.168.1.104:8081/hoxJK', // 'http://192.168.10.174:8081', // 'http://205.168.1.100:8083', 
   urlPre: 'http://www.smart-hox.com:8081/hoxJK',
   userInfo:{
     nickName: '', // '留白'
@@ -182,6 +188,7 @@ export default handleActions({
   homeList: [],
   roomList: [],
   CurHomeRole: 1,  //1-管理员 0-家庭成员 3-体验者
+  switchStatus: null,
   // RoomIconList: [], // 房间icon
   // SceneIconList: [],// 场景icon
   SceneInfo: {         // 某个场景详情
@@ -202,5 +209,6 @@ export default handleActions({
     ConditionList: [],
     ActionList: []
   },
-  curCns: 1 // 命令序号
+  curCns: 1 // 命令序号,
+  //switchStatus: null
 })

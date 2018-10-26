@@ -434,7 +434,7 @@ page{
   import Toast from 'wepy-com-toast'
   import testMixin from '../mixins/test'
   import Empty from '../components/empty'
-  import { updateCurRoomList, updateCurRoom, updateCurHome } from '../store/actions'
+  import { updateCurRoomList, updateCurRoom, updateCurHome, updateSwitchStatus } from '../store/actions'
 
   @connect({
     homeList (state) {
@@ -455,7 +455,8 @@ page{
   }, {
     updateCurRoomList,
     updateCurRoom,
-    updateCurHome
+    updateCurHome,
+    updateSwitchStatus
   })
 
   export default class Index extends wepy.page {
@@ -519,15 +520,15 @@ page{
         })
       },
       toControlPanel (eqItem) {
-
-        // if (eqItem.default_device_type === 'HAir(有线)') {
-        //   return false
-        // }
-        // wepy.navigateTo({
-        //   url: './control/index?eqItem=' + JSON.stringify(eqItem)
-        // })
+        if (eqItem.default_device_type === 'HAir(有线)') {
+          return false
+        }
+        wepy.navigateTo({
+          url: './control/index?eqItem=' + JSON.stringify(eqItem)
+        })
+        this.methods.updateSwitchStatus(eqItem.device_status)
         // wepy.setStorage({
-        //   key:"controlEqItem",
+        //   key: 'controlEqItem',
         //   data:eqItem
         // }).then((res) => {
         // }).catch((res) => {
@@ -676,9 +677,11 @@ page{
                 // 页面上更新开关状态
                 if (res.data.result.payload === '00') {
                   clearInterval(this.timer)
-                  this.getRoomEQ(this.roomList[this.CurRoomIndex].id)
-                  // this.equipmentList[eqIdx].device_status = switchStatus
-                  // this.$apply()
+                  // this.getRoomEQ(this.roomList[this.CurRoomIndex].id)
+                  this.equipmentList[eqIdx].device_status = switchStatus
+                  this.$apply()
+                  // console.log('switchStatus---' + switchStatus)
+                  // console.log('switchStatus---' + this.equipmentList[eqIdx].device_status)
                 } else {
                   this.$invoke('toast', 'show', {
                     title: res.data.result.result,
@@ -733,9 +736,8 @@ page{
                 console.log('不是开关去更新--------')
                 this.UpdateConfigStatus(type, eqItem, eqIdx)
               } else {
-                if (switchStatus === '' ) { // 配置
+                if (switchStatus === '') { // 配置
                   console.log('配置-------------------')
-                  debugger
                   this.UpdateConfigStatus(type, eqItem, eqIdx)
                   // this.SwitchConfig(eqItem, eqIdx)
                 } else {
@@ -848,7 +850,7 @@ page{
             case 1:
               // setTimeout(() => { this.EqPlay('switch', eqItem, sendCurCns, 'ControlAck', eqItem.device_status === '0' ? 1 : 0, eqIdx) }, 3000)
               this.timer = setInterval(() => {
-                this.EqPlay('switch', eqItem, sendCurCns, 'ControlAck', eqItem.device_status === '0' ? 1 : 0, eqIdx)
+                this.EqPlay('switch', eqItem, sendCurCns, 'ControlAck', eqItem.device_status.toString() === '0' ? 1 : 0, eqIdx)
               }, 1000)
               resolve(res)
               break
@@ -964,7 +966,6 @@ page{
           url: this.urlPre + '/house?home_id=' + HOMEID,
           method: 'GET'
         }).then((res) => {
-          wepy.hideLoading()
           this.methods.updateCurRoomList(res.data.houseList)
           this.methods.updateCurRoom(res.data.houseList[0])
           if (res.data.houseList.length > 0) {
@@ -994,9 +995,9 @@ page{
           this.equipmentList = res.data.deviceHouseList
           wepy.hideLoading()
           this.$apply()
-           if (type === 'switch') {
-              this.SwitchConfig(eqItem, eqIdx)
-            }
+          if (type === 'switch') {
+            this.SwitchConfig(eqItem, eqIdx)
+          }
           resolve(res.data.deviceHouseList)
         }).catch((res) => {
           console.log(res)

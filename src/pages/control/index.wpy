@@ -1,6 +1,7 @@
 <style lang="less">
 page{
-  background-image: linear-gradient(to right, #e4afcb 0%, #b8cbb8 0%, #b8cbb8 0%, #e2c58b 30%, #c2ce9c 64%, #7edbdc 100%);
+  background: #efefef;
+  /*background-image: linear-gradient(to right, #e4afcb 0%, #b8cbb8 0%, #b8cbb8 0%, #e2c58b 30%, #c2ce9c 64%, #7edbdc 100%);*/
   .controlWrap{
     width: 100%;
     margin: 0 auto;
@@ -111,7 +112,7 @@ page{
       <button @tap="dispose">释放图表</button> -->
 
       <!-- 单独开关 -->
-      <controlPanelLight wx:if="{{ifShowChart && eqType != 'aircondition'}}"></controlPanelLight>
+      <controlPanelLight :switchStatusInit="switchStatusInit" wx:if="{{ifShowChart && eqType != 'aircondition'}}"></controlPanelLight>
       <!-- 空调 -->
       <controlPanelAirCondition  wx:if="{{ifShowChart && eqType == 'aircondition'}}"></controlPanelAirCondition>
 

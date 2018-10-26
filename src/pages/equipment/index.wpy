@@ -193,9 +193,9 @@ page{
         }).then((res) => {
           var reg = /\\/g
           this.list = res.data.deviceTypeList.data.map((item) => {
-            let tempSrc = item.devcieTypePic.replace(reg, "/")
+            let tempSrc = item.devcieTypePic.replace(reg, '/')
             item.devcieTypePic = tempSrc
-            return  item
+            return item
           })
           this.$apply()
           wepy.hideLoading()

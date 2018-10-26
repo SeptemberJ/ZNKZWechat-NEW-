@@ -428,7 +428,7 @@ page{
     // self fn
     init (Day) {
       console.log('in init----------------')
-      let _THIS = this
+      // let _THIS = this
       ecComponent.init((canvas) => {
         // 获取组件的 canvas、width、height 后的回调函数
         // 在这里初始化图表

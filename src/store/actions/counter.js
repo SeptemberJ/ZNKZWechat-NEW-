@@ -1,10 +1,18 @@
-import { ASYNC_INCREMENT,WXUSERINFO, CHANGEADDROOMLIST, CHANGESCENEINFO, CHANGEAUTOMATIONINFO, UPDATEHOMELIST, UPDATECURHOME, UPDATECURROOMLIST, UPDATECURROOM } from '../types/counter'
+import { ASYNC_INCREMENT, SWITCHSTATUS, WXUSERINFO, CHANGEADDROOMLIST, CHANGESCENEINFO, CHANGEAUTOMATIONINFO, UPDATEHOMELIST, UPDATECURHOME, UPDATECURROOMLIST, UPDATECURROOM } from '../types/counter'
 import { createAction } from 'redux-actions'
 
 export const asyncInc = createAction(ASYNC_INCREMENT, () => {
   return new Promise(resolve => {
     setTimeout(() => {
       resolve(1)
+    }, 1000)
+  })
+})
+
+export const updateSwitchStatus = createAction(SWITCHSTATUS, (info) => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(info)
     }, 1000)
   })
 })
